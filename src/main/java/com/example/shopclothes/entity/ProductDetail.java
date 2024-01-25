@@ -52,15 +52,15 @@ public class ProductDetail {
     private Product idProduct;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idCate")
+    @JoinColumn(name = "idCategory")
     private Category idCategory;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idCol")
+    @JoinColumn(name = "idColor")
     private Color idColor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idMate")
+    @JoinColumn(name = "idMaterial")
     private Material idMaterial;
 
     @ManyToOne(fetch = FetchType.LAZY)

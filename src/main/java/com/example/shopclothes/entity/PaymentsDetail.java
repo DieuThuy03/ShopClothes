@@ -19,7 +19,7 @@ public class PaymentsDetail {
     private Long id;
 
     @Column(name = "PaymentDetail")
-    private StatusPayment PaymentDetail;
+    private StatusPayment status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idPayment")
