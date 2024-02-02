@@ -36,7 +36,7 @@ public class ColorService implements IService<Color> {
     }
 
     @Override
-    public List<Color> select() {
+    public List<Color> select(String status) {
         return colorRepo.findAll();
     }
 }

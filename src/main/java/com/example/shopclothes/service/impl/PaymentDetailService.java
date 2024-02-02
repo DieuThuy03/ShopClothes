@@ -1,6 +1,6 @@
 package com.example.shopclothes.service.impl;
 
-import com.example.shopclothes.entity.PaymentsDetail;
+import com.example.shopclothes.entity.PaymentDetail;
 import com.example.shopclothes.repositories.PaymentDetailRepo;
 import com.example.shopclothes.service.IService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,18 +10,18 @@ import java.util.List;
 
 @Service
 
-public class PaymentsDetailService implements IService<PaymentsDetail> {
+public class PaymentDetailService implements IService<PaymentDetail> {
 
     @Autowired
     private PaymentDetailRepo paymentDetailRepo;
 
     @Override
-    public void save(PaymentsDetail object) {
+    public void save(PaymentDetail object) {
         paymentDetailRepo.save(object);
     }
 
     @Override
-    public void update(PaymentsDetail object, Long id) {
+    public void update(PaymentDetail object, Long id) {
         paymentDetailRepo.save(object);
     }
 
@@ -36,7 +36,7 @@ public class PaymentsDetailService implements IService<PaymentsDetail> {
     }
 
     @Override
-    public List<PaymentsDetail> select() {
+    public List<PaymentDetail> select(String status) {
         return paymentDetailRepo.findAll();
     }
 }

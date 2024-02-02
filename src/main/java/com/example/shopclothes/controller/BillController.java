@@ -15,9 +15,9 @@ public class BillController {
     @Autowired
     private BillService billService;
 
-    @GetMapping("/hien-thi")
-    public List<Bill> hienThi(){
-        return billService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<Bill> hienThi(@PathVariable String status){
+        return billService.select(status);
     }
 
     @GetMapping("/delete/{id}")

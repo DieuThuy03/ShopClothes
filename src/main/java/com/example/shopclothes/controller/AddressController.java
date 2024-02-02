@@ -15,9 +15,9 @@ public class AddressController {
     @Autowired
     private AddressService addressService;
 
-    @GetMapping("/hien-thi")
-    public List<Address> hienThi() {
-        return addressService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<Address> hienThi(@PathVariable String status) {
+        return addressService.select(status);
     }
 
     @GetMapping("/delete/{id}")

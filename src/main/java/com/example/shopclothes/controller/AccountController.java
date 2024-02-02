@@ -15,9 +15,9 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @GetMapping("/hien-thi")
-    public List<Account> hienThi(){
-        return accountService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<Account> hienThi(@PathVariable String status){
+        return accountService.select(status);
     }
 
     @GetMapping("/delete/{id}")

@@ -1,7 +1,7 @@
 package com.example.shopclothes.service.impl;
 
 import com.example.shopclothes.entity.Material;
-import com.example.shopclothes.repositories.MaterielRepo;
+import com.example.shopclothes.repositories.MaterialRepo;
 import com.example.shopclothes.service.IService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import java.util.List;
 public class MaterialService implements IService<Material> {
 
     @Autowired
-    private MaterielRepo materielRepo;
+    private MaterialRepo materielRepo;
 
     @Override
     public void save(Material object) {
@@ -36,7 +36,7 @@ public class MaterialService implements IService<Material> {
     }
 
     @Override
-    public List<Material> select() {
+    public List<Material> select(String status) {
         return materielRepo.findAll();
     }
 }

@@ -15,9 +15,9 @@ public class SizeController {
     @Autowired
     private SizeService sizeService;
 
-    @GetMapping("/hien-thi")
-    public List<Size> hienThi(){
-        return sizeService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<Size> hienThi(@PathVariable String status){
+        return sizeService.select(status);
     }
 
     @GetMapping("/delete/{id}")

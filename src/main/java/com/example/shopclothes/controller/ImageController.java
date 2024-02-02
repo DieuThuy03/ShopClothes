@@ -15,9 +15,9 @@ public class ImageController {
     @Autowired
     private ImageService imageService;
 
-    @GetMapping("/hien-thi")
-    public List<Imege> hienThi(){
-        return imageService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<Imege> hienThi(@PathVariable String status){
+        return imageService.select(status);
     }
 
     @GetMapping("/delete/{id}")

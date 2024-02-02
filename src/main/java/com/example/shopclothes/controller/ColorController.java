@@ -15,9 +15,9 @@ public class ColorController {
     @Autowired
     private ColorService colorService;
 
-    @GetMapping("/hien-thi")
-    public List<Color> hienThi(){
-        return colorService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<Color> hienThi(@PathVariable String status){
+        return colorService.select(status);
     }
 
     @GetMapping("/delete/{id}")

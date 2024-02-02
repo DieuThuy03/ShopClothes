@@ -38,7 +38,7 @@ public class ProductDetailService implements IService<ProductDetail> {
     }
 
     @Override
-    public List<ProductDetail> select() {
+    public List<ProductDetail> select(String status) {
         return productDetailRepo.findAll();
     }
 }

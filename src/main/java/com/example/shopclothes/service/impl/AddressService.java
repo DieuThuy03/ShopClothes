@@ -36,7 +36,7 @@ public class AddressService implements IService<Address> {
     }
 
     @Override
-    public List<Address> select() {
+    public List<Address> select(String status) {
         return addressRepo.findAll();
     }
 }

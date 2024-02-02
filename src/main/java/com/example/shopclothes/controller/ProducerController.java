@@ -18,9 +18,9 @@ public class ProducerController {
     @Autowired
     private ProducerRepo producerRepo;
 
-    @GetMapping("/hien-thi")
-    public List<Producer> hienThi(){
-        return producerService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<Producer> hienThi(@PathVariable String status){
+        return producerService.select(status);
     }
 
     @GetMapping("/delete/{id}")

@@ -1,6 +1,7 @@
 package com.example.shopclothes.entity;
 
 import com.example.shopclothes.entity.propertis.Propertis;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
@@ -19,5 +20,6 @@ import java.util.List;
 public class Category extends Propertis {
 
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "idCategory")
-    List<ProductDetail> productDetails;
+    @JsonIgnore
+    private List<ProductDetail> productDetails;
 }

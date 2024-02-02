@@ -15,9 +15,9 @@ public class ReturnController {
     @Autowired
     private ReturnService returnService;
 
-    @GetMapping("/hien-thi")
-    public List<Return> hienThi(){
-        return returnService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<Return> hienThi(@PathVariable String status){
+        return returnService.select(status);
     }
 
     @GetMapping("/delete/{id}")

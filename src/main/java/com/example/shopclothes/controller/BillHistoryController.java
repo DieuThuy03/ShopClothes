@@ -18,9 +18,9 @@ public class BillHistoryController {
     @Autowired
     private BillHistoryRepo billHistoryRepo;
 
-    @GetMapping("/hien-thi")
-    public List<BillHistory> hienThi(){
-        return billHistoryService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<BillHistory> hienThi(@PathVariable String status){
+        return billHistoryService.select(status);
     }
 
     @GetMapping("/delete/{id}")

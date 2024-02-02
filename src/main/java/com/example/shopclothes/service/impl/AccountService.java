@@ -36,7 +36,7 @@ public class AccountService implements IService<Account> {
     }
 
     @Override
-    public List<Account> select() {
+    public List<Account> select(String status) {
         return accountRepo.findAll();
     }
 }

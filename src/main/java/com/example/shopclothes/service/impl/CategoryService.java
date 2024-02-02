@@ -36,7 +36,7 @@ public class CategoryService implements IService<Category> {
     }
 
     @Override
-    public List<Category> select() {
-        return categoryRepo.findAll();
+    public List<Category> select(String status) {
+        return categoryRepo.select(status);
     }
 }

@@ -36,7 +36,7 @@ public class ReturnService implements IService<Return> {
     }
 
     @Override
-    public List<Return> select() {
+    public List<Return> select(String status) {
         return returnRepo.findAll();
     }
 }

@@ -15,9 +15,9 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/hien-thi")
-    public List<Product> hienThi(){
-        return productService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<Product> hienThi(@PathVariable String status){
+        return productService.select(status);
     }
 
     @GetMapping("/delete/{id}")

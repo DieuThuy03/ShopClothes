@@ -35,7 +35,7 @@ public class CartDetailService implements IService<CartDetail> {
     }
 
     @Override
-    public List<CartDetail> select() {
+    public List<CartDetail> select(String status) {
         return cartDetailRepo.findAll();
     }
 }

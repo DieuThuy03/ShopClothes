@@ -15,9 +15,9 @@ public class VocherDetailController {
     @Autowired
     private VocherDetailService vocherDetailService;
 
-    @GetMapping("/hien-thi")
-    public List<VocherDetail> hienThi(){
-        return vocherDetailService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<VocherDetail> hienThi(@PathVariable String status){
+        return vocherDetailService.select(status);
     }
 
     @GetMapping("/delete/{id}")

@@ -82,7 +82,7 @@ public class Bill {
     List<BillHistory> billHistories;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idBill")
-    List<PaymentsDetail> paymentsDetails;
+    List<PaymentDetail> paymentsDetails;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idBill")
     List<Return> returns;

@@ -36,7 +36,7 @@ public class ProducerService implements IService<Producer> {
     }
 
     @Override
-    public List<Producer> select() {
+    public List<Producer> select(String status) {
         return producerRepo.findAll();
     }
 }

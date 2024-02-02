@@ -15,9 +15,9 @@ public class CartDetailController {
     @Autowired
     private CartDetailService cartDetailService;
 
-    @GetMapping("/hien-thi")
-    public List<CartDetail> hienThi(){
-        return cartDetailService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<CartDetail> hienThi(@PathVariable String status){
+        return cartDetailService.select(status);
     }
 
     @GetMapping("/delete/{id}")

@@ -15,9 +15,9 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/hien-thi")
-    public List<Category> hienThi(){
-        return categoryService.select();
+    @GetMapping("/hien-thi/{status}")
+    public List<Category> hienThi(@PathVariable String status){
+        return categoryService.select(status);
     }
 
     @GetMapping("/delete/{id}")
