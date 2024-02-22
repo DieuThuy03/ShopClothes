@@ -36,7 +36,7 @@ public class SizeService implements IService<Size> {
     }
 
     @Override
-    public List<Size> select(String status) {
+    public List<Size> select() {
         return sizeRepo.findAll();
     }
 }

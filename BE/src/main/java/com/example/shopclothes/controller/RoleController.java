@@ -16,9 +16,9 @@ public class RoleController {
     @Autowired
     private RoleService roleService;
 
-    @GetMapping("/hien-thi/{status}")
-    public List<Role> hienThi(@PathVariable String status){
-        return roleService.select(status);
+    @GetMapping("/hien-thi")
+    public List<Role> hienThi(){
+        return roleService.select();
     }
 
     @GetMapping("/delete/{id}")

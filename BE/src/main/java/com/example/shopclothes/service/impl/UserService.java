@@ -36,7 +36,7 @@ public class UserService implements IService<User> {
     }
 
     @Override
-    public List<User> select(String status) {
+    public List<User> select() {
         return userRepo.findAll();
     }
 }

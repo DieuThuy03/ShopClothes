@@ -36,7 +36,7 @@ public class RoleService implements IService<Role> {
     }
 
     @Override
-    public List<Role> select(String status) {
+    public List<Role> select() {
         return roleRepo.findAll();
     }
 }

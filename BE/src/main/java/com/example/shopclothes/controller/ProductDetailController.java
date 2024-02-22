@@ -15,9 +15,9 @@ public class ProductDetailController {
     @Autowired
     private ProductDetailService productDetailService;
 
-    @GetMapping("/hien-thi/{status}")
-    public List<ProductDetail> hienThi(@PathVariable String status){
-        return productDetailService.select(status);
+    @GetMapping("/hien-thi")
+    public List<ProductDetail> hienThi(){
+        return productDetailService.select();
     }
 
     @GetMapping("/delete/{id}")

@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "Payments")
+@Table(name = "Payment")
 public class Payments {
 
     @Id
@@ -26,5 +26,5 @@ public class Payments {
     private String status;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "payments")
-    List<PaymentDetail> paymentsDetails;
+    List<PaymentsDetail> paymentsDetails;
 }

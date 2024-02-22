@@ -7,8 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Repository
 
 public interface CategoryRepo extends JpaRepository<Category, Long> {
@@ -17,8 +15,4 @@ public interface CategoryRepo extends JpaRepository<Category, Long> {
     @Transactional
     @Query(value = "update Category set status = 0 where id =?1", nativeQuery = true)
     void delete(Long id);
-
-    @Transactional
-    @Query(value = "select * from category where status = ?1", nativeQuery = true)
-    List<Category> select(String status);
 }

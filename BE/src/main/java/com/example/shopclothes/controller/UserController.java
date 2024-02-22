@@ -15,9 +15,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/hien-thi/{status}")
-    public List<User> hienThi(@PathVariable String status){
-        return userService.select(status);
+    @GetMapping("/hien-thi")
+    public List<User> hienThi(){
+        return userService.select();
     }
 
     @GetMapping("/delete/{id}")

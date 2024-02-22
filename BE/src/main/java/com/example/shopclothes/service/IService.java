@@ -12,5 +12,5 @@ public interface IService<T> {
 
     void search(Long id);
 
-    List<T> select(String status);
+    List<T> select();
 }

@@ -1,7 +1,7 @@
 package com.example.shopclothes.controller;
 
-import com.example.shopclothes.entity.PaymentDetail;
-import com.example.shopclothes.service.impl.PaymentDetailService;
+import com.example.shopclothes.entity.PaymentsDetail;
+import com.example.shopclothes.service.impl.PaymentsDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,11 +13,11 @@ import java.util.List;
 public class PaymentDetailController {
 
     @Autowired
-    private PaymentDetailService paymentsDetailService;
+    private PaymentsDetailService paymentsDetailService;
 
-    @GetMapping("/hien-thi/{status}")
-    public List<PaymentDetail> hienThi(@PathVariable String status){
-        return paymentsDetailService.select(status);
+    @GetMapping("/hien-thi")
+    public List<PaymentsDetail> hienThi(){
+        return paymentsDetailService.select();
     }
 
     @GetMapping("/delete/{id}")
@@ -31,12 +31,12 @@ public class PaymentDetailController {
     }
 
     @PostMapping("/add")
-    public void add(PaymentDetail paymentsDetail){
+    public void add(PaymentsDetail paymentsDetail){
         paymentsDetailService.save(paymentsDetail);
     }
 
     @PostMapping("/update/{id}")
-    public void update(PaymentDetail paymentsDetail, @PathVariable Long id){
+    public void update(PaymentsDetail paymentsDetail, @PathVariable Long id){
         paymentsDetailService.update(paymentsDetail, id);
     }
 }

@@ -638,10 +638,10 @@ function ProductEdit() {
                 />
             }
             {
-                openSupplier && < SupplierModal
+                openSupplier && < ProducerModal
                     isModal={openSupplier}
                     hideModal={handleCancelSupplier}
-                    fetchSuppliers={fetchSupplier}
+                    fetchProducers={fetchSupplier}
                     suppliers={suppliers}
                 />
             }
@@ -1425,7 +1425,7 @@ const CategoryModal = ({ hideModal, isModal, fetchCategorys, categories }) => {
     );
 };
 
-const SupplierModal = ({ hideModal, isModal, fetchSuppliers, suppliers }) => {
+const ProducerModal = ({ hideModal, isModal, fetchProducers, suppliers }) => {
 
     const [form] = Form.useForm();
 
@@ -1440,7 +1440,7 @@ const SupplierModal = ({ hideModal, isModal, fetchSuppliers, suppliers }) => {
                         message: 'Thông báo',
                         description: 'Thêm mới thành công!',
                     });
-                    fetchSuppliers();
+                    fetchProducers();
                     // Đóng modal
                     hideModal();
                 })

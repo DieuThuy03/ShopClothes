@@ -10,15 +10,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "PaymentDetail")
-public class PaymentDetail {
+@Table(name = "PaymentsDetail")
+public class PaymentsDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "status")
+    @Column(name = "PaymentDetail")
     private StatusPayment status;
 
     @ManyToOne(fetch = FetchType.LAZY)

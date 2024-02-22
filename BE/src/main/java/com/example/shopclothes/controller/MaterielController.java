@@ -14,9 +14,9 @@ public class MaterielController {
     @Autowired
     private MaterialService materialService;
 
-    @GetMapping("/hien-thi/{status}")
-    public List<Material> hienThi(@PathVariable String status){
-        return materialService.select(status);
+    @GetMapping("/hien-thi")
+    public List<Material> hienThi(){
+        return materialService.select();
     }
 
     @GetMapping("/delete/{id}")

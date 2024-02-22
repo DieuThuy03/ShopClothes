@@ -35,8 +35,14 @@ public class ColorService implements IService<Color> {
         colorRepo.findById(id).orElse(null);
     }
 
-    @Override
-    public List<Color> select(String status) {
-        return colorRepo.findAll();
+//    @Override
+//    public List<Color> select() {
+//        return colorRepo.findAll();
+//    }
+
+    public List<Color> select() {
+        List<Color> colors = colorRepo.findAll();
+        colors.forEach(color -> color.getProductDetails().size()); // Fetch productDetails when needed
+        return colors;
     }
 }

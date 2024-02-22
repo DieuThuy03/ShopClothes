@@ -36,7 +36,7 @@ public class BillService implements IService<Bill> {
     }
 
     @Override
-    public List<Bill> select(String status) {
+    public List<Bill> select() {
         return billRepo.findAll();
     }
 }

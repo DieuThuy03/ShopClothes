@@ -36,7 +36,7 @@ public class ImageService implements IService<Imege> {
     }
 
     @Override
-    public List<Imege> select(String status) {
+    public List<Imege> select() {
         return imageRepo.findAll();
     }
 }

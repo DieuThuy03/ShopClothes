@@ -36,7 +36,7 @@ public class VocherService implements IService<Vocher> {
     }
 
     @Override
-    public List<Vocher> select(String status) {
+    public List<Vocher> select() {
         return vocherRepo.findAll();
     }
 }

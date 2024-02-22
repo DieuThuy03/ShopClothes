@@ -36,7 +36,7 @@ public class PaymentsService implements IService<Payments> {
     }
 
     @Override
-    public List<Payments> select(String status) {
+    public List<Payments> select() {
         return paymentsRepo.findAll();
     }
 }

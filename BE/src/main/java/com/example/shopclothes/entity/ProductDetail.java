@@ -52,15 +52,18 @@ public class ProductDetail {
     private Product idProduct;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idCategory")
+//    @JoinColumn(name = "idCategory")
+    @JoinColumn(name = "id_cate")
     private Category idCategory;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idColor")
+//    @JoinColumn(name = "idColor")
+    @JoinColumn(name = "id_col")
     private Color idColor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idMaterial")
+//    @JoinColumn(name = "idMaterial")
+    @JoinColumn(name = "id_mate")
     private Material idMaterial;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -68,11 +71,13 @@ public class ProductDetail {
     private Producer idProducer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idSize")
+//    @JoinColumn(name = "idSize")
+    @JoinColumn(name = "id_size")
     private Size idSize;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idcartDetail")
+//    @JoinColumn(name = "idcartDetail")
+    @JoinColumn(name = "idcart_detail")
     private CartDetail idCartDetail;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idCtsp")

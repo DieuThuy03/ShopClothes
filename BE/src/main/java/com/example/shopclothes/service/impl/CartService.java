@@ -36,7 +36,7 @@ public class CartService implements IService<Cart> {
     }
 
     @Override
-    public List<Cart> select(String status) {
+    public List<Cart> select() {
         return cartRepo.findAll();
     }
 }

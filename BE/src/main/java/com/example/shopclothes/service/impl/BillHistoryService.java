@@ -36,7 +36,7 @@ public class BillHistoryService implements IService<BillHistory> {
     }
 
     @Override
-    public List<BillHistory> select(String status) {
+    public List<BillHistory> select() {
         return billHistoryRepo.findAll();
     }
 }

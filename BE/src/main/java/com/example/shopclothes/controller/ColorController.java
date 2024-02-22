@@ -3,6 +3,7 @@ package com.example.shopclothes.controller;
 import com.example.shopclothes.entity.Color;
 import com.example.shopclothes.service.impl.ColorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,10 +16,16 @@ public class ColorController {
     @Autowired
     private ColorService colorService;
 
-    @GetMapping("/hien-thi/{status}")
-    public List<Color> hienThi(@PathVariable String status){
-        return colorService.select(status);
+    @GetMapping("/hien-thi")
+    public ResponseEntity<?> hienThi(){
+        return ResponseEntity.ok(colorService.select());
+//        return colorService.select();
     }
+
+//    @GetMapping("/hien-thi")
+//    public List<Color> hienThi(){
+//        return colorService.select();
+//    }
 
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable  Long id){
