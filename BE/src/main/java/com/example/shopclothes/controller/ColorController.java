@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/coler")
+@RequestMapping("/colors")
 
 public class ColorController {
 
     @Autowired
     private ColorService colorService;
 
-    @GetMapping("/hien-thi")
+    @GetMapping("/getAll")
     public ResponseEntity<?> hienThi(){
         return ResponseEntity.ok(colorService.select());
 //        return colorService.select();

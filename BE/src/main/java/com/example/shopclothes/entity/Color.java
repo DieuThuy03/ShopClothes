@@ -42,7 +42,5 @@ public class Color extends Propertis {
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "idColor")
     List<ProductDetail> productDetails;
 
-//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "idColor")
-//    List<ProductDetail> productDetails;
 
 }

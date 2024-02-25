@@ -56,6 +56,7 @@ const SupplierService = {
         } else {
             console.error('ID không hợp lệ:', id);
         }
+
     },
 
     findAllByDeletedTrue: () => {

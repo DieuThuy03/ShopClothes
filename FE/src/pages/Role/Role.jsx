@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { Table, Space, Button, Input, Form, Modal, notification, Radio, Popconfirm, Tag } from 'antd';
+import { Table, Space, Button, Input, Form, Modal, notification, Radio, Popconfirm, Tag, Switch } from 'antd';
 import {
     PlusOutlined,
     RedoOutlined,
@@ -14,7 +14,7 @@ const { TextArea } = Input;
 
 function Role() {
 
-    // const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [open, setOpen] = useState({ isModal: false, isMode: '', reacord: null });
 
@@ -22,6 +22,7 @@ function Role() {
         setOpen({
             isModal: true,
             isMode: mode,
+            record: record,
             reacord: record,
         });
     };
@@ -31,30 +32,66 @@ function Role() {
     };
 
     const [roles, setRoles] = useState([]);
+    const [searchName, setSearchName] = useState(null);
 
-
-    const [pagination, setPagination] = useState({ current: 1, pageSize: 5, total: 0 });
-
-    const [deleted, setDeleted] = useState(null);
-
-    const [searchText, setSearchText] = useState(null);
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 5,
+        total: 0
+    });
 
     const fetchRoles = async () => {
         // setLoading(true);
+        try {
+            const response = await RoleService.getAll(
+                pagination.current - 1,
+                pagination.pageSize,
+                searchName,
+            );
+            setLoading(true);
+            console.log('Response:', response);
+            console.log('Status:', response.status);
+            console.log('Data:', response.data);
 
-        await RoleService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
-            .then(response => {
+            if (response && response.data) {
+                const status = response.status || (response.data && response.data.status);
 
-                setRoles(response.data);
-                setPagination({
-                    ...pagination,
-                    total: response.totalCount,
-                });
-                // setLoading(false);
+                if (status === 200) {
+                    const responseData = response.data;
 
-            }).catch(error => {
-                console.error(error);
-            })
+                    if (Array.isArray(responseData)) {
+                        console.log('Response Data:', responseData);
+                        const formattedProducers = responseData.map(roles => ({
+                            key: roles.id,
+                            id: roles.id,
+                            code: roles.code,
+                            name: roles.name,
+                            ghi_chu: roles.ghi_chu,
+                            dateCreate: new Date(roles.dateCreate).toLocaleString(),
+                            dateUpdate: roles.dateUpdate ? new Date(roles.dateUpdate).toLocaleString() : 'N/A',
+                            status: String(roles.status),  // Chuyển đổi thành chuỗi 
+                        }));
+                        setRoles(formattedProducers);
+                        setPagination({
+                            ...pagination,
+                            total: response.totalCount,
+                        });
+                    } else {
+                        console.error('Dữ liệu không phải là một mảng.');
+                    }
+                } else {
+                    console.error('Trạng thái không thành công: ', status);
+                }
+            } else {
+                console.error('Không có response hoặc response.data.');
+            }
+        } catch ({ response, message }) {
+            console.error('Lỗi khi gọi API: ', response || message);
+        } finally {
+
+            // ...
+        }
+
     }
     const handleDelete = async (id) => {
 
@@ -75,53 +112,46 @@ function Role() {
 
     };
     useEffect(() => {
+        console.log("Fetching roles...");
         fetchRoles();
-    }, [pagination.current, pagination.pageSize, searchText, deleted]);
+    }, [pagination.current, pagination.pageSize, searchName]);
 
 
     const handleReset = () => {
 
-        setSearchText(null);
-        setDeleted(null);
-
+        setSearchName(null);
         setPagination({
             ...pagination,
             current: 1,
         });
-        handleTableChange(pagination, null)
     };
 
 
     const handleTableChange = (pagination, filters) => {
 
-        setPagination({
-            ...pagination,
-        });
+        const searchNameFilter = filters?.rolesName;
+        if (searchNameFilter) {
+            setSearchName(searchNameFilter[0]);
+        } else {
+            setSearchName(null)
+        }
+
         const statusFilter = filters?.deleted;
-        const searchFilter = filters?.roleName;
-        // Kiểm tra nếu statusFilter không tồn tại hoặc là mảng rỗng
         const isNoStatusFilter = !statusFilter || statusFilter.length === 0;
 
-        if (searchFilter) {
-            setSearchText(searchFilter[0]);
-        } else {
-            setSearchText(null)
-        }
-        // Kiểm tra nếu có lựa chọn bộ lọc và không phải là trường hợp không chọn
         if (!isNoStatusFilter) {
             const isBothStatus = statusFilter.length === 2;
-            // Sử dụng biểu thức điều kiện để xác định trạng thái để lọc
-            setDeleted(isBothStatus ? null : statusFilter[0]);
+
+            // setDeleted(isBothStatus ? null : statusFilter[0]);
         } else {
-            // Nếu không có lựa chọn bộ lọc, đặt trạng thái deleted về null hoặc giá trị mặc định
-            setDeleted(null);
+            // setDeleted(null);
         }
     };
     const getColumnSearchProps = (dataIndex) => ({
-        filteredValue: [searchText] || null,
+        filteredValue: dataIndex === 'name' ? [searchName] : dataIndex,
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
             <Input.Search
-                placeholder={`Nhập tên...`}
+                placeholder={`Nhập từ khóa...`}
                 value={selectedKeys[0]}
                 onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                 onSearch={(value) => {
@@ -140,38 +170,43 @@ function Role() {
             dataIndex: 'key',
             key: 'key',
             width: '5%',
+            render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
         },
         {
-            title: 'Tên vai trò',
-            dataIndex: 'roleName',
-            key: 'roleName',
-            width: '20%',
-            filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
-            ...getColumnSearchProps('roleName')
-        },
-        {
-            title: 'Ghi chú',
-            dataIndex: 'roleDescribe',
-            key: 'roleDescribe',
-            width: '19%',
-        },
-        {
-            title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
+            title: 'Mã',
+            dataIndex: 'code',
+            key: 'code',
             width: '15%',
         },
         {
-            title: 'Người tạo',
-            dataIndex: 'createdBy',
-            key: 'createdBy',
+            title: 'Tên vai trò',
+            dataIndex: 'name',
+            key: 'name',
+            width: '15%',
+        },
+        {
+            title: 'Ghi Chú',
+            dataIndex: 'ghi_chu',
+            key: 'ghi_chu',
+            width: '15%',
+        },
+        {
+            title: 'Ngày tạo',
+            dataIndex: 'dateCreate',
+            key: 'dateCreate',
+            width: '15%',
+        },
+        {
+            title: 'Ngày sửa',
+            dataIndex: 'dateUpdate',
+            key: 'dateUpdate',
             width: '15%',
         },
         {
             title: 'Trạng thái',
-            key: 'deleted',
-            dataIndex: 'deleted',
-            width: '16%',
+            key: 'status',
+            dataIndex: 'status',
+            width: '15%',
             filters: [
                 {
                     text: 'Đang hoạt động',
@@ -198,18 +233,28 @@ function Role() {
                     <Button type="text"
                         icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
                         onClick={() => showModal("edit", record)} />
-                    {record.deleted && <Popconfirm
-                        title="Xóa vai trò"
-                        description="Bạn có chắc chắn xóa vai trò này không?"
-                        placement="leftTop"
-                        onConfirm={() => handleDelete(record.id)}
-                        okText="Đồng ý"
-                        cancelText="Hủy bỏ"
-                    >
-                        <Button type="text" icon={<DeleteOutlined />} style={{ color: 'red' }} />
-                    </Popconfirm>}
+                    {
+                        record.deleted && <Popconfirm
+                            title="Xóa vai trò"
+                            description="Bạn có chắc chắn xóa vai trò này không?"
+                            placement="leftTop"
+                            onConfirm={() => handleDelete(record.id)}
+                            okText="Đồng ý"
+                            cancelText="Hủy bỏ"
+                        >
+
+                            <Switch
+                                size="small"
+                                defaultChecked={record.deleted}
+                                onClick={() => record.id && handleDelete(record.id)}
+                            />
+
+                            <Button type="text" icon={<DeleteOutlined />} style={{ color: 'red' }} onClick={() => showModal("delete", record)} />
+                        </Popconfirm>}
 
                 </Space>
+
+
             }
 
         },
@@ -233,30 +278,25 @@ function Role() {
             />
 
             <Table
-                dataSource={roles.map((role) => ({
-                    ...role,
-                    key: role.id,
-                    createdAt: FormatDate(role.createdAt)
-                }))}
-
-                onChange={handleTableChange}
-
-                // loading={loading}
+                dataSource={roles}
                 columns={columns}
                 pagination={{
                     current: pagination.current,
                     pageSize: pagination.pageSize,
-                    defaultPageSize: 5,
-                    pageSizeOptions: ['5', '10', '15'],
                     total: pagination.total,
                     showSizeChanger: true,
-                }}></Table >
+                    onChange: (page, pageSize) => setPagination({ ...pagination, current: page, pageSize }),
+                    onShowSizeChange: (current, size) => setPagination({ ...pagination, current: 1, pageSize: size }),
+                }}
+            />
 
             {open.isModal && <RoleModal
                 isMode={open.isMode}
-                reacord={open.reacord}
+                reacord={open.reacord || {}}
+                roles={roles}
                 hideModal={hideModal}
                 isModal={open.isModal}
+
                 fetchRoles={fetchRoles} />}
         </>
     )
@@ -264,7 +304,7 @@ function Role() {
 export default Role;
 
 
-const RoleModal = ({ isMode, reacord, hideModal, isModal, fetchRoles }) => {
+const RoleModal = ({ isMode, reacord, hideModal, isModal, fetchRoles, roles }) => {
 
     const [form] = Form.useForm();
 
@@ -346,18 +386,53 @@ const RoleModal = ({ isMode, reacord, hideModal, isModal, fetchRoles }) => {
                 form={form}
                 initialValues={{ ...reacord }}
             >
-                <Form.Item label="Tên:" name="roleName" rules={[{ required: true, message: 'Vui lòng nhập tên vai trò!' }]}>
-                    <Input placeholder="Nhập tên vai trò..." />
+                <Form.Item
+                    label="Tên:"
+                    name="name"
+                    rules={[
+                        { required: true, message: 'Vui lòng nhập tên vai trò!' },
+                        {
+                            validator: (_, value) => {
+                                if (!value) {
+                                    return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
+                                }
+
+                                // Thêm kiểm tra xem giá trị có phải là chuỗi không
+                                if (typeof value !== 'string') {
+                                    return Promise.reject('Giá trị không hợp lệ!');
+                                }
+
+                                // const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
+                                // const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
+                                // const isDuplicate = roles.some(
+                                //     (roles) => roles.name.trim().toLowerCase() === lowercaseValue && roles.id !== reacord.id
+                                // );
+
+                                // if (isDuplicate) {
+                                //     return Promise.reject('Tên nhà cung cấp đã tồn tại!');
+                                // }
+
+                                // Kiểm tra dấu cách ở đầu và cuối
+                                if (/^\s|\s$/.test(value)) {
+                                    return Promise.reject('Tên nhà cung cấp không được chứa dấu cách ở đầu và cuối!');
+                                }
+
+                                return Promise.resolve();
+                            },
+                        },
+                    ]}
+                >
+                    <Input placeholder="Nhập tên..." />
                 </Form.Item>
 
-                <Form.Item label="Ghi chú:" name="roleDescribe" rules={[{ required: true, message: 'Vui lòng nhập ghi chú!' }]}>
+                <Form.Item label="Ghi chú:" name="ghi_chu">
                     <TextArea rows={4} placeholder="Nhập ghi chú..." />
                 </Form.Item>
 
-                <Form.Item label="Trạng thái:" name="deleted" initialValue={true} rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}>
+                <Form.Item label="Trạng thái:" name="status" initialValue="DANG_HOAT_DONG">
                     <Radio.Group name="radiogroup" style={{ float: 'left' }}>
-                        <Radio value={true}>Đang hoạt động</Radio>
-                        <Radio value={false}>Ngừng hoạt động</Radio>
+                        <Radio value="DANG_HOAT_DONG">Đang hoạt động</Radio>
+                        <Radio value="NGUNG_HOAT_DONG">Ngừng hoạt động</Radio>
                     </Radio.Group>
                 </Form.Item>
 

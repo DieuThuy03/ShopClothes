@@ -13,7 +13,6 @@ import FormatDate from '~/utils/format-date';
 
 const { TextArea } = Input;
 
-
 function Supplier() {
 
     const [loading, setLoading] = useState(false);
@@ -32,7 +31,6 @@ function Supplier() {
         setOpen({ isModal: false });
     };
     const [producers, setProducers] = useState([]);
-    // const [deleted, setDeleted] = useState(null);
     const [searchName, setSearchName] = useState(null);
     const [searchPhone, setSearchPhone] = useState(null);
     const [searchEmail, setSearchEmail] = useState(null);
@@ -44,57 +42,6 @@ function Supplier() {
         pageSize: 5,
         total: 0,
     });
-
-    // const [currentRecordId, setCurrentRecordId] = useState(null);
-
-
-
-    // const fetchSuppliers = async () => {
-    //     try {
-    // setLoading(true);
-
-    //         const response = await SupplierService.getAll(
-    //             pagination.current - 1,
-    //             pagination.pageSize,
-    //             searchName,
-    //             searchPhone,
-    //             searchEmail,
-
-    //             deleted
-    //         );
-    //         console.log(response);
-    //         setSuppliers(response.data);
-    //         setPagination({
-    //             ...pagination,
-    //             total: response.totalCount,
-    //         });
-    //     } catch (error) {
-    //         console.error(error);
-    //     } finally {
-    //         // setLoading(false);
-    //     }
-    // };
-
-    // const fetchSuppliers = async () => {
-    //     try {
-    //         const response = await SupplierService.getAll(
-    //             pagination.current - 1,
-    //             pagination.pageSize,
-    //             searchName
-    //         );
-    //         console.log(response); // Kiểm tra response trong console
-    //         setSuppliers(response.data);
-    //         setPagination({
-    //             ...pagination,
-    //             total: response.totalCount,
-    //         });
-    //     } catch (error) {
-    //         console.error(error);
-    //     } finally {
-    //         // ...
-    //     }
-    // };
-
 
 
     const fetchProducers = async () => {
@@ -149,6 +96,7 @@ function Supplier() {
         } catch ({ response, message }) {
             console.error('Lỗi khi gọi API: ', response || message);
         } finally {
+
             // ...
         }
     };
@@ -180,43 +128,21 @@ function Supplier() {
         }
     };
 
-
-
-    // const handleDelete = async (id) => {
-
-    //     await SupplierService.delete(id).then(() => {
-
-    //         fetchProducers();
-    //     }).catch(error => {
-    //         console.error(error);
-    //         notification.error({
-    //             message: 'Thông báo',
-    //             description: 'Đã xảy ra lỗi!',
-    //         });
-    //     });
-
-    // };
-
     const handleReset = () => {
 
         setSearchEmail(null);
         setSearchName(null);
         setSearchPhone(null);
-        // setDeleted(null);
 
         setPagination({
             ...pagination,
             current: 1,
         });
-        // handleTableChange(pagination, null)
     };
 
 
     const handleTableChange = (pagination, filters) => {
         console.log(filters)
-        // setPagination({
-        //     ...pagination,
-        // });
 
 
         const searchNameFilter = filters?.supplierName;
@@ -272,9 +198,10 @@ function Supplier() {
     const columns = [
         {
             title: '#',
-            dataIndex: 'id',
-            key: 'id',
+            dataIndex: 'key',
+            key: 'key',
             width: '5%',
+            render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
         },
         {
             title: 'Mã',
@@ -329,12 +256,7 @@ function Supplier() {
             key: 'dateUpdate',
             width: '14%',
         },
-        // {
-        //     title: 'Ghi chú',
-        //     dataIndex: 'supplierDescribe',
-        //     key: 'supplierDescribe',
-        //     width: '15%',
-        // },
+
         {
             title: 'Trạng thái',
             key: 'status',
@@ -363,10 +285,6 @@ function Supplier() {
             render: (record) => {
 
                 return <Space size="middle">
-                    {/* <Button type="text"
-                        icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
-                        onClick={() => showModal("edit", record)} /> */}
-
                     <Button type="text" icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />} onClick={() => showModal("edit", record)} />
 
                     <Switch
@@ -399,40 +317,6 @@ function Supplier() {
                 onClick={handleReset}
             />
 
-            {/* <Table
-
-                // dataSource={producers ? producers.map((producers) => ({ ...producers, key: producers.id, createdAt: FormatDate(producers.createdAt) })) : []}
-
-                // dataSource={producers ? producers.map((producers) => ({
-                //     ...producers,
-                //     key: producers.id,
-                //     createdAt: FormatDate(producers.createdAt)
-                // })) : []}
-
-
-                onChange={handleTableChange}
-                // loading={loading}
-                columns={columns}
-                pagination={{
-                    // current: pagination.current,
-                    // pageSize: pagination.pageSize,
-                    defaultPageSize: 5,
-                    pageSizeOptions: ['5', '10', '15'],
-                    // total: pagination.total,
-                    showSizeChanger: true,
-                }}></Table > */}
-
-            {/* <Table
-                dataSource={producers}
-                columns={columns}
-                // loading={loading}
-                pagination={{
-                    defaultPageSize: 5,
-                    pageSizeOptions: ['5', '10', '15'],
-                    showSizeChanger: true,
-                }}
-            /> */}
-
             <Table
                 dataSource={producers}
                 columns={columns}
@@ -446,14 +330,6 @@ function Supplier() {
                 }}
             />
 
-            {/* {open.isModal && <SupplierModal
-                isMode={open.isMode}
-                reacord={open.reacord || {}}
-                hideModal={hideModal}
-                isModal={open.isModal}
-                producers={producers}
-                fetchProducers={fetchProducers} />} */}
-            {/* </> */}
             {open.isModal && <ProducerModal
                 isMode={open.isMode}
                 reacord={open.reacord || {}}
@@ -504,44 +380,6 @@ const ProducerModal = ({ isMode, reacord, hideModal, isModal, fetchProducers, pr
 
     }
 
-
-    // const handleUpdate = () => {
-    //     console.log('Record ID in handleUpdate:', reacord.id);
-
-    //     form.validateFields().then(async () => {
-    //         const data = form.getFieldsValue();
-    //         console.log('Record ID in handleUpdate:', reacord.id);
-
-    //         // Kiểm tra nếu ID tồn tại và không phải undefined
-    //         if (reacord && reacord.id !== undefined) {
-    //             await SupplierService.update(reacord.id, data)
-    //                 .then(() => {
-    //                     notification.success({
-    //                         message: 'Thông báo',
-    //                         description: 'Cập nhật thành công!',
-    //                     });
-    //                     fetchProducers();
-    //                     // Đóng modal
-    //                     hideModal();
-    //                 })
-    //                 .catch(error => {
-    //                     notification.error({
-    //                         message: 'Thông báo',
-    //                         description: 'Cập nhật thất bại!',
-    //                     });
-    //                     console.error(error);
-    //                 });
-    //         } else {
-    //             console.error('ID không hợp lệ:', reacord.id);
-    //         }
-
-    //     }).catch(error => {
-    //         console.error(error);
-    //     })
-    // }
-
-
-
     const handleUpdate = () => {
         console.log('Record ID in handleUpdate:', reacord.id);
         form.validateFields().then(async () => {
@@ -571,40 +409,6 @@ const ProducerModal = ({ isMode, reacord, hideModal, isModal, fetchProducers, pr
         })
 
     }
-
-    // const handleUpdate = async () => {
-    //     try {
-    //         if (reacord && reacord.id !== undefined && !isNaN(reacord.id)) {
-    //             console.log('Record ID:', reacord.id);
-
-    //             const formData = await form.validateFields();
-
-    //             // Make sure to include the ID in the formData
-    //             formData.id = reacord.id;
-
-    //             await SupplierService.update(reacord.id, formData);
-
-    //             notification.success({
-    //                 message: 'Thông báo',
-    //                 description: 'Cập nhật thành công!',
-    //             });
-
-    //             fetchProducers();
-    //             // Đóng modal
-    //             hideModal();
-    //         } else {
-    //             console.error('ID của record không hợp lệ:', reacord);
-    //         }
-    //     } catch (error) {
-    //         notification.error({
-    //             message: 'Thông báo',
-    //             description: 'Cập nhật thất bại!',
-    //         });
-    //         console.error(error);
-    //     }
-    // };
-
-
 
 
     return (
@@ -647,15 +451,15 @@ const ProducerModal = ({ isMode, reacord, hideModal, isModal, fetchProducers, pr
                                     return Promise.reject('Giá trị không hợp lệ!');
                                 }
 
-                                const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
-                                const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
-                                const isDuplicate = producers.some(
-                                    (producers) => producers.name.trim().toLowerCase() === lowercaseValue && producers.id !== reacord.id
-                                );
+                                // const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
+                                // const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
+                                // const isDuplicate = producers.some(
+                                //     (producers) => producers.name.trim().toLowerCase() === lowercaseValue && producers.id !== reacord.id
+                                // );
 
-                                if (isDuplicate) {
-                                    return Promise.reject('Tên nhà cung cấp đã tồn tại!');
-                                }
+                                // if (isDuplicate) {
+                                //     return Promise.reject('Tên nhà cung cấp đã tồn tại!');
+                                // }
 
                                 // Kiểm tra dấu cách ở đầu và cuối
                                 if (/^\s|\s$/.test(value)) {
@@ -729,15 +533,6 @@ const ProducerModal = ({ isMode, reacord, hideModal, isModal, fetchProducers, pr
                         }
                         const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                         const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
-                        // const isDuplicate = Producer.some(
-                        //     (supplier) => supplier.address.trim().toLowerCase() === lowercaseValue && supplier.id !== reacord.id
-                        // );
-
-
-                        // if (isDuplicate) {
-                        //     return Promise.reject('Tên nhà cung cấp đã tồn tại!');
-                        // }
-                        // Kiểm tra dấu cách ở đầu và cuối
                         if (/^\s|\s$/.test(value)) {
                             return Promise.reject('Địa chỉ không được chứa dấu cách ở đầu và cuối!');
                         }
