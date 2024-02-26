@@ -89,27 +89,27 @@ public class ProducerServiceIPL implements ProducerServices {
         return producerRepo.searchPageNSX(key,trangThai ,pageable);
     }
 
-//    @Override
-//    public Producer add(Producer nhaSanXuat) {
-//        nhaSanXuat.setName(nhaSanXuat.getName());
-//        return producerRepo.save(nhaSanXuat);
-//    }
-
     @Override
     public Producer add(Producer nhaSanXuat) {
-        // Kiểm tra nếu nhà sản xuất đã tồn tại
-        Optional<Producer> existingProducer = producerRepo.findById(nhaSanXuat.getId());
-        if (existingProducer.isPresent()) {
-            Producer existing = existingProducer.get();
-            existing.setName(nhaSanXuat.getName());
-
-            // Thực hiện cập nhật
-            return producerRepo.save(existing);
-        } else {
-            // Nếu nhà sản xuất không tồn tại, thực hiện thêm mới
-            return producerRepo.save(nhaSanXuat);
-        }
+        nhaSanXuat.setName(nhaSanXuat.getName());
+        return producerRepo.save(nhaSanXuat);
     }
+
+//    @Override
+//    public Producer add(Producer nhaSanXuat) {
+//        // Kiểm tra nếu nhà sản xuất đã tồn tại
+//        Optional<Producer> existingProducer = producerRepo.findById(nhaSanXuat.getId());
+//        if (existingProducer.isPresent()) {
+//            Producer existing = existingProducer.get();
+//            existing.setName(nhaSanXuat.getName());
+//
+//            // Thực hiện cập nhật
+//            return producerRepo.save(existing);
+//        } else {
+//            // Nếu nhà sản xuất không tồn tại, thực hiện thêm mới
+//            return producerRepo.save(nhaSanXuat);
+//        }
+//    }
     @Override
     public Producer detail(Long id) {
         return producerRepo.findById(id).orElse(null);

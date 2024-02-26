@@ -42,16 +42,24 @@ function Color() {
     const fetchColors = async () => {
         // setLoading(true);
 
-        await ColorService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
+        await ColorService.getAll(pagination.current - 1)
             .then(response => {
-
-                setColors(response.data);
+                const list = response.data.content;
+                console.log(response.data.content);
+                const tempFormat = list.map(color => ({
+                    key: color.id,
+                    code: color.code,
+                    name: color.name,
+                    ghi_chu: color.ghi_chu,
+                    createdAt: new Date(color.dateCreate).toLocaleString(),
+                    deleted: String(color.status)
+                }))
+                setColors(tempFormat);
 
                 setPagination({
                     ...pagination,
                     total: response.totalCount,
                 });
-
                 // setLoading(false);
 
             }).catch(error => {
@@ -144,14 +152,14 @@ function Color() {
 
         {
             title: 'Mã',
-            dataIndex: 'colorDescribe',
-            key: 'colorDescribe',
+            dataIndex: 'code',
+            key: 'code',
             width: '19%',
         },
         {
             title: 'Tên màu sắc',
-            dataIndex: 'colorName',
-            key: 'colorName',
+            dataIndex: 'name',
+            key: 'name',
             width: '20%',
             filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
             ...getColumnSearchProps('colorName')
@@ -163,12 +171,14 @@ function Color() {
             key: 'createdAt',
             width: '15%',
         },
-        // {
-        //     title: 'Người tạo',
-        //     dataIndex: 'createdBy',
-        //     key: 'createdBy',
-        //     width: '15%',
-        // },
+
+        {
+            title: 'Ghi chú',
+            dataIndex: 'ghi_chu',
+            key: 'ghi_chu',
+            width: '15%',
+        },
+
         {
             title: 'Trạng thái',
             key: 'deleted',
@@ -203,7 +213,7 @@ function Color() {
                     <Switch
                         size="small"
                         defaultChecked={record.deleted}
-                        onClick={() => handleDelete(record.id)}
+                        onClick={() => handleDelete(record.key)}
                     />
                 </Space>
             }
@@ -229,11 +239,7 @@ function Color() {
             />
 
             <Table
-                dataSource={colors.map((color, index) => ({
-                    ...color,
-                    key: index + 1,
-                    createdAt: FormatDate(color.createdAt)
-                }))}
+                dataSource={colors}
                 onChange={handleTableChange}
                 // loading={loading}
                 columns={columns}
@@ -294,15 +300,21 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
     const handleUpdate = () => {
         form.validateFields().then(async () => {
 
-            const data = form.getFieldsValue();
+            let data = form.getFieldsValue();
+            data = {
+                ...data,
+                id: reacord.key,
+                code: reacord.code,
+            };
 
-            await ColorService.update(reacord.id, data)
+            await ColorService.update(reacord.key, data)
                 .then(() => {
                     notification.success({
                         message: 'Thông báo',
                         description: 'Cập nhật thành công!',
                     });
                     fetchColors();
+                    console.log(data)
                     // Đóng modal
                     hideModal();
                 })
@@ -312,6 +324,7 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
                         description: 'Cập nhật thất bại!',
                     });
                     console.error(error);
+                    console.log(reacord)
                 });
 
         }).catch(error => {
@@ -341,7 +354,9 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
                 form={form}
                 initialValues={{ ...reacord }}
             >
-                <Form.Item label="Tên:" name="colorName"
+                <Form.Item
+                    label="Tên:"
+                    name="name"
                     rules={[
                         { required: true, message: 'Vui lòng nhập tên màu sắc!' },
                         {
@@ -352,7 +367,7 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
                                 const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                                 const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
                                 const isDuplicate = colors.some(
-                                    (color) => color.colorName.trim().toLowerCase() === lowercaseValue && color.id !== reacord.id
+                                    (color) => color.name.trim().toLowerCase() === lowercaseValue && color.id !== reacord.id
                                 );
                                 if (isDuplicate) {
                                     return Promise.reject('Tên màu sắc đã tồn tại!');
@@ -368,14 +383,14 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
                     <Input placeholder="Nhập tên màu sắc..." />
                 </Form.Item>
 
-                <Form.Item label="Ghi chú:" name="colorDescribe">
+                <Form.Item label="Ghi chú:" name="ghi_chu">
                     <TextArea rows={4} placeholder="Nhập ghi chú..." />
                 </Form.Item>
 
-                <Form.Item label="Trạng thái:" name="deleted" initialValue={true}>
+                <Form.Item label="Trạng thái:" name="status" initialValue={"DANG_HOAT_DONG"}>
                     <Radio.Group name="radiogroup" style={{ float: 'left' }}>
-                        <Radio value={true}>Đang hoạt động</Radio>
-                        <Radio value={false}>Ngừng hoạt động</Radio>
+                        <Radio value={"DANG_HOAT_DONG"}>Đang hoạt động</Radio>
+                        <Radio value={"NGUNG_HOAT_DONG"}>Ngừng hoạt động</Radio>
                     </Radio.Group>
                 </Form.Item>
 

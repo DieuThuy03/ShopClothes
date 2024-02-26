@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "Color")
-public class Color extends Propertis {
+public class Color {
 
 
     @Id
@@ -38,6 +38,10 @@ public class Color extends Propertis {
 
     @Column(name = "dateCreate")
     private Date dateCreate;
+
+    @Column(name = "ghi_chu")
+    private String ghi_chu;
+
 
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "idColor")
     List<ProductDetail> productDetails;

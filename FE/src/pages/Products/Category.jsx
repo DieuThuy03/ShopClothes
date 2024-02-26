@@ -7,7 +7,7 @@ import {
     DeleteOutlined,
     SearchOutlined,
 } from '@ant-design/icons';
-import './Product.css'
+import './Product.css';
 import CategoryService from '~/service/CategoryService';
 import FormatDate from '~/utils/format-date';
 
@@ -18,7 +18,6 @@ function Category() {
     // const [loading, setLoading] = useState(false);
 
     const [open, setOpen] = useState({ isModal: false, isMode: '', reacord: null });
-
 
     const showModal = (mode, record) => {
         setOpen({
@@ -32,7 +31,7 @@ function Category() {
         setOpen({ isModal: false });
     };
 
-    const [categories, setCategories] = useState([]);
+    const [category, setCategory] = useState([]);
 
     const [pagination, setPagination] = useState({ current: 1, pageSize: 5, total: 0 });
 
@@ -43,10 +42,20 @@ function Category() {
     const fetchCategorys = async () => {
         // setLoading(true);
 
-        await CategoryService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
+        await CategoryService.getAll(pagination.current - 1)
             .then(response => {
+                const list = response.data.content;
+                console.log(response.data.content);
+                const tempFormat = list.map(category => ({
+                    key: category.id,
+                    code: category.code,
+                    name: category.name,
+                    ghi_chu: category.ghi_chu,
+                    dateCreate: new Date(category.dateCreate).toLocaleString(),
+                    deleted: String(category.status),
 
-                setCategories(response.data);
+                }));
+                setCategory(tempFormat);
 
                 setPagination({
                     ...pagination,
@@ -56,8 +65,8 @@ function Category() {
 
             }).catch(error => {
                 console.error(error);
-            })
-    }
+            });
+    };
 
     useEffect(() => {
         fetchCategorys();
@@ -88,11 +97,11 @@ function Category() {
             ...pagination,
             current: 1,
         });
-        handleTableChange(pagination, null)
+        handleTableChange(pagination, null);
     };
 
     const handleTableChange = (pagination, filters) => {
-        console.log(filters)
+        console.log(filters);
         setPagination({
             ...pagination,
         });
@@ -104,7 +113,7 @@ function Category() {
         if (searchFilter) {
             setSearchText(searchFilter[0]);
         } else {
-            setSearchText(null)
+            setSearchText(null);
         }
         // Kiểm tra nếu có lựa chọn bộ lọc và không phải là trường hợp không chọn
         if (!isNoStatusFilter) {
@@ -139,36 +148,31 @@ function Category() {
             dataIndex: 'key',
             key: 'key',
             width: '5%',
-            render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
+            render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
         },
 
         {
             title: 'Mã',
-            dataIndex: 'categoryDescribe',
-            key: 'categoryDescribe',
+            dataIndex: 'code',
+            key: 'code',
             width: '19%',
         },
         {
             title: 'Tên danh mục',
-            dataIndex: 'categoryName',
-            key: 'categoryName',
+            dataIndex: 'name',
+            key: 'name',
             width: '20%',
             filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
-            ...getColumnSearchProps('categoryName')
+            ...getColumnSearchProps('categoryName'),
         },
 
         {
             title: 'Ngày tạo',
-            dataIndex: 'createdAt',
+            dataIndex: 'dateCreate',
             key: 'createdAt',
             width: '15%',
         },
-        // {
-        //     title: 'Người tạo',
-        //     dataIndex: 'createdBy',
-        //     key: 'createdBy',
-        //     width: '15%',
-        // },
+
         {
             title: 'Trạng thái',
             key: 'deleted',
@@ -185,10 +189,21 @@ function Category() {
                 },
             ],
             render: (text) => (
-                text ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#108ee9">Đang hoạt động</Tag>
-                    : <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#f50">Ngừng hoạt động</Tag>
-            )
+                text ?
+                    <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#108ee9">Đang hoạt
+                        động</Tag>
+                    : <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#f50">Ngừng hoạt
+                        động</Tag>
+            ),
         },
+
+        {
+            title: 'Ghi chú',
+            dataIndex: 'ghi_chu',
+            key: 'ghi_chu',
+            width: '15%',
+        },
+
         {
             title: 'Hành động',
             key: 'action',
@@ -197,16 +212,16 @@ function Category() {
 
                 return <Space size="middle">
                     <Button type="text"
-                        icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
-                        onClick={() => showModal("edit", record)} />
+                            icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
+                            onClick={() => showModal('edit', record)} />
                     <Switch
                         size="small"
                         defaultChecked={record.deleted}
                         onClick={() => handleDelete(record.id)}
                     />
 
-                </Space>
-            }
+                </Space>;
+            },
 
         },
     ];
@@ -216,26 +231,20 @@ function Category() {
             <h3 style={{ marginBottom: '16px', float: 'left', color: '#2123bf' }}>Danh sách loại sản phẩm</h3>
 
             <Button type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => showModal("add")}
-                style={{ marginBottom: '16px', float: 'right', borderRadius: '2px' }} >
+                    icon={<PlusOutlined />}
+                    onClick={() => showModal('add')}
+                    style={{ marginBottom: '16px', float: 'right', borderRadius: '2px' }}>
                 Thêm mới
             </Button>
 
             <Button type="primary"
-                icon={<RedoOutlined style={{ fontSize: '18px' }} />}
-                style={{ marginBottom: '16px', float: 'right', marginRight: '6px', borderRadius: '4px', }}
-                onClick={handleReset}
+                    icon={<RedoOutlined style={{ fontSize: '18px' }} />}
+                    style={{ marginBottom: '16px', float: 'right', marginRight: '6px', borderRadius: '4px' }}
+                    onClick={handleReset}
             />
 
             <Table
-                dataSource={categories.map((category, index) => ({
-                    ...category,
-                    key: index + 1,
-                    createdAt: FormatDate(category.createdAt)
-                }))}
-
-
+                dataSource={category}
                 // loading={loading}
                 columns={columns}
                 onChange={handleTableChange}
@@ -246,17 +255,17 @@ function Category() {
                     pageSizeOptions: ['5', '10', '15'],
                     total: pagination.total,
                     showSizeChanger: true,
-                }}></Table >
+                }}></Table>
 
             {open.isModal && <CategoryModal
                 isMode={open.isMode}
                 reacord={open.reacord || {}}
                 hideModal={hideModal}
                 isModal={open.isModal}
-                categories={categories}
+                categories={category}
                 fetchCategorys={fetchCategorys} />}
         </>
-    )
+    );
 };
 export default Category;
 
@@ -269,6 +278,7 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
         form.validateFields().then(async () => {
 
             const data = form.getFieldsValue();
+
 
             await CategoryService.create(data)
                 .then(() => {
@@ -290,20 +300,26 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
 
         }).catch(error => {
             console.error(error);
-        })
+        });
 
-    }
+    };
     const handleUpdate = () => {
         form.validateFields().then(async () => {
 
-            const data = form.getFieldsValue();
+            let data = form.getFieldsValue();
+            data = {
+                ...data,
+                id: reacord.key,
+                code: reacord.code,
+            };
 
-            await CategoryService.update(reacord.id, data)
+            await CategoryService.update(reacord.key, data)
                 .then(() => {
                     notification.success({
                         message: 'Thông báo',
                         description: 'Cập nhật thành công!',
                     });
+                    console.log(reacord);
                     fetchCategorys();
                     // Đóng modal
                     hideModal();
@@ -314,22 +330,23 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
                         description: 'Cập nhật thất bại!',
                     });
                     console.error(error);
+                    console.log(data)
                 });
 
         }).catch(error => {
             console.error(error);
-        })
+        });
 
-    }
+    };
 
     return (
 
         <Modal
-            title={isMode === "edit" ? "Cập nhật danh mục" : "Thêm mới một danh mục"}
+            title={isMode === 'edit' ? 'Cập nhật danh mục' : 'Thêm mới một danh mục'}
             open={isModal}
-            onOk={isMode === "edit" ? handleUpdate : handleCreate}
+            onOk={isMode === 'edit' ? handleUpdate : handleCreate}
             onCancel={hideModal}
-            okText={isMode === "edit" ? "Cập nhật" : "Thêm mới"}
+            okText={isMode === 'edit' ? 'Cập nhật' : 'Thêm mới'}
             cancelText="Hủy bỏ"
         >
             <Form
@@ -345,7 +362,7 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
             >
                 <Form.Item
                     label="Tên:"
-                    name="categoryName"
+                    name="name"
                     rules={[
                         { required: true, message: 'Vui lòng nhập tên danh mục!' },
                         {
@@ -356,7 +373,7 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
                                 const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                                 const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
                                 const isDuplicate = categories.some(
-                                    (category) => category.categoryName.trim().toLowerCase() === lowercaseValue && category.id !== reacord.id
+                                    (category) => category.name.trim().toLowerCase() === lowercaseValue && category.id !== reacord.id,
                                 );
                                 if (isDuplicate) {
                                     return Promise.reject('Tên danh mục đã tồn tại!');
@@ -374,14 +391,14 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
                 </Form.Item>
 
 
-                <Form.Item label="Ghi chú:" name="categoryDescribe" >
-                    <TextArea rows={4} placeholder="Nhập ghi chú..." rules={[{ required: true, message: 'Vui lòng nhập ghi chú!' }]} />
+                <Form.Item label="Ghi chú:" name="ghi_chu">
+                    <TextArea rows={4} placeholder="Nhập ghi chú..." />
                 </Form.Item>
 
-                <Form.Item label="Trạng thái:" name="deleted" initialValue={true}>
+                <Form.Item label="Trạng thái:" name="status" initialValue={'DANG_HOAT_DONG'}>
                     <Radio.Group name="radiogroup" style={{ float: 'left' }}>
-                        <Radio value={true}>Đang hoạt động</Radio>
-                        <Radio value={false}>Ngừng hoạt động</Radio>
+                        <Radio value={'DANG_HOAT_DONG'}>Đang hoạt động</Radio>
+                        <Radio value={'NGUNG_HOAT_DONG'}>Ngừng hoạt động</Radio>
                     </Radio.Group>
                 </Form.Item>
 

@@ -14,7 +14,7 @@ public interface ProducerServices {
 
     public Page<Producer> pageNSX(Pageable pageable);
 
-    public Page<Producer> pageSearchNSX(String key,Integer status, Pageable pageable);
+    public Page<Producer> pageSearchNSX(String key, Integer status, Pageable pageable);
 
     public Producer add(Producer nhaSanXuat);
 
