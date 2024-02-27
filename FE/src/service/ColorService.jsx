@@ -1,10 +1,10 @@
 import HttpClient from '~/utils/http-client';
 
-const API_URL = 'colors/';
+const API_URL = '/colors';
 
 const ColorService = {
     getAll: (pageNo, pageSize, name, status) => {
-        return HttpClient.get(`${API_URL}getAll`, {
+        return HttpClient.get(`${API_URL}/hien-thi-page`, {
             params: { pageNo, pageSize, name, status }
         })
             .then(response => response.data)

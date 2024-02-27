@@ -285,7 +285,10 @@ function Supplier() {
             render: (record) => {
 
                 return <Space size="middle">
-                    <Button type="text" icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />} onClick={() => showModal("edit", record)} />
+                    <Button type="text" icon={<FormOutlined style={{
+                        color: 'rgb(214, 103, 12)'
+                    }} />
+                    } onClick={() => showModal("edit", record)} />
 
                     <Switch
                         size="small"
@@ -451,15 +454,15 @@ const ProducerModal = ({ isMode, reacord, hideModal, isModal, fetchProducers, pr
                                     return Promise.reject('Giá trị không hợp lệ!');
                                 }
 
-                                // const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
-                                // const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
-                                // const isDuplicate = producers.some(
-                                //     (producers) => producers.name.trim().toLowerCase() === lowercaseValue && producers.id !== reacord.id
-                                // );
+                                const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
+                                const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
+                                const isDuplicate = producers.some(
+                                    (producers) => producers.name.trim().toLowerCase() === lowercaseValue && producers.id !== reacord.id
+                                );
 
-                                // if (isDuplicate) {
-                                //     return Promise.reject('Tên nhà cung cấp đã tồn tại!');
-                                // }
+                                if (isDuplicate) {
+                                    return Promise.reject('Tên nhà cung cấp đã tồn tại!');
+                                }
 
                                 // Kiểm tra dấu cách ở đầu và cuối
                                 if (/^\s|\s$/.test(value)) {
