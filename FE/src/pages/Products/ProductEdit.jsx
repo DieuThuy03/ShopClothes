@@ -197,7 +197,7 @@ function ProductEdit() {
     }, []);
 
     const fetchCategory = async () => {
-        await CategoryService.findAllByDeletedTrue()
+        await CategoryService.getAll()
             .then(response => {
                 setCategories(response.data)
             }).catch(error => {
@@ -205,23 +205,23 @@ function ProductEdit() {
             })
     }
     // /thương hiệu
-    const [brands, setBrands] = useState([]);
+    // const [brands, setBrands] = useState([]);
 
-    useEffect(() => {
-        fetchBrand()
-    }, []);
+    // useEffect(() => {
+    //     fetchBrand()
+    // }, []);
 
-    const fetchBrand = async () => {
+    // const fetchBrand = async () => {
 
-        await BrandService.findAllByDeletedTrue()
-            .then(response => {
+    //     await BrandService.findAllByDeletedTrue()
+    //         .then(response => {
 
-                setBrands(response.data)
+    //             setBrands(response.data)
 
-            }).catch(error => {
-                console.error(error);
-            })
-    }
+    //         }).catch(error => {
+    //             console.error(error);
+    //         })
+    // }
     // /nhà phẩn phối
     const [suppliers, setSuppliers] = useState([]);
 
@@ -230,7 +230,7 @@ function ProductEdit() {
     }, []);
     const fetchSupplier = async () => {
 
-        await SupplierService.findAllByDeletedTrue()
+        await SupplierService.getAll()
             .then(response => {
 
                 setSuppliers(response.data)
@@ -491,7 +491,7 @@ function ProductEdit() {
                         <Row>
                             <Col span={12} style={{ paddingRight: '20px' }}>
                                 <Row>
-                                    <Col span={22}>
+                                    {/* <Col span={22}>
                                         <Form.Item label="Thương hiệu:"
                                             name="brandName"
                                             initialValue={products.brand?.brandName}
@@ -508,7 +508,7 @@ function ProductEdit() {
                                                 options={brands.map(option => ({ value: option?.brandName, label: option.brandName }))}
                                             />
                                         </Form.Item>
-                                    </Col>
+                                    </Col> */}
 
                                     <Col span={2}>
                                         <Button type="primary"
@@ -620,7 +620,7 @@ function ProductEdit() {
                 fetchProductDetails={fetchProductDetails}
                 productId={id}
             />}
-
+            {/* 
             {
                 openBrand && <BrandModal
                     isModal={openBrand}
@@ -628,7 +628,7 @@ function ProductEdit() {
                     fetchBrands={fetchBrand}
                     brands={brands}
                 />
-            }
+            } */}
             {
                 openCategory && <CategoryModal
                     isModal={openCategory}
@@ -672,7 +672,7 @@ const ProductDetailModal = ({ isMode, reacord, hideModal, isModal, fetchProductD
     }, []);
     const fetchMaterial = async () => {
 
-        await MaterialService.findAllByDeletedTrue()
+        await MaterialService.getAll()
             .then(response => {
 
                 setMaterials(response.data)
@@ -699,7 +699,7 @@ const ProductDetailModal = ({ isMode, reacord, hideModal, isModal, fetchProductD
     }, []);
     const fetchColor = async () => {
 
-        await ColorService.findAllByDeletedTrue()
+        await ColorService.getAll()
             .then(response => {
 
                 setColors(response.data)
@@ -726,7 +726,7 @@ const ProductDetailModal = ({ isMode, reacord, hideModal, isModal, fetchProductD
 
     const fetchSize = async () => {
 
-        await SizeService.findAllByDeletedTrue()
+        await SizeService.getAll()
             .then(response => {
                 setSizes(response.data)
             }).catch(error => {
@@ -1257,89 +1257,89 @@ const SizeModal = ({ hideModal, isModal, fetchSizes, sizes }) => {
     );
 };
 
-const BrandModal = ({ hideModal, isModal, fetchBrands, brands }) => {
+// const BrandModal = ({ hideModal, isModal, fetchBrands, brands }) => {
 
-    const [form] = Form.useForm();
+//     const [form] = Form.useForm();
 
-    const handleCreate = () => {
-        form.validateFields().then(async () => {
+//     const handleCreate = () => {
+//         form.validateFields().then(async () => {
 
-            const data = form.getFieldsValue();
-            data.deleted = true;
-            await BrandService.create(data)
-                .then(() => {
-                    notification.success({
-                        message: 'Thông báo',
-                        description: 'Thêm mới thành công!',
-                    });
-                    fetchBrands();
-                    // Đóng modal
-                    hideModal();
-                })
-                .catch(error => {
-                    notification.error({
-                        message: 'Thông báo',
-                        description: 'Thêm mới thất bại!',
-                    });
-                    console.error(error);
-                });
+//             const data = form.getFieldsValue();
+//             data.deleted = true;
+//             await BrandService.create(data)
+//                 .then(() => {
+//                     notification.success({
+//                         message: 'Thông báo',
+//                         description: 'Thêm mới thành công!',
+//                     });
+//                     fetchBrands();
+//                     // Đóng modal
+//                     hideModal();
+//                 })
+//                 .catch(error => {
+//                     notification.error({
+//                         message: 'Thông báo',
+//                         description: 'Thêm mới thất bại!',
+//                     });
+//                     console.error(error);
+//                 });
 
-        }).catch(error => {
-            console.error(error);
-        })
+//         }).catch(error => {
+//             console.error(error);
+//         })
 
-    }
+//     }
 
-    return (
+//     return (
 
-        <Modal
-            title="Thêm mới một thương hiệu"
-            open={isModal}
-            onOk={handleCreate}
-            onCancel={hideModal}
-            okText="Thêm mới"
-            cancelText="Hủy bỏ"
-        >
-            <Form
-                name="validateOnly" layout="vertical" autoComplete="off"
-                form={form}
+//         <Modal
+//             title="Thêm mới một thương hiệu"
+//             open={isModal}
+//             onOk={handleCreate}
+//             onCancel={hideModal}
+//             okText="Thêm mới"
+//             cancelText="Hủy bỏ"
+//         >
+//             <Form
+//                 name="validateOnly" layout="vertical" autoComplete="off"
+//                 form={form}
 
-            >
-                <Form.Item label="Tên:" name="brandName" rules={[{ required: true, message: 'Vui lòng nhập tên thương hiệu!' }
-                    ,
-                {
-                    validator: (_, value) => {
-                        if (!value) {
-                            return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
-                        }
-                        const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
-                        const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
-                        const productNameFieldValue = form.getFieldValue('brandName');
-                        const isDuplicate = brands.some(
-                            (brand) => brand.brandName.trim().toLowerCase() === lowercaseValue && brand.id !== productNameFieldValue
-                        );
-                        if (isDuplicate) {
-                            return Promise.reject('Tên thương hiệu đã tồn tại!');
-                        }
-                        // Kiểm tra dấu cách ở đầu và cuối
-                        if (/^\s|\s$/.test(value)) {
-                            return Promise.reject('Tên thương hiệu không được chứa dấu cách ở đầu và cuối!');
-                        }
-                        return Promise.resolve();
-                    },
-                },
-                ]}>
-                    <Input placeholder="Nhập tên thương hiệu..." />
-                </Form.Item>
+//             >
+//                 <Form.Item label="Tên:" name="brandName" rules={[{ required: true, message: 'Vui lòng nhập tên thương hiệu!' }
+//                     ,
+//                 {
+//                     validator: (_, value) => {
+//                         if (!value) {
+//                             return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
+//                         }
+//                         const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
+//                         const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
+//                         const productNameFieldValue = form.getFieldValue('brandName');
+//                         const isDuplicate = brands.some(
+//                             (brand) => brand.brandName.trim().toLowerCase() === lowercaseValue && brand.id !== productNameFieldValue
+//                         );
+//                         if (isDuplicate) {
+//                             return Promise.reject('Tên thương hiệu đã tồn tại!');
+//                         }
+//                         // Kiểm tra dấu cách ở đầu và cuối
+//                         if (/^\s|\s$/.test(value)) {
+//                             return Promise.reject('Tên thương hiệu không được chứa dấu cách ở đầu và cuối!');
+//                         }
+//                         return Promise.resolve();
+//                     },
+//                 },
+//                 ]}>
+//                     <Input placeholder="Nhập tên thương hiệu..." />
+//                 </Form.Item>
 
-                <Form.Item label="Ghi chú:" name="brandDescribe">
-                    <TextArea rows={4} placeholder="Nhập ghi chú..." />
-                </Form.Item>
+//                 <Form.Item label="Ghi chú:" name="brandDescribe">
+//                     <TextArea rows={4} placeholder="Nhập ghi chú..." />
+//                 </Form.Item>
 
-            </Form>
-        </Modal>
-    );
-};
+//             </Form>
+//         </Modal>
+//     );
+// };
 
 const CategoryModal = ({ hideModal, isModal, fetchCategorys, categories }) => {
 

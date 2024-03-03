@@ -1,42 +1,77 @@
 package com.example.shopclothes.controller;
 
+import com.example.shopclothes.constants.NotificationConstants;
+import com.example.shopclothes.dto.*;
 import com.example.shopclothes.entity.Product;
 import com.example.shopclothes.service.impl.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Product")
+@Validated
+@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("/api/v1/products")
+@Tag(name = "Products", description = "( Rest API Hiển thị, thêm, sửa, xóa, tìm kiếm, phân trang sản phẩm )")
 
 public class ProductController {
 
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/hien-thi")
-    public List<Product> hienThi(){
-        return productService.select();
+
+    @GetMapping("findAllByDeletedTrue")
+    public ResponseEntity<List<Product>> findAllByDeletedTrue() {
+        List<Product> productList = productService.finByName();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(productList);
     }
 
-    @GetMapping("/delete/{id}")
-    public void delete(@PathVariable Long id){
-        productService.delete(id);
+
+
+    @PostMapping("getAllProducts")
+    public ResponseEntity<?> getProducts(@RequestBody ProductDetailFilterRequestDto requestDto, Pageable pageable) {
+        Page<ProductFilterResponseDto> productPage = productService.findProductsAdminByFilters(requestDto, pageable);
+        List<ProductFilterResponseDto> productResponseDtoList = productPage.getContent();
+        return ResponseHandler.generateResponse(HttpStatus.OK, productResponseDtoList, productPage);
     }
 
-    @GetMapping("/search/{id}")
-    public void search(@PathVariable Long id){
-        productService.search(id);
+    @PostMapping("create")
+    public ResponseEntity<Product> create(@Valid @RequestBody ProductRequestDto productRequestDto) {
+        Product  product = productService.createProduct(productRequestDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(product);
     }
 
-    @PostMapping("/add")
-    public void add(Product product){
-        productService.save(product);
+    @PutMapping("update")
+    public ResponseEntity<ResponseDto> update(@Valid @RequestBody ProductRequestDto productRequestDto, @RequestParam Long id) {
+        Boolean isUpdated = productService.updateProduct(productRequestDto, id);
+        if (isUpdated) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ResponseDto(NotificationConstants.STATUS_200, NotificationConstants.MESSAGE_200));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDto(NotificationConstants.STATUS_500, NotificationConstants.MESSAGE_500));
+        }
     }
 
-    @PostMapping("/update/{id}")
-    public void update(Product product, @PathVariable Long id){
-        productService.update(product,id);
+    @GetMapping("findProductById")
+    public ResponseEntity<Product> findProductById(@RequestParam Long productId) {
+        Product product = productService.findProductById(productId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(product);
     }
+
 }

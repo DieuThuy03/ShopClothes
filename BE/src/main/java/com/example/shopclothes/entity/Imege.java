@@ -13,7 +13,6 @@ import java.sql.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "Imege")
-
 public class Imege {
 
     @Id
@@ -28,7 +27,15 @@ public class Imege {
     private String name;
 
     @Column(name = "status")
+    @Enumerated(value = EnumType.STRING)
     private Status status;
+
+    @Column(name = "image_Link")
+    private String imageLink;
+
+    @Column(name = "image_Type")
+    private String imageType;
+
 
     @Column(name = "dateCreate")
     private Date dateCreate;
@@ -36,11 +43,18 @@ public class Imege {
     @Column(name = "dateUpdate")
     private Date dateUpdate;
 
-    @Column(name = "favourite")
-    private boolean favourite;
+//    @Column(name = "favourite")
+//    private boolean favourite;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idCtsp")
-    private ProductDetail idCtsp;
+    @ManyToOne
+    @JoinColumn(name = "idProduct")
+    private Product product;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "idCtsp")
+//    private ProductDetail idCtsp;
+
+
+
 }
 

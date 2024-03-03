@@ -15,7 +15,7 @@ const { TextArea } = Input;
 
 function Size() {
 
-    // const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [open, setOpen] = useState({ isModal: false, isMode: '', reacord: null });
 
@@ -23,6 +23,7 @@ function Size() {
         setOpen({
             isModal: true,
             isMode: mode,
+            record: record,
             reacord: record,
         });
     };
@@ -39,23 +40,75 @@ function Size() {
 
     const [searchText, setSearchText] = useState(null);
 
+
     const fetchSizes = async () => {
-        // setLoading(true);
+        try {
+            const response = await SizeService.getAll(
+                pagination.current - 1,
+                pagination.pageSize,
+                // searchName
+            );
+            setLoading(true);
+            console.log('Response:', response);
+            console.log('Status:', response.status);
+            console.log('Data:', response.data);
 
-        await SizeService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
-            .then(response => {
+            if (response && response.data) {
+                const status = response.status || (response.data && response.data.status);
 
-                setSizes(response.data);
-                setPagination({
-                    ...pagination,
-                    total: response.totalCount,
-                });
-                // setLoading(false);
+                if (status === 200) {
+                    const responseData = response.data;
 
-            }).catch(error => {
-                console.error(error);
-            })
-    }
+                    if (Array.isArray(responseData)) {
+                        console.log('Response Data:', responseData);
+                        const formattedProducers = responseData.map(size => ({
+                            key: size.id,
+                            id: size.id,
+                            code: size.code,
+                            name: size.name,
+                            ghi_chu: size.ghi_chu,
+                            dateCreate: new Date(size.dateCreate).toLocaleString(),
+                            dateUpdate: size.dateUpdate ? new Date(size.dateUpdate).toLocaleString() : 'N/A',
+                            status: String(size.status),  // Chuyển đổi thành chuỗi 
+                        }));
+                        setSizes(formattedProducers);
+                        setPagination({
+                            ...pagination,
+                            total: response.totalCount,
+                        });
+                    } else {
+                        console.error('Dữ liệu không phải là một mảng.');
+                    }
+                } else {
+                    console.error('Trạng thái không thành công: ', status);
+                }
+            } else {
+                console.error('Không có response hoặc response.data.');
+            }
+        } catch ({ response, message }) {
+            console.error('Lỗi khi gọi API: ', response || message);
+        } finally {
+            // ...
+        }
+    };
+
+    // const fetchSizes = async () => {
+    //     // setLoading(true);
+
+    //     await SizeService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
+    //         .then(response => {
+
+    //             setSizes(response.data);
+    //             setPagination({
+    //                 ...pagination,
+    //                 total: response.totalCount,
+    //             });
+    //             // setLoading(false);
+
+    //         }).catch(error => {
+    //             console.error(error);
+    //         })
+    // }
 
     useEffect(() => {
         fetchSizes();
@@ -135,43 +188,57 @@ function Size() {
     const columns = [
         {
             title: '#',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'id',
+            key: 'id',
             width: '5%',
             render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
         },
 
         {
             title: 'Mã',
-            dataIndex: 'sizeDescribe',
-            key: 'sizeDescribe',
+            dataIndex: 'code',
+            key: 'code',
             width: '19%',
         },
         {
             title: 'Tên Size',
-            dataIndex: 'sizeName',
-            key: 'sizeName',
+            dataIndex: 'name',
+            key: 'name',
             width: '20%',
             filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
-            ...getColumnSearchProps('sizeName')
+            ...getColumnSearchProps('name')
+        },
+
+        {
+            title: 'Ghi Chú',
+            dataIndex: 'ghi_chu',
+            key: 'ghi_chu',
+            width: '15%',
         },
 
         {
             title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
+            dataIndex: 'dateCreate',
+            key: 'dateCreate',
             width: '15%',
         },
+
         {
-            title: 'Người tạo',
-            dataIndex: 'createdBy',
-            key: 'createdBy',
-            width: '15%',
+            title: 'Ngày sửa',
+            dataIndex: 'dateUpdate',
+            key: 'dateUpdate',
+            width: '14%',
         },
+        // {
+        //     title: 'Người tạo',
+        //     dataIndex: 'createdBy',
+        //     key: 'createdBy',
+        //     width: '15%',
+        // },
         {
             title: 'Trạng thái',
-            key: 'deleted',
-            dataIndex: 'deleted',
+            key: 'status',
+            dataIndex: 'status',
             width: '16%',
             filters: [
                 {
@@ -183,7 +250,8 @@ function Size() {
                     value: false,
                 },
             ],
-            onFilter: (value, record) => record.deleted === value, render: (text) => (
+            onFilter: (value, record) => record.deleted === value,
+            render: (text) => (
                 text ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#108ee9">Đang hoạt động</Tag>
                     : <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#f50">Ngừng hoạt động</Tag>
             )
@@ -342,7 +410,7 @@ const SizeModal = ({ isMode, reacord, hideModal, isModal, fetchSizes, sizes }) =
                 form={form}
                 initialValues={{ ...reacord }}
             >
-                <Form.Item label="Tên:" name="sizeName" rules={[{ required: true, message: 'Vui lòng nhập tên kích thước!' }
+                <Form.Item label="Tên:" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên kích thước!' }
                     ,
                 {
                     validator: (_, value) => {
@@ -352,7 +420,7 @@ const SizeModal = ({ isMode, reacord, hideModal, isModal, fetchSizes, sizes }) =
                         const trimmedValue = value.trim();
                         const lowercaseValue = trimmedValue.toLowerCase();
                         const isDuplicate = sizes.some(
-                            (size) => size.sizeName.trim().toLowerCase() === lowercaseValue && size.id !== reacord.id
+                            (size) => size.name.trim().toLowerCase() === lowercaseValue && size.id !== reacord.id
                         );
 
                         if (isDuplicate) {
@@ -371,14 +439,14 @@ const SizeModal = ({ isMode, reacord, hideModal, isModal, fetchSizes, sizes }) =
                     <Input placeholder="Nhập tên kích thước..." />
                 </Form.Item>
 
-                <Form.Item label="Ghi chú:" name="sizeDescribe" >
+                <Form.Item label="Ghi chú:" name="ghi_chu">
                     <TextArea rows={4} placeholder="Nhập ghi chú..." />
                 </Form.Item>
 
-                <Form.Item label="Trạng thái:" name="deleted" initialValue={true} >
+                <Form.Item label="Trạng thái:" name="status" initialValue="DANG_HOAT_DONG">
                     <Radio.Group name="radiogroup" style={{ float: 'left' }}>
-                        <Radio value={true}>Đang hoạt động</Radio>
-                        <Radio value={false}>Ngừng hoạt động</Radio>
+                        <Radio value="DANG_HOAT_DONG">Đang hoạt động</Radio>
+                        <Radio value="NGUNG_HOAT_DONG">Ngừng hoạt động</Radio>
                     </Radio.Group>
                 </Form.Item>
 

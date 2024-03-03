@@ -7,7 +7,7 @@ import {
     DeleteOutlined,
     SearchOutlined,
 } from '@ant-design/icons';
-import './Product.css';
+import './Product.css'
 import CategoryService from '~/service/CategoryService';
 import FormatDate from '~/utils/format-date';
 
@@ -15,14 +15,16 @@ const { TextArea } = Input;
 
 function Category() {
 
-    // const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [open, setOpen] = useState({ isModal: false, isMode: '', reacord: null });
+
 
     const showModal = (mode, record) => {
         setOpen({
             isModal: true,
             isMode: mode,
+            record: record,
             reacord: record,
         });
     };
@@ -31,41 +33,88 @@ function Category() {
         setOpen({ isModal: false });
     };
 
-    const [category, setCategory] = useState([]);
+    const [categories, setCategories] = useState([]);
 
-    const [pagination, setPagination] = useState({ current: 1, pageSize: 5, total: 0 });
+    //  Phân trang
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 5,
+        total: 0,
+    });
 
     const [deleted, setDeleted] = useState(null);
 
     const [searchText, setSearchText] = useState(null);
 
+    // const fetchCategorys = async () => {
+    //     // setLoading(true);
+
+    //     await CategoryService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
+    //         .then(response => {
+
+    //             setCategories(response.data);
+
+    //             setPagination({
+    //                 ...pagination,
+    //                 total: response.totalCount,
+    //             });
+    //             // setLoading(false);
+
+    //         }).catch(error => {
+    //             console.error(error);
+    //         })
+    // }
+
+
     const fetchCategorys = async () => {
-        // setLoading(true);
+        try {
+            const response = await CategoryService.getAll(
+                pagination.current - 1,
+                pagination.pageSize,
+                // searchName
+            );
+            setLoading(true);
+            console.log('Response:', response);
+            console.log('Status:', response.status);
+            console.log('Data:', response.data);
 
-        await CategoryService.getAll(pagination.current - 1)
-            .then(response => {
-                const list = response.data.content;
-                console.log(response.data.content);
-                const tempFormat = list.map(category => ({
-                    key: category.id,
-                    code: category.code,
-                    name: category.name,
-                    ghi_chu: category.ghi_chu,
-                    dateCreate: new Date(category.dateCreate).toLocaleString(),
-                    deleted: String(category.status),
+            if (response && response.data) {
+                const status = response.status || (response.data && response.data.status);
 
-                }));
-                setCategory(tempFormat);
+                if (status === 200) {
+                    const responseData = response.data;
 
-                setPagination({
-                    ...pagination,
-                    total: response.totalCount,
-                });
-                // setLoading(false);
-
-            }).catch(error => {
-                console.error(error);
-            });
+                    if (Array.isArray(responseData)) {
+                        console.log('Response Data:', responseData);
+                        const formattedProducers = responseData.map(cate => ({
+                            key: cate.id,
+                            id: cate.id,
+                            code: cate.code,
+                            name: cate.name,
+                            ghi_chu: cate.ghi_chu,
+                            dateCreate: new Date(cate.dateCreate).toLocaleString(),
+                            dateUpdate: cate.dateUpdate ? new Date(cate.dateUpdate).toLocaleString() : 'N/A',
+                            status: String(cate.status),  // Chuyển đổi thành chuỗi 
+                        }));
+                        setCategories(formattedProducers);
+                        setPagination({
+                            ...pagination,
+                            total: response.totalCount,
+                        });
+                    } else {
+                        console.error('Dữ liệu không phải là một mảng.');
+                    }
+                } else {
+                    console.error('Trạng thái không thành công: ', status);
+                }
+            } else {
+                console.error('Không có response hoặc response.data.');
+            }
+        } catch ({ response, message }) {
+            console.error('Lỗi khi gọi API: ', response || message);
+        } finally {
+            // ...
+        }
     };
 
     useEffect(() => {
@@ -97,11 +146,11 @@ function Category() {
             ...pagination,
             current: 1,
         });
-        handleTableChange(pagination, null);
+        handleTableChange(pagination, null)
     };
 
     const handleTableChange = (pagination, filters) => {
-        console.log(filters);
+        console.log(filters)
         setPagination({
             ...pagination,
         });
@@ -113,7 +162,7 @@ function Category() {
         if (searchFilter) {
             setSearchText(searchFilter[0]);
         } else {
-            setSearchText(null);
+            setSearchText(null)
         }
         // Kiểm tra nếu có lựa chọn bộ lọc và không phải là trường hợp không chọn
         if (!isNoStatusFilter) {
@@ -145,17 +194,17 @@ function Category() {
     const columns = [
         {
             title: '#',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'id',
+            key: 'id',
             width: '5%',
-            render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
+            render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
         },
 
         {
             title: 'Mã',
             dataIndex: 'code',
             key: 'code',
-            width: '19%',
+            width: '15%',
         },
         {
             title: 'Tên danh mục',
@@ -163,20 +212,39 @@ function Category() {
             key: 'name',
             width: '20%',
             filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
-            ...getColumnSearchProps('categoryName'),
+            ...getColumnSearchProps('name')
+        },
+
+        {
+            title: 'Ghi Chú',
+            dataIndex: 'ghi_chu',
+            key: 'ghi_chu',
+            width: '15%',
         },
 
         {
             title: 'Ngày tạo',
             dataIndex: 'dateCreate',
-            key: 'createdAt',
+            key: 'dateCreate',
             width: '15%',
         },
 
         {
+            title: 'Ngày sửa',
+            dataIndex: 'dateUpdate',
+            key: 'dateUpdate',
+            width: '15%',
+        },
+        // {
+        //     title: 'Người tạo',
+        //     dataIndex: 'createdBy',
+        //     key: 'createdBy',
+        //     width: '15%',
+        // },
+        {
             title: 'Trạng thái',
-            key: 'deleted',
-            dataIndex: 'deleted',
+            key: 'status',
+            dataIndex: 'status',
             width: '16%',
             filters: [
                 {
@@ -188,22 +256,12 @@ function Category() {
                     value: false,
                 },
             ],
+            onFilter: (value, record) => record.deleted === value,
             render: (text) => (
-                text ?
-                    <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#108ee9">Đang hoạt
-                        động</Tag>
-                    : <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#f50">Ngừng hoạt
-                        động</Tag>
-            ),
+                text ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#108ee9">Đang hoạt động</Tag>
+                    : <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#f50">Ngừng hoạt động</Tag>
+            )
         },
-
-        {
-            title: 'Ghi chú',
-            dataIndex: 'ghi_chu',
-            key: 'ghi_chu',
-            width: '15%',
-        },
-
         {
             title: 'Hành động',
             key: 'action',
@@ -212,16 +270,16 @@ function Category() {
 
                 return <Space size="middle">
                     <Button type="text"
-                            icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
-                            onClick={() => showModal('edit', record)} />
+                        icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
+                        onClick={() => showModal("edit", record)} />
                     <Switch
                         size="small"
                         defaultChecked={record.deleted}
                         onClick={() => handleDelete(record.id)}
                     />
 
-                </Space>;
-            },
+                </Space>
+            }
 
         },
     ];
@@ -231,20 +289,26 @@ function Category() {
             <h3 style={{ marginBottom: '16px', float: 'left', color: '#2123bf' }}>Danh sách loại sản phẩm</h3>
 
             <Button type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => showModal('add')}
-                    style={{ marginBottom: '16px', float: 'right', borderRadius: '2px' }}>
+                icon={<PlusOutlined />}
+                onClick={() => showModal("add")}
+                style={{ marginBottom: '16px', float: 'right', borderRadius: '2px' }} >
                 Thêm mới
             </Button>
 
             <Button type="primary"
-                    icon={<RedoOutlined style={{ fontSize: '18px' }} />}
-                    style={{ marginBottom: '16px', float: 'right', marginRight: '6px', borderRadius: '4px' }}
-                    onClick={handleReset}
+                icon={<RedoOutlined style={{ fontSize: '18px' }} />}
+                style={{ marginBottom: '16px', float: 'right', marginRight: '6px', borderRadius: '4px', }}
+                onClick={handleReset}
             />
 
             <Table
-                dataSource={category}
+                dataSource={categories.map((category, index) => ({
+                    ...category,
+                    key: index + 1,
+                    createdAt: FormatDate(category.createdAt)
+                }))}
+
+
                 // loading={loading}
                 columns={columns}
                 onChange={handleTableChange}
@@ -255,17 +319,17 @@ function Category() {
                     pageSizeOptions: ['5', '10', '15'],
                     total: pagination.total,
                     showSizeChanger: true,
-                }}></Table>
+                }}></Table >
 
             {open.isModal && <CategoryModal
                 isMode={open.isMode}
                 reacord={open.reacord || {}}
                 hideModal={hideModal}
                 isModal={open.isModal}
-                categories={category}
+                categories={categories}
                 fetchCategorys={fetchCategorys} />}
         </>
-    );
+    )
 };
 export default Category;
 
@@ -274,11 +338,39 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
 
     const [form] = Form.useForm();
 
+    // const handleCreate = () => {
+    //     form.validateFields().then(async () => {
+
+    //         const data = form.getFieldsValue();
+
+    //         await CategoryService.create(data)
+    //             .then(() => {
+    //                 notification.success({
+    //                     message: 'Thông báo',
+    //                     description: 'Thêm mới thành công!',
+    //                 });
+    //                 fetchCategorys();
+    //                 // Đóng modal
+    //                 hideModal();
+    //             })
+    //             .catch(error => {
+    //                 notification.error({
+    //                     message: 'Thông báo',
+    //                     description: 'Thêm mới thất bại!',
+    //                 });
+    //                 console.error(error);
+    //             });
+
+    //     }).catch(error => {
+    //         console.error(error);
+    //     })
+
+    // }
+
     const handleCreate = () => {
         form.validateFields().then(async () => {
 
             const data = form.getFieldsValue();
-
 
             await CategoryService.create(data)
                 .then(() => {
@@ -300,26 +392,21 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
 
         }).catch(error => {
             console.error(error);
-        });
+        })
 
-    };
+    }
+
     const handleUpdate = () => {
         form.validateFields().then(async () => {
 
-            let data = form.getFieldsValue();
-            data = {
-                ...data,
-                id: reacord.key,
-                code: reacord.code,
-            };
+            const data = form.getFieldsValue();
 
-            await CategoryService.update(reacord.key, data)
+            await CategoryService.update(reacord.id, data)
                 .then(() => {
                     notification.success({
                         message: 'Thông báo',
                         description: 'Cập nhật thành công!',
                     });
-                    console.log(reacord);
                     fetchCategorys();
                     // Đóng modal
                     hideModal();
@@ -330,23 +417,22 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
                         description: 'Cập nhật thất bại!',
                     });
                     console.error(error);
-                    console.log(data)
                 });
 
         }).catch(error => {
             console.error(error);
-        });
+        })
 
-    };
+    }
 
     return (
 
         <Modal
-            title={isMode === 'edit' ? 'Cập nhật danh mục' : 'Thêm mới một danh mục'}
+            title={isMode === "edit" ? "Cập nhật danh mục" : "Thêm mới một danh mục"}
             open={isModal}
-            onOk={isMode === 'edit' ? handleUpdate : handleCreate}
+            onOk={isMode === "edit" ? handleUpdate : handleCreate}
             onCancel={hideModal}
-            okText={isMode === 'edit' ? 'Cập nhật' : 'Thêm mới'}
+            okText={isMode === "edit" ? "Cập nhật" : "Thêm mới"}
             cancelText="Hủy bỏ"
         >
             <Form
@@ -373,7 +459,7 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
                                 const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                                 const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
                                 const isDuplicate = categories.some(
-                                    (category) => category.name.trim().toLowerCase() === lowercaseValue && category.id !== reacord.id,
+                                    (category) => category.name.trim().toLowerCase() === lowercaseValue && category.id !== reacord.id
                                 );
                                 if (isDuplicate) {
                                     return Promise.reject('Tên danh mục đã tồn tại!');
@@ -391,14 +477,14 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
                 </Form.Item>
 
 
-                <Form.Item label="Ghi chú:" name="ghi_chu">
-                    <TextArea rows={4} placeholder="Nhập ghi chú..." />
+                <Form.Item label="Ghi chú:" name="ghi_chu" >
+                    <TextArea rows={4} placeholder="Nhập ghi chú..." rules={[{ required: true, message: 'Vui lòng nhập ghi chú!' }]} />
                 </Form.Item>
 
-                <Form.Item label="Trạng thái:" name="status" initialValue={'DANG_HOAT_DONG'}>
+                <Form.Item label="Trạng thái:" name="status" initialValue="DANG_HOAT_DONG">
                     <Radio.Group name="radiogroup" style={{ float: 'left' }}>
-                        <Radio value={'DANG_HOAT_DONG'}>Đang hoạt động</Radio>
-                        <Radio value={'NGUNG_HOAT_DONG'}>Ngừng hoạt động</Radio>
+                        <Radio value="DANG_HOAT_DONG">Đang hoạt động</Radio>
+                        <Radio value="NGUNG_HOAT_DONG">Ngừng hoạt động</Radio>
                     </Radio.Group>
                 </Form.Item>
 
