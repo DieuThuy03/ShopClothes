@@ -18,10 +18,12 @@ function Size() {
     const [loading, setLoading] = useState(false);
 
     const [open, setOpen] = useState({ isModal: false, isMode: '', reacord: null });
+
     const showModal = (mode, record) => {
         setOpen({
             isModal: true,
             isMode: mode,
+            record: record,
             reacord: record,
         });
     };
@@ -31,24 +33,20 @@ function Size() {
     };
 
     const [sizes, setSizes] = useState([]);
-    // const [deleted, setDeleted] = useState(null);
-    const [searchName, setSearchName] = useState(null);
 
-    // Phân trang
+    const [pagination, setPagination] = useState({ current: 1, pageSize: 5, total: 0 });
 
-    const [pagination, setPagination] = useState({
-        current: 1,
-        pageSize: 5,
-        total: 0
-    });
+    const [deleted, setDeleted] = useState(null);
+
+    const [searchText, setSearchText] = useState(null);
+
 
     const fetchSizes = async () => {
         try {
             const response = await SizeService.getAll(
                 pagination.current - 1,
                 pagination.pageSize,
-                searchName,
-
+                // searchName
             );
             setLoading(true);
             console.log('Response:', response);
@@ -63,7 +61,7 @@ function Size() {
 
                     if (Array.isArray(responseData)) {
                         console.log('Response Data:', responseData);
-                        const formattedSize = responseData.map(size => ({
+                        const formattedProducers = responseData.map(size => ({
                             key: size.id,
                             id: size.id,
                             code: size.code,
@@ -73,7 +71,7 @@ function Size() {
                             dateUpdate: size.dateUpdate ? new Date(size.dateUpdate).toLocaleString() : 'N/A',
                             status: String(size.status),  // Chuyển đổi thành chuỗi 
                         }));
-                        setSizes(formattedSize);
+                        setSizes(formattedProducers);
                         setPagination({
                             ...pagination,
                             total: response.totalCount,
@@ -94,65 +92,88 @@ function Size() {
         }
     };
 
+    // const fetchSizes = async () => {
+    //     // setLoading(true);
+
+    //     await SizeService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
+    //         .then(response => {
+
+    //             setSizes(response.data);
+    //             setPagination({
+    //                 ...pagination,
+    //                 total: response.totalCount,
+    //             });
+    //             // setLoading(false);
+
+    //         }).catch(error => {
+    //             console.error(error);
+    //         })
+    // }
+
     useEffect(() => {
-        console.log("Fetching producers...");
         fetchSizes();
-    }, [pagination.current, pagination.pageSize, searchName]);
+    }, [pagination.current, pagination.pageSize, searchText, deleted]);
+
 
     const handleDelete = async (id) => {
-        try {
-            console.log("Deleting record with ID:", id);
-            await SizeService.delete(id);
+
+        await SizeService.delete(id).then(() => {
+
             fetchSizes();
-        } catch (error) {
+        }).catch(error => {
             console.error(error);
             notification.error({
                 message: 'Thông báo',
-                description: 'Đã xảy ra lỗi!',
+                description: 'Đã có lỗi xảy ra!',
             });
-        }
-    };
+        });
 
+    };
 
     const handleReset = () => {
 
-        setSearchName(null);
+        setSearchText(null);
+        setDeleted(null);
 
         setPagination({
             ...pagination,
             current: 1,
         });
-
+        handleTableChange(pagination, null)
     };
 
     const handleTableChange = (pagination, filters) => {
 
-        console.log(filters)
-
-        const searchNameFilter = filters?.sizeName;
-        if (searchNameFilter) {
-            setSearchName(searchNameFilter[0]);
-        } else {
-            setSearchName(null)
-        }
-
+        setPagination({
+            ...pagination,
+        });
         const statusFilter = filters?.deleted;
+        const searchFilter = filters?.sizeName;
+        // Kiểm tra nếu statusFilter không tồn tại hoặc là mảng rỗng
         const isNoStatusFilter = !statusFilter || statusFilter.length === 0;
 
+        if (searchFilter) {
+            setSearchText(filters.sizeName[0]);
+        } else {
+            setSearchText(null)
+        }
+        // Kiểm tra nếu có lựa chọn bộ lọc và không phải là trường hợp không chọn
         if (!isNoStatusFilter) {
             const isBothStatus = statusFilter.length === 2;
 
-            // setDeleted(isBothStatus ? null : statusFilter[0]);
+            // Sử dụng biểu thức điều kiện để xác định trạng thái để lọc
+            setDeleted(isBothStatus ? null : statusFilter[0]);
         } else {
-            // setDeleted(null);
+            // Nếu không có lựa chọn bộ lọc, đặt trạng thái deleted về null hoặc giá trị mặc định
+            setDeleted(null);
         }
     };
 
-    const getColumnSearchSers = (dataIndex) => ({
-        filteredValue: dataIndex === 'name' ? [searchName] : dataIndex,
+    const getColumnSearchProps = (dataIndex) => ({
+        filteredValue: [searchText] || null,
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
             <Input.Search
-                placeholder={`Nhập từ khóa...`}
+                placeholder={`Nhập tên...`}
                 value={selectedKeys[0]}
                 onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                 onSearch={(value) => {
@@ -167,41 +188,53 @@ function Size() {
     const columns = [
         {
             title: '#',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'id',
+            key: 'id',
             width: '5%',
             render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
         },
+
         {
             title: 'Mã',
             dataIndex: 'code',
             key: 'code',
-            width: '15%',
+            width: '19%',
         },
         {
             title: 'Tên Size',
             dataIndex: 'name',
             key: 'name',
             width: '20%',
+            filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
+            ...getColumnSearchProps('name')
         },
-        {
-            title: 'Ngày tạo',
-            dataIndex: 'dateCreate',
-            key: 'dateCreate',
-            width: '10%',
-        },
-        {
-            title: 'Ngày sửa',
-            dataIndex: 'dateUpdate',
-            key: 'dateUpdate',
-            width: '14%',
-        },
+
         {
             title: 'Ghi Chú',
             dataIndex: 'ghi_chu',
             key: 'ghi_chu',
             width: '15%',
         },
+
+        {
+            title: 'Ngày tạo',
+            dataIndex: 'dateCreate',
+            key: 'dateCreate',
+            width: '15%',
+        },
+
+        {
+            title: 'Ngày sửa',
+            dataIndex: 'dateUpdate',
+            key: 'dateUpdate',
+            width: '14%',
+        },
+        // {
+        //     title: 'Người tạo',
+        //     dataIndex: 'createdBy',
+        //     key: 'createdBy',
+        //     width: '15%',
+        // },
         {
             title: 'Trạng thái',
             key: 'status',
@@ -230,12 +263,13 @@ function Size() {
             render: (record) => {
 
                 return <Space size="middle">
-                    <Button type="text" icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />} onClick={() => showModal("edit", record)} />
-
+                    <Button type="text"
+                        icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
+                        onClick={() => showModal("edit", record)} />
                     <Switch
                         size="small"
                         defaultChecked={record.deleted}
-                        onClick={() => record.id && handleDelete(record.id)}
+                        onClick={() => handleDelete(record.id)}
                     />
 
                 </Space>
@@ -262,17 +296,24 @@ function Size() {
             />
 
             <Table
-                dataSource={sizes}
+                dataSource={sizes.map((size, index) => ({
+                    ...size,
+                    key: index + 1,
+                    createdAt: FormatDate(size.createdAt)
+                }))}
+
+
+                // loading={loading}
                 columns={columns}
+                onChange={handleTableChange}
                 pagination={{
                     current: pagination.current,
                     pageSize: pagination.pageSize,
+                    defaultPageSize: 5,
+                    pageSizeOptions: ['5', '10', '15'],
                     total: pagination.total,
                     showSizeChanger: true,
-                    onChange: (page, pageSize) => setPagination({ ...pagination, current: page, pageSize }),
-                    onShowSizeChange: (current, size) => setPagination({ ...pagination, current: 1, pageSize: size }),
-                }}
-            />
+                }}></Table >
 
             {open.isModal && <SizeModal
                 isMode={open.isMode}
@@ -280,7 +321,6 @@ function Size() {
                 sizes={sizes}
                 hideModal={hideModal}
                 isModal={open.isModal}
-
                 fetchSizes={fetchSizes} />}
         </>
     )
@@ -320,13 +360,11 @@ const SizeModal = ({ isMode, reacord, hideModal, isModal, fetchSizes, sizes }) =
         })
 
     }
-
     const handleUpdate = () => {
-        console.log('Record ID in handleUpdate:', reacord.id);
         form.validateFields().then(async () => {
 
             const data = form.getFieldsValue();
-            console.log('Record ID in handleUpdate:', reacord.id);
+
             await SizeService.update(reacord.id, data)
                 .then(() => {
                     notification.success({
@@ -372,35 +410,32 @@ const SizeModal = ({ isMode, reacord, hideModal, isModal, fetchSizes, sizes }) =
                 form={form}
                 initialValues={{ ...reacord }}
             >
-                <Form.Item
-                    label="Tên:"
-                    name="name"
-                    rules={[
-                        { required: true, message: 'Vui lòng nhập tên kích thước!' },
-                        {
-                            validator: (_, value) => {
-                                if (!value) {
-                                    return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
-                                }
-                                const trimmedValue = value.trim();
-                                const lowercaseValue = trimmedValue.toLowerCase();
-                                const isDuplicate = sizes.some(
-                                    (size) => size.name.trim().toLowerCase() === lowercaseValue && size.id !== reacord.id
-                                );
-
-                                if (isDuplicate) {
-                                    return Promise.reject('Tên kích thước đã tồn tại!');
-                                }
-
-                                if (/^\s|\s$/.test(value)) {
-                                    return Promise.reject('Tên kích thước không được chứa dấu cách ở đầu và cuối!');
-                                }
-
-                                return Promise.resolve();
-                            },
+                <Form.Item label="Tên:" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên kích thước!' }
+                    ,
+                {
+                    validator: (_, value) => {
+                        if (!value) {
+                            return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
                         }
-                        ,
-                    ]}>
+                        const trimmedValue = value.trim();
+                        const lowercaseValue = trimmedValue.toLowerCase();
+                        const isDuplicate = sizes.some(
+                            (size) => size.name.trim().toLowerCase() === lowercaseValue && size.id !== reacord.id
+                        );
+
+                        if (isDuplicate) {
+                            return Promise.reject('Tên kích thước đã tồn tại!');
+                        }
+
+                        if (/^\s|\s$/.test(value)) {
+                            return Promise.reject('Tên kích thước không được chứa dấu cách ở đầu và cuối!');
+                        }
+
+                        return Promise.resolve();
+                    },
+                }
+                    ,
+                ]}>
                     <Input placeholder="Nhập tên kích thước..." />
                 </Form.Item>
 
@@ -419,4 +454,3 @@ const SizeModal = ({ isMode, reacord, hideModal, isModal, fetchSizes, sizes }) =
         </Modal>
     );
 };
-

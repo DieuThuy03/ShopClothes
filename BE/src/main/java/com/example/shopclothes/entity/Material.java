@@ -2,20 +2,11 @@ package com.example.shopclothes.entity;
 
 import com.example.shopclothes.entity.propertis.Propertis;
 import com.example.shopclothes.entity.propertis.Status;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
@@ -23,10 +14,10 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "Material")
-public class Material {
+public class Material  {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,14 +34,16 @@ public class Material {
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
-    @Column(name = "dateCreate")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dateCreate;
-
-    @Column(name = "dateUpdate")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dateUpdate;
-
     @Column(name = "ghi_chu")
     private String ghi_chu;
+
+    @Column(name = "dateUpdate")
+    private Date dateUpdate;
+
+    @Column(name = "dateCreate")
+    private Date dateCreate;
+
+
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "idMaterial")
+    List<ProductDetail> productDetails;
 }

@@ -38,12 +38,30 @@ public class ProducerController {
         return ResponseEntity.ok(producerService.getAllNSX());
     }
 
-@GetMapping("/hien-thi-page")
-public ResponseEntity<?> hienThiPage(@RequestParam(defaultValue = "0") Integer page) {
-    Pageable pageable = PageRequest.of(page, 10);
-    Page<Producer> producerPage = producerRepo.getAllByStatus(Status.DANG_HOAT_DONG, pageable);
-    return ResponseEntity.ok(producerPage.getContent());
-}
+
+    //    @GetMapping("getAll")
+//    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0") Integer pageNo,
+//                                          @RequestParam(defaultValue = "4") Integer pageSize,
+//                                          @RequestParam(required = false) String name,
+//                                          @RequestParam(required = false) String status,
+//                                    @RequestParam(required = false) Date dateCreate,
+//                                          @RequestParam(required = false) Date dateUpdate,
+//                                          @RequestParam(required = false) List<Boolean> deleted) {
+//        Pageable pageable = PageRequest.of(pageNo, pageSize);
+//        Page<Producer> supplierPage = producerService.getSuppliers(supplierName,phoneNumber,email,deleted,pageable);
+//        List<Producer> supplierList = supplierPage.getContent();
+//        return ResponseHandler
+//                .generateResponse(
+//                        HttpStatus.OK,
+//                        supplierList,
+//                        supplierPage);
+//    }
+    @GetMapping("/hien-thi-page")
+    public ResponseEntity<?> hienThiPage(@RequestParam(defaultValue = "0") Integer page) {
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<Producer> producerPage = producerRepo.getAllByStatus(Status.DANG_HOAT_DONG, pageable);
+        return ResponseEntity.ok(producerPage.getContent());
+    }
 
 
     @GetMapping("/hien-thi-page-search")
@@ -83,6 +101,35 @@ public ResponseEntity<?> hienThiPage(@RequestParam(defaultValue = "0") Integer p
         }
     }
 
+//    @PutMapping("/update/{id}")
+//    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Producer nhaSanXuat){
+//        Producer c = producerService.detail(id);
+//        nhaSanXuat.setId(id);
+//        nhaSanXuat.setCode(c.getCode());
+//        nhaSanXuat.setDateCreate(c.getDateCreate()); // Sử dụng ngày tạo của bản gốc
+//        nhaSanXuat.setDateUpdate(new Date());
+//        return ResponseEntity.ok(producerService.add(nhaSanXuat));
+//    }
+
+
+//    @DeleteMapping("/delete/{id}")
+//    public ResponseEntity<?> delete(@PathVariable Long id, @RequestBody(required = false) Producer nhaSanXuat) {
+//        try {
+//            if (nhaSanXuat != null) {
+//                nhaSanXuat.setId(id);
+//                return ResponseEntity.ok(producerService.xoa(id));
+//            } else {
+//                // Xử lý khi nhaSanXuat là null, có thể trả về 400 Bad Request hoặc một ResponseEntity khác tùy thuộc vào logic của b
+//                System.out.println("Lôi xóa");
+//                return ResponseEntity.badRequest().body("Producer not found");
+//            }
+//        } catch (Exception e) {
+//            // Log lỗi để biết nguyên nhân chi tiết
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+//        }
+//    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id, @RequestBody(required = false) Producer nhaSanXuat) {
         try {
@@ -101,4 +148,10 @@ public ResponseEntity<?> hienThiPage(@RequestParam(defaultValue = "0") Integer p
         }
     }
 
+
+//    @PutMapping("/delete/{id}")
+//    public ResponseEntity<?> delete(@PathVariable Long id, @RequestBody Producer nhaSanXuat){
+//        nhaSanXuat.setId(id);
+//        return ResponseEntity.ok(producerService.xoa(id));
+//    }
 }

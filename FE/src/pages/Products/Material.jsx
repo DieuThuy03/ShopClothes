@@ -18,6 +18,8 @@ function Material() {
     const [loading, setLoading] = useState(false);
 
     const [open, setOpen] = useState({ isModal: false, isMode: '', reacord: null });
+
+
     const showModal = (mode, record) => {
         setOpen({
             isModal: true,
@@ -32,22 +34,20 @@ function Material() {
     };
 
     const [materials, setMaterials] = useState([]);
-    const [searchName, setSearchName] = useState(null);
 
-    //  Phân trang
+    const [pagination, setPagination] = useState({ current: 1, pageSize: 5, total: 0 });
 
-    const [pagination, setPagination] = useState({
-        current: 1,
-        pageSize: 5,
-        total: 0,
-    });
+    const [deleted, setDeleted] = useState(null);
+
+    const [searchText, setSearchText] = useState(null);
+
 
     const fetchMaterials = async () => {
         try {
             const response = await MaterialService.getAll(
                 pagination.current - 1,
                 pagination.pageSize,
-                searchName,
+                // searchName
             );
             setLoading(true);
             console.log('Response:', response);
@@ -62,15 +62,15 @@ function Material() {
 
                     if (Array.isArray(responseData)) {
                         console.log('Response Data:', responseData);
-                        const formattedProducers = responseData.map(material => ({
-                            key: material.id,
-                            id: material.id,
-                            code: material.code,
-                            name: material.name,
-                            ghi_chu: material.ghi_chu,
-                            dateCreate: new Date(material.dateCreate).toLocaleString(),
-                            dateUpdate: material.dateUpdate ? new Date(material.dateUpdate).toLocaleString() : 'N/A',
-                            status: String(material.status),  // Chuyển đổi thành chuỗi 
+                        const formattedProducers = responseData.map(mate => ({
+                            key: mate.id,
+                            id: mate.id,
+                            code: mate.code,
+                            name: mate.name,
+                            ghi_chu: mate.ghi_chu,
+                            dateCreate: new Date(mate.dateCreate).toLocaleString(),
+                            dateUpdate: mate.dateUpdate ? new Date(mate.dateUpdate).toLocaleString() : 'N/A',
+                            status: String(mate.status),  // Chuyển đổi thành chuỗi 
                         }));
                         setMaterials(formattedProducers);
                         setPagination({
@@ -89,17 +89,36 @@ function Material() {
         } catch ({ response, message }) {
             console.error('Lỗi khi gọi API: ', response || message);
         } finally {
-
             // ...
         }
     };
 
+    // const fetchMaterials = async () => {
+    //     // setLoading(true);
+
+    //     await MaterialService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
+    //         .then(response => {
+
+    //             setMaterials(response.data);
+
+    //             setPagination({
+    //                 ...pagination,
+    //                 total: response.totalCount,
+    //             });
+    //             // setLoading(false);
+
+    //         }).catch(error => {
+    //             console.error(error);
+    //         })
+    // }
+
     useEffect(() => {
         fetchMaterials();
-    }, [pagination.current, pagination.pageSize, searchName]);
+    }, [pagination.current, pagination.pageSize, searchText, deleted]);
 
 
     const handleDelete = async (id) => {
+
         await MaterialService.delete(id).then(() => {
 
             fetchMaterials();
@@ -110,46 +129,51 @@ function Material() {
                 description: 'Đã có lỗi xảy ra!',
             });
         });
+
     };
-
-
     const handleReset = () => {
 
-        setSearchName(null);
+        setSearchText(null);
+        setDeleted(null);
 
         setPagination({
             ...pagination,
             current: 1,
         });
+        handleTableChange(pagination, null)
     };
 
     const handleTableChange = (pagination, filters) => {
 
-
-        const searchNameFilter = filters?.materialName;
-        if (searchNameFilter) {
-            setSearchName(searchNameFilter[0]);
-        } else {
-            setSearchName(null)
-        }
-
+        setPagination({
+            ...pagination,
+        });
         const statusFilter = filters?.deleted;
+        const searchFilter = filters?.materialName;
+        // Kiểm tra nếu statusFilter không tồn tại hoặc là mảng rỗng
         const isNoStatusFilter = !statusFilter || statusFilter.length === 0;
 
+        if (searchFilter) {
+            setSearchText(searchFilter[0]);
+        } else {
+            setSearchText(null)
+        }
+        // Kiểm tra nếu có lựa chọn bộ lọc và không phải là trường hợp không chọn
         if (!isNoStatusFilter) {
             const isBothStatus = statusFilter.length === 2;
 
-            // setDeleted(isBothStatus ? null : statusFilter[0]);
+            // Sử dụng biểu thức điều kiện để xác định trạng thái để lọc
+            setDeleted(isBothStatus ? null : statusFilter[0]);
         } else {
-            // setDeleted(null);
+            // Nếu không có lựa chọn bộ lọc, đặt trạng thái deleted về null hoặc giá trị mặc định
+            setDeleted(null);
         }
-
     };
     const getColumnSearchProps = (dataIndex) => ({
-        filteredValue: dataIndex === 'name' ? [searchName] : dataIndex,
+        filteredValue: [searchText] || null,
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
             <Input.Search
-                placeholder={`Nhập từ khóa...`}
+                placeholder={`Nhập tên...`}
                 value={selectedKeys[0]}
                 onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                 onSearch={(value) => {
@@ -164,8 +188,8 @@ function Material() {
     const columns = [
         {
             title: '#',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'id',
+            key: 'id',
             width: '5%',
             render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
         },
@@ -182,25 +206,36 @@ function Material() {
             dataIndex: 'name',
             key: 'name',
             width: '20%',
+            filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
+            ...getColumnSearchProps('name')
         },
-        {
-            title: 'Ngày tạo',
-            dataIndex: 'dateCreate',
-            key: 'dateCreate',
-            width: '10%',
-        },
-        {
-            title: 'Ngày sửa',
-            dataIndex: 'dateUpdate',
-            key: 'dateUpdate',
-            width: '14%',
-        },
+
         {
             title: 'Ghi Chú',
             dataIndex: 'ghi_chu',
             key: 'ghi_chu',
             width: '15%',
         },
+
+        {
+            title: 'Ngày tạo',
+            dataIndex: 'dateCreate',
+            key: 'dateCreate',
+            width: '15%',
+        },
+
+        {
+            title: 'Ngày sửa',
+            dataIndex: 'dateUpdate',
+            key: 'dateUpdate',
+            width: '15%',
+        },
+        // {
+        //     title: 'Người tạo',
+        //     dataIndex: 'createdBy',
+        //     key: 'createdBy',
+        //     width: '15%',
+        // },
         {
             title: 'Trạng thái',
             key: 'status',
@@ -267,25 +302,25 @@ function Material() {
                     key: index + 1,
                     createdAt: FormatDate(material.createdAt)
                 }))}
+
+                onChange={handleTableChange}
+                // loading={loading}
                 columns={columns}
                 pagination={{
                     current: pagination.current,
                     pageSize: pagination.pageSize,
+                    defaultPageSize: 5,
+                    pageSizeOptions: ['5', '10', '15'],
                     total: pagination.total,
                     showSizeChanger: true,
-                    onChange: (page, pageSize) => setPagination({ ...pagination, current: page, pageSize }),
-                    onShowSizeChange: (current, size) => setPagination({ ...pagination, current: 1, pageSize: size }),
-                }}
-            />
+                }}></Table >
 
             {open.isModal && <MaterialModal
                 isMode={open.isMode}
                 reacord={open.reacord || {}}
-                materials={materials}
-                // sizes={sizes}
                 hideModal={hideModal}
                 isModal={open.isModal}
-
+                materials={materials}
                 fetchMaterials={fetchMaterials} />}
         </>
     )
@@ -326,11 +361,10 @@ const MaterialModal = ({ isMode, reacord, hideModal, isModal, fetchMaterials, ma
 
     }
     const handleUpdate = () => {
-        console.log('Record ID in handleUpdate:', reacord.id);
         form.validateFields().then(async () => {
 
             const data = form.getFieldsValue();
-            console.log('Record ID in handleUpdate:', reacord.id);
+
             await MaterialService.update(reacord.id, data)
                 .then(() => {
                     notification.success({
@@ -352,6 +386,7 @@ const MaterialModal = ({ isMode, reacord, hideModal, isModal, fetchMaterials, ma
         }).catch(error => {
             console.error(error);
         })
+
     }
 
     return (
@@ -375,42 +410,29 @@ const MaterialModal = ({ isMode, reacord, hideModal, isModal, fetchMaterials, ma
                 form={form}
                 initialValues={{ ...reacord }}
             >
-                <Form.Item
-                    label="Tên:"
-                    name="name"
-                    rules={[
-                        { required: true, message: 'Vui lòng nhập tên nhà cung cấp!' },
-                        {
-                            validator: (_, value) => {
-                                if (!value) {
-                                    return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
-                                }
-
-                                // Thêm kiểm tra xem giá trị có phải là chuỗi không
-                                if (typeof value !== 'string') {
-                                    return Promise.reject('Giá trị không hợp lệ!');
-                                }
-
-                                const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
-                                const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
-                                const isDuplicate = materials.some(
-                                    (materials) => materials.name.trim().toLowerCase() === lowercaseValue && materials.id !== reacord.id
-                                );
-
-                                if (isDuplicate) {
-                                    return Promise.reject('Tên chất liệu đã tồn tại!');
-                                }
-
-                                // Kiểm tra dấu cách ở đầu và cuối
-                                if (/^\s|\s$/.test(value)) {
-                                    return Promise.reject('Tên chất liệu không được chứa dấu cách ở đầu và cuối!');
-                                }
-
-                                return Promise.resolve();
-                            },
+                <Form.Item label="Tên:" name="name"
+                    rules={[{ required: true, message: 'Vui lòng nhập tên chất liệu!' },
+                    {
+                        validator: (_, value) => {
+                            if (!value) {
+                                return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
+                            }
+                            const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
+                            const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
+                            const isDuplicate = materials.some(
+                                (material) => material.name.trim().toLowerCase() === lowercaseValue && material.id !== reacord.id
+                            );
+                            if (isDuplicate) {
+                                return Promise.reject('Tên chất liệu đã tồn tại!');
+                            }
+                            // Kiểm tra dấu cách ở đầu và cuối
+                            if (/^\s|\s$/.test(value)) {
+                                return Promise.reject('Tên chất liệu không được chứa dấu cách ở đầu và cuối!');
+                            }
+                            return Promise.resolve();
                         },
-                    ]}
-                >
+                    },
+                    ]}>
                     <Input placeholder="Nhập tên chất liệu..." />
                 </Form.Item>
 
@@ -429,4 +451,3 @@ const MaterialModal = ({ isMode, reacord, hideModal, isModal, fetchMaterials, ma
         </Modal>
     );
 };
-

@@ -13,6 +13,7 @@ public interface CartRepo extends JpaRepository<Cart, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "update Cart set status = 0 where id =?1", nativeQuery = true)
+//    @Query(value = "update Cart set status = 0 where id =?1", nativeQuery = true)
+    @Query(value = "update Cart set status = 'NGUNG_HOAT_DONG' where id = ?1", nativeQuery = true)
     void delete(Long id);
 }

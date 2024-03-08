@@ -4,7 +4,7 @@ const API_URL = '/Material';
 
 const MaterialService = {
     getAll: (pageNo, pageSize, name, status) => {
-        return HttpClient.get(`${API_URL}/hien-thi-page`, {
+        return HttpClient.get(`${API_URL}/hien-thi`, {
             params: { pageNo, pageSize, name, status }
         })
             .then(response => response)  // Sửa dòng này
@@ -14,14 +14,8 @@ const MaterialService = {
             });
     },
 
-    findByDeletedTrue: () => {
-        return HttpClient.get(`${API_URL}findByDeletedTrue`)
-            .then(response => response.data)
-            .catch(error => {
-                console.error('Error in getAll:', error);
-                throw error;
-            });
-    },
+
+
     create: (data) => {
         return HttpClient.post(`${API_URL}/add`, data)
             .then(response => response.data)
@@ -30,8 +24,8 @@ const MaterialService = {
                 throw error;
             });
     },
+
     update: (id, data) => {
-        // return HttpClient.put(`${API_URL}/update/${id}`, data)
         return HttpClient.put(`${API_URL}/update/${id}`, data)
             .catch(error => {
                 console.log('URL API:', `${API_URL}/update/${id}`);
@@ -39,6 +33,8 @@ const MaterialService = {
                 throw error;
             });
     },
+
+
     delete: (id) => {
         if (!isNaN(id)) {
             const url = `${API_URL}/delete/${id}`;

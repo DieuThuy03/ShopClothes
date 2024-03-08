@@ -1,7 +1,7 @@
 import HttpClient from '~/utils/http-client';
 
-const API_URL = 'productDetails/';
-
+// const API_URL = 'productDetails/';
+const API_URL = '/ProductDetail';
 
 const ProductDetailService = {
 
@@ -23,17 +23,27 @@ const ProductDetailService = {
             });
     },
 
+    // create: (data) => {
+    //     return HttpClient.post(`${API_URL}createList`, data)
+    //         .then(response => response.data)
+    //         .catch(error => {
+    //             console.error('Error in getAll:', error);
+    //             throw error;
+    //         });
+    // },
+
     create: (data) => {
-        return HttpClient.post(`${API_URL}createList`, data)
+        return HttpClient.post(`${API_URL}/createList`, data)
             .then(response => response.data)
             .catch(error => {
-                console.error('Error in getAll:', error);
+                console.error('Error in create:', error);
                 throw error;
             });
     },
 
+
     update: (data, id) => {
-        return HttpClient.put(`${API_URL}update?id=${id}`, data)
+        return HttpClient.put(`${API_URL}/update?id=${id}`, data)
             .then(response => response.data)
             .catch(error => {
                 console.error('Error in getAll:', error);
@@ -42,7 +52,7 @@ const ProductDetailService = {
     },
 
     getAllByProductId: (productId, pageNo, pageSize) => {
-        return HttpClient.get(`${API_URL}getAllByProductId`, {
+        return HttpClient.get(`${API_URL}/getAllByProductId`, {
             params: {
                 productId, pageNo, pageSize
             }
@@ -54,7 +64,7 @@ const ProductDetailService = {
             });
     },
     delete: (id) => {
-        return HttpClient.delete(`${API_URL}delete?id=${id}`)
+        return HttpClient.delete(`${API_URL}/delete?id=${id}`)
             .then(response => response.data)
             .catch(error => {
                 console.error('Error in delete:', error);
@@ -62,7 +72,7 @@ const ProductDetailService = {
             });
     },
     findProductDetailById: (id) => {
-        return HttpClient.get(`${API_URL}findProductDetailById`, {
+        return HttpClient.get(`${API_URL}/findProductDetailById`, {
             params: {
                 id
             }
@@ -72,7 +82,17 @@ const ProductDetailService = {
                 console.error('Error in getAll:', error);
                 throw error;
             });
-    }
+    },
+    getAll: (pageNo, pageSize, name, status) => {
+        return HttpClient.get(`${API_URL}/hien-thi`, {
+            params: { pageNo, pageSize, name, status }
+        })
+            .then(response => response)  // Lấy data từ response
+            .catch(error => {
+                console.error('Error in getAll:', error);
+                throw error;
+            });
+    },
 };
 
 export default ProductDetailService;

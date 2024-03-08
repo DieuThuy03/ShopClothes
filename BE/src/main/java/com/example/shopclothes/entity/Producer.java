@@ -2,6 +2,7 @@ package com.example.shopclothes.entity;
 
 import com.example.shopclothes.entity.propertis.Propertis;
 import com.example.shopclothes.entity.propertis.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,10 +53,14 @@ public class Producer  {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateUpdate;
 
+
+
+
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "idProducer")
-    List<ProductDetail> productDetails;
+
+//    @OneToMany(fetch = FetchType.LAZY,mappedBy = "idProducer")
+//    List<ProductDetail> productDetails;
 }

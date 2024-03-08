@@ -15,7 +15,7 @@ const { TextArea } = Input;
 
 function Category() {
 
-    // const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [open, setOpen] = useState({ isModal: false, isMode: '', reacord: null });
 
@@ -24,6 +24,7 @@ function Category() {
         setOpen({
             isModal: true,
             isMode: mode,
+            record: record,
             reacord: record,
         });
     };
@@ -34,30 +35,87 @@ function Category() {
 
     const [categories, setCategories] = useState([]);
 
-    const [pagination, setPagination] = useState({ current: 1, pageSize: 5, total: 0 });
+    //  Phân trang
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 5,
+        total: 0,
+    });
 
     const [deleted, setDeleted] = useState(null);
 
     const [searchText, setSearchText] = useState(null);
 
+    // const fetchCategorys = async () => {
+    //     // setLoading(true);
+
+    //     await CategoryService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
+    //         .then(response => {
+
+    //             setCategories(response.data);
+
+    //             setPagination({
+    //                 ...pagination,
+    //                 total: response.totalCount,
+    //             });
+    //             // setLoading(false);
+
+    //         }).catch(error => {
+    //             console.error(error);
+    //         })
+    // }
+
+
     const fetchCategorys = async () => {
-        // setLoading(true);
+        try {
+            const response = await CategoryService.getAll(
+                pagination.current - 1,
+                pagination.pageSize,
+                // searchName
+            );
+            setLoading(true);
+            console.log('Response:', response);
+            console.log('Status:', response.status);
+            console.log('Data:', response.data);
 
-        await CategoryService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
-            .then(response => {
+            if (response && response.data) {
+                const status = response.status || (response.data && response.data.status);
 
-                setCategories(response.data);
+                if (status === 200) {
+                    const responseData = response.data;
 
-                setPagination({
-                    ...pagination,
-                    total: response.totalCount,
-                });
-                // setLoading(false);
-
-            }).catch(error => {
-                console.error(error);
-            })
-    }
+                    if (Array.isArray(responseData)) {
+                        console.log('Response Data:', responseData);
+                        const formattedProducers = responseData.map(cate => ({
+                            key: cate.id,
+                            id: cate.id,
+                            code: cate.code,
+                            name: cate.name,
+                            ghi_chu: cate.ghi_chu,
+                            dateCreate: new Date(cate.dateCreate).toLocaleString(),
+                            dateUpdate: cate.dateUpdate ? new Date(cate.dateUpdate).toLocaleString() : 'N/A',
+                            status: String(cate.status),  // Chuyển đổi thành chuỗi 
+                        }));
+                        setCategories(formattedProducers);
+                        setPagination({
+                            ...pagination,
+                            total: response.totalCount,
+                        });
+                    } else {
+                        console.error('Dữ liệu không phải là một mảng.');
+                    }
+                } else {
+                    console.error('Trạng thái không thành công: ', status);
+                }
+            } else {
+                console.error('Không có response hoặc response.data.');
+            }
+        } catch ({ response, message }) {
+            console.error('Lỗi khi gọi API: ', response || message);
+        } finally {
+            // ...
+        }
+    };
 
     useEffect(() => {
         fetchCategorys();
@@ -136,31 +194,45 @@ function Category() {
     const columns = [
         {
             title: '#',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'id',
+            key: 'id',
             width: '5%',
             render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
         },
 
         {
             title: 'Mã',
-            dataIndex: 'categoryDescribe',
-            key: 'categoryDescribe',
-            width: '19%',
+            dataIndex: 'code',
+            key: 'code',
+            width: '15%',
         },
         {
             title: 'Tên danh mục',
-            dataIndex: 'categoryName',
-            key: 'categoryName',
+            dataIndex: 'name',
+            key: 'name',
             width: '20%',
             filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
-            ...getColumnSearchProps('categoryName')
+            ...getColumnSearchProps('name')
+        },
+
+        {
+            title: 'Ghi Chú',
+            dataIndex: 'ghi_chu',
+            key: 'ghi_chu',
+            width: '15%',
         },
 
         {
             title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
+            dataIndex: 'dateCreate',
+            key: 'dateCreate',
+            width: '15%',
+        },
+
+        {
+            title: 'Ngày sửa',
+            dataIndex: 'dateUpdate',
+            key: 'dateUpdate',
             width: '15%',
         },
         // {
@@ -171,8 +243,8 @@ function Category() {
         // },
         {
             title: 'Trạng thái',
-            key: 'deleted',
-            dataIndex: 'deleted',
+            key: 'status',
+            dataIndex: 'status',
             width: '16%',
             filters: [
                 {
@@ -184,6 +256,7 @@ function Category() {
                     value: false,
                 },
             ],
+            onFilter: (value, record) => record.deleted === value,
             render: (text) => (
                 text ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#108ee9">Đang hoạt động</Tag>
                     : <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#f50">Ngừng hoạt động</Tag>
@@ -265,6 +338,35 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
 
     const [form] = Form.useForm();
 
+    // const handleCreate = () => {
+    //     form.validateFields().then(async () => {
+
+    //         const data = form.getFieldsValue();
+
+    //         await CategoryService.create(data)
+    //             .then(() => {
+    //                 notification.success({
+    //                     message: 'Thông báo',
+    //                     description: 'Thêm mới thành công!',
+    //                 });
+    //                 fetchCategorys();
+    //                 // Đóng modal
+    //                 hideModal();
+    //             })
+    //             .catch(error => {
+    //                 notification.error({
+    //                     message: 'Thông báo',
+    //                     description: 'Thêm mới thất bại!',
+    //                 });
+    //                 console.error(error);
+    //             });
+
+    //     }).catch(error => {
+    //         console.error(error);
+    //     })
+
+    // }
+
     const handleCreate = () => {
         form.validateFields().then(async () => {
 
@@ -293,6 +395,7 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
         })
 
     }
+
     const handleUpdate = () => {
         form.validateFields().then(async () => {
 
@@ -345,7 +448,7 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
             >
                 <Form.Item
                     label="Tên:"
-                    name="categoryName"
+                    name="name"
                     rules={[
                         { required: true, message: 'Vui lòng nhập tên danh mục!' },
                         {
@@ -356,7 +459,7 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
                                 const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                                 const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
                                 const isDuplicate = categories.some(
-                                    (category) => category.categoryName.trim().toLowerCase() === lowercaseValue && category.id !== reacord.id
+                                    (category) => category.name.trim().toLowerCase() === lowercaseValue && category.id !== reacord.id
                                 );
                                 if (isDuplicate) {
                                     return Promise.reject('Tên danh mục đã tồn tại!');
@@ -374,14 +477,14 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
                 </Form.Item>
 
 
-                <Form.Item label="Ghi chú:" name="categoryDescribe" >
+                <Form.Item label="Ghi chú:" name="ghi_chu" >
                     <TextArea rows={4} placeholder="Nhập ghi chú..." rules={[{ required: true, message: 'Vui lòng nhập ghi chú!' }]} />
                 </Form.Item>
 
-                <Form.Item label="Trạng thái:" name="deleted" initialValue={true}>
+                <Form.Item label="Trạng thái:" name="status" initialValue="DANG_HOAT_DONG">
                     <Radio.Group name="radiogroup" style={{ float: 'left' }}>
-                        <Radio value={true}>Đang hoạt động</Radio>
-                        <Radio value={false}>Ngừng hoạt động</Radio>
+                        <Radio value="DANG_HOAT_DONG">Đang hoạt động</Radio>
+                        <Radio value="NGUNG_HOAT_DONG">Ngừng hoạt động</Radio>
                     </Radio.Group>
                 </Form.Item>
 
@@ -389,4 +492,3 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
         </Modal>
     );
 };
-

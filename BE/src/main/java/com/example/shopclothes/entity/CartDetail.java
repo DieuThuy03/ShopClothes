@@ -1,6 +1,7 @@
 package com.example.shopclothes.entity;
 
 import com.example.shopclothes.entity.propertis.Status;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,11 @@ public class CartDetail {
     @JoinColumn(name = "idAcc")
     private Account idAcc;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "idCartDetail")
-    List<ProductDetail> productDetails;
+//    @OneToMany(fetch = FetchType.LAZY,mappedBy = "idCartDetail")
+//    List<ProductDetail> productDetails;
+
+    @ManyToOne
+    @JoinColumn(name = "id_product_detail", referencedColumnName = "id")
+    @JsonIgnoreProperties(value = {"applications", "hibernateLazyInitializer"})
+    private ProductDetail productDetails;
 }

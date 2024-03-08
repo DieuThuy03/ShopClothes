@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Table, Space, Button, Input, Form, Modal, notification, Radio, Popconfirm, Tag, Switch } from 'antd';
 import {
     PlusOutlined,
@@ -15,14 +15,14 @@ const { TextArea } = Input;
 
 function Color() {
 
-    // const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [open, setOpen] = useState({ isModal: false, isMode: '', reacord: null });
-
     const showModal = (mode, record) => {
         setOpen({
             isModal: true,
             isMode: mode,
+            record: record,
             reacord: record,
         });
     };
@@ -33,31 +33,70 @@ function Color() {
 
     const [colors, setColors] = useState([]);
 
-    const [pagination, setPagination] = useState({ current: 1, pageSize: 5, total: 0 });
+    // const [pagination, setPagination] = useState({ current: 1, pageSize: 5, total: 0 });
 
     const [deleted, setDeleted] = useState(null);
 
     const [searchText, setSearchText] = useState(null);
 
+    //  Phân trang
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 5,
+        total: 0,
+    });
+
+
     const fetchColors = async () => {
-        // setLoading(true);
+        try {
+            const response = await ColorService.getAll(
+                pagination.current - 1,
+                pagination.pageSize,
+                // searchName
+            );
+            setLoading(true);
+            console.log('Response:', response);
+            console.log('Status:', response.status);
+            console.log('Data:', response.data);
 
-        await ColorService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
-            .then(response => {
+            if (response && response.data) {
+                const status = response.status || (response.data && response.data.status);
 
-                setColors(response.data);
+                if (status === 200) {
+                    const responseData = response.data;
 
-                setPagination({
-                    ...pagination,
-                    total: response.totalCount,
-                });
-
-                // setLoading(false);
-
-            }).catch(error => {
-                console.error(error);
-            })
-    }
+                    if (Array.isArray(responseData)) {
+                        console.log('Response Data:', responseData);
+                        const formattedProducers = responseData.map(colors => ({
+                            key: colors.id,
+                            id: colors.id,
+                            code: colors.code,
+                            name: colors.name,
+                            ghi_chu: colors.ghi_chu,
+                            dateCreate: new Date(colors.dateCreate).toLocaleString(),
+                            dateUpdate: colors.dateUpdate ? new Date(colors.dateUpdate).toLocaleString() : 'N/A',
+                            status: String(colors.status),  // Chuyển đổi thành chuỗi 
+                        }));
+                        setColors(formattedProducers);
+                        setPagination({
+                            ...pagination,
+                            total: response.totalCount,
+                        });
+                    } else {
+                        console.error('Dữ liệu không phải là một mảng.');
+                    }
+                } else {
+                    console.error('Trạng thái không thành công: ', status);
+                }
+            } else {
+                console.error('Không có response hoặc response.data.');
+            }
+        } catch ({ response, message }) {
+            console.error('Lỗi khi gọi API: ', response || message);
+        } finally {
+            // ...
+        }
+    };
 
     useEffect(() => {
         fetchColors();
@@ -88,7 +127,7 @@ function Color() {
             ...pagination,
             current: 1,
         });
-        handleTableChange(pagination, null)
+        // handleTableChange(pagination, null)
     };
 
     const handleTableChange = (pagination, filters) => {
@@ -136,31 +175,44 @@ function Color() {
     const columns = [
         {
             title: '#',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'id',
+            key: 'id',
             width: '5%',
             render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
         },
 
         {
             title: 'Mã',
-            dataIndex: 'colorDescribe',
-            key: 'colorDescribe',
-            width: '19%',
+            dataIndex: 'code',
+            key: 'code',
+            width: '15%',
         },
         {
-            title: 'Tên màu sắc',
-            dataIndex: 'colorName',
-            key: 'colorName',
-            width: '20%',
+            title: 'Tên nhà màu sắc',
+            dataIndex: 'name',
+            key: 'name',
+            width: '15%',
             filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
             ...getColumnSearchProps('colorName')
         },
 
         {
+            title: 'Ghi Chú',
+            dataIndex: 'ghi_chu',
+            key: 'ghi_chu',
+            width: '15%',
+        },
+        {
             title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
+            dataIndex: 'dateCreate',
+            key: 'dateCreate',
+            width: '15%',
+        },
+
+        {
+            title: 'Ngày sửa',
+            dataIndex: 'dateUpdate',
+            key: 'dateUpdate',
             width: '15%',
         },
         // {
@@ -171,8 +223,8 @@ function Color() {
         // },
         {
             title: 'Trạng thái',
-            key: 'deleted',
-            dataIndex: 'deleted',
+            key: 'status',
+            dataIndex: 'status',
             width: '16%',
             filters: [
                 {
@@ -228,7 +280,7 @@ function Color() {
                 onClick={handleReset}
             />
 
-            <Table
+            {/* <Table
                 dataSource={colors.map((color, index) => ({
                     ...color,
                     key: index + 1,
@@ -244,7 +296,30 @@ function Color() {
                     pageSizeOptions: ['5', '10', '15'],
                     total: pagination.total,
                     showSizeChanger: true,
-                }}></Table >
+                    
+                }}></Table > */}
+
+
+            <Table
+                dataSource={colors}
+                columns={columns}
+                pagination={{
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
+                    total: pagination.total,
+                    showSizeChanger: true,
+                    onChange: (page, pageSize) => setPagination({ ...pagination, current: page, pageSize }),
+                    onShowSizeChange: (current, size) => setPagination({ ...pagination, current: 1, pageSize: size }),
+                }}
+            />
+
+            {/* {open.isModal && <ColorModal
+                isMode={open.isMode}
+                reacord={open.reacord || {}}
+                hideModal={hideModal}
+                isModal={open.isModal}
+                colors={colors}
+                fetchColors={fetchColors} />} */}
 
             {open.isModal && <ColorModal
                 isMode={open.isMode}
@@ -253,6 +328,7 @@ function Color() {
                 isModal={open.isModal}
                 colors={colors}
                 fetchColors={fetchColors} />}
+
         </>
     )
 };
@@ -341,7 +417,7 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
                 form={form}
                 initialValues={{ ...reacord }}
             >
-                <Form.Item label="Tên:" name="colorName"
+                <Form.Item label="Tên:" name="name"
                     rules={[
                         { required: true, message: 'Vui lòng nhập tên màu sắc!' },
                         {
@@ -352,7 +428,7 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
                                 const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                                 const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
                                 const isDuplicate = colors.some(
-                                    (color) => color.colorName.trim().toLowerCase() === lowercaseValue && color.id !== reacord.id
+                                    (color) => color.name.trim().toLowerCase() === lowercaseValue && color.id !== reacord.id
                                 );
                                 if (isDuplicate) {
                                     return Promise.reject('Tên màu sắc đã tồn tại!');
@@ -368,14 +444,15 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
                     <Input placeholder="Nhập tên màu sắc..." />
                 </Form.Item>
 
-                <Form.Item label="Ghi chú:" name="colorDescribe">
+
+                <Form.Item label="Ghi chú:" name="ghi_chu">
                     <TextArea rows={4} placeholder="Nhập ghi chú..." />
                 </Form.Item>
 
-                <Form.Item label="Trạng thái:" name="deleted" initialValue={true}>
+                <Form.Item label="Trạng thái:" name="status" initialValue="DANG_HOAT_DONG">
                     <Radio.Group name="radiogroup" style={{ float: 'left' }}>
-                        <Radio value={true}>Đang hoạt động</Radio>
-                        <Radio value={false}>Ngừng hoạt động</Radio>
+                        <Radio value="DANG_HOAT_DONG">Đang hoạt động</Radio>
+                        <Radio value="NGUNG_HOAT_DONG">Ngừng hoạt động</Radio>
                     </Radio.Group>
                 </Form.Item>
 
@@ -383,4 +460,3 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
         </Modal>
     );
 };
-

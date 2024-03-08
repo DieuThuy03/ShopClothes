@@ -2,14 +2,8 @@ package com.example.shopclothes.entity;
 
 import com.example.shopclothes.entity.propertis.Propertis;
 import com.example.shopclothes.entity.propertis.Status;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +11,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -41,15 +36,17 @@ public class Size {
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
-    @Column(name = "dateCreate")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dateCreate;
+    @Column(name = "ghi_chu")
+    private String ghi_chu;
 
     @Column(name = "dateUpdate")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateUpdate;
 
-    @Column(name = "ghi_chu")
-    private String ghi_chu;
+    @Column(name = "dateCreate")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateCreate;
 
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "idSize")
+    List<ProductDetail> productDetails;
 }

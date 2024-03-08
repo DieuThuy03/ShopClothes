@@ -9,13 +9,31 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 public class CorsConfig implements WebMvcConfigurer {
 
-    @Override
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/api/v1/**")
+//                .allowedOrigins("http://localhost:3000")
+//                .allowedMethods("*")
+//                .allowedHeaders("Content-Type")
+//                .allowCredentials(true);
+//    }
+
+        @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/v1/**")
                 .allowedOrigins("http://localhost:3000")
-                .allowedMethods("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("Content-Type")
                 .allowCredentials(true);
     }
+
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/api/v1/**")
+//                .allowedOrigins("http://localhost:3000") // Thay đổi URL của React client tại đây
+//                .allowedMethods("GET", "POST", "PUT", "DELETE")
+//                .allowedHeaders("Content-Type")
+//                .allowCredentials(true);
+//    }
 
 }

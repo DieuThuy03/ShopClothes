@@ -1,22 +1,23 @@
 package com.example.shopclothes.service;
 
+import com.example.shopclothes.entity.Color;
 import com.example.shopclothes.entity.Material;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface MaterialService {
+public interface MaterielServices {
 
-    public List<Material> getAllChatLieu();
+    public List<Material> getALL();
 
-    public Page<Material> pageChatLieu(Pageable pageable);
+    public Page<Material> pageMaterial(Pageable pageable);
 
-    public Page<Material> pageSearchChatLieu(String key, Integer trangThai, Pageable pageable);
-
-    public Material add(Material chatLieu);
+    public Material add(Material mt);
 
     public Material detail(Long id);
 
     public Material xoa(Long id);
+
+    public List<Material> findMaterialByProduct(Long id);
 }

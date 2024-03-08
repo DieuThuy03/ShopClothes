@@ -1,5 +1,6 @@
 package com.example.shopclothes.repositories;
 
+import com.example.shopclothes.entity.Category;
 import com.example.shopclothes.entity.Producer;
 import com.example.shopclothes.entity.propertis.Status;
 import org.springframework.data.domain.Page;
@@ -27,14 +28,16 @@ public interface ProducerRepo extends JpaRepository<Producer, Long> {
 
     Page<Producer> getAllByStatus(Status status, Pageable pageable);
 
-// Seacrh
-@Query(value = "SELECT * FROM producer " +
-        "WHERE (:key IS NULL OR producer.code LIKE CONCAT('%', :key, '%')) " +
-        "AND (:key IS NULL OR producer.name LIKE CONCAT('%', :key , '%')) " +
-        "AND (:status IS NULL OR producer.status = :status)",
-        nativeQuery = true)
-Page<Producer> searchPageNSX(@Param("key") String key,
-                             @Param("status") Integer trangThai,
-                             Pageable pageable);
+    // Seacrh
+    @Query(value = "SELECT * FROM producer " +
+            "WHERE (:key IS NULL OR producer.code LIKE CONCAT('%', :key, '%')) " +
+            "AND (:key IS NULL OR producer.name LIKE CONCAT('%', :key , '%')) " +
+            "AND (:status IS NULL OR producer.status = :status)",
+            nativeQuery = true)
+    Page<Producer> searchPageNSX(@Param("key") String key,
+                                 @Param("status") Integer trangThai,
+                                 Pageable pageable);
 
+    @Query("SELECT c FROM Producer c WHERE c.status = 'DANG_HOAT_DONG' ORDER BY c.dateCreate DESC")
+    Producer findByName(String name);
 }
