@@ -17,7 +17,7 @@ import {
 import './Voucher.css'
 import VoucherService from '~/service/VoucherService';
 //import FormatDate from '~/utils/format-date';
-import { formatNgayTao } from 'utils/voucherFormatDate';
+import { fomatVoucherDate } from 'utils/voucherFormatDate';
 import dayjs from 'dayjs';
 import formatCurrency from '~/utils/format-currency';
 const { TextArea } = Input;
@@ -106,8 +106,8 @@ function Voucher() {
                             code: vocherResponse.code,
                             name: vocherResponse.name,
                             reducedValue: vocherResponse.reducedValue,
-                            startTime: dayjs(vocherResponse.startTime).format("HH:mm, DD/MM/YYYY"),
-                            endTime: dayjs(vocherResponse.endTime).format("HH:mm, DD/MM/YYYY"),
+                            startTime: fomatVoucherDate(vocherResponse.startTime),
+                            endTime: fomatVoucherDate(vocherResponse.endTime),
                             quantity: vocherResponse.quantity,
                             minimumOrder: vocherResponse.minimumOrder,
                             minimize: vocherResponse.minimize,

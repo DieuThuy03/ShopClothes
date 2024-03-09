@@ -37,3 +37,7 @@ export function formatNgayTao(dateString) {
 
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`; // Trả về chuỗi định dạng "dd/MM/yyyy HH:mm:ss"
 }
+
+export function fomatVoucherDate(arr) {
+    return `${arr[3]}:${arr[4]} ${arr[2]}/${arr[1]}/${arr[0]}`;
+}
