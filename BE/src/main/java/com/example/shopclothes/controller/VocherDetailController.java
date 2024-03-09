@@ -1,42 +1,58 @@
 package com.example.shopclothes.controller;
 
-import com.example.shopclothes.entity.VocherDetail;
-import com.example.shopclothes.service.impl.VocherDetailService;
+import com.example.shopclothes.model.request.create_request.VoucherDetailCreateRequest;
+import com.example.shopclothes.model.request.update_request.VoucherDetailUpdateRequest;
+import com.example.shopclothes.service.VoucherDatailService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/VocherDetail")
+@RequestMapping("/api/v1/VocherDetail")
+@Tag(name = "Vocher", description = "( Rest API Hiển thị, thêm, sửa, xóa VoucherDetails )")
+@Validated
+
 
 public class VocherDetailController {
 
     @Autowired
-    private VocherDetailService vocherDetailService;
+    private VoucherDatailService service;
 
-    @GetMapping("/hien-thi")
-    public List<VocherDetail> hienThi(){
-        return vocherDetailService.select();
+    @GetMapping("/page")
+    public ResponseEntity<?> getAllPage(
+            @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        return ResponseEntity.ok(service.getAllPage(page, pageSize));
     }
 
-    @GetMapping("/delete/{id}")
-    public void delete(@PathVariable Long id){
-        vocherDetailService.delete(id);
-    }
-
-    @GetMapping("/search/{id}")
-    public void search(@PathVariable Long id){
-        vocherDetailService.search(id);
+    @GetMapping("/list")
+    public ResponseEntity<?> getAllList(@RequestParam(name = "idVoucher",required = false)Long idVoucher) {
+        return ResponseEntity.ok(service.findByVoucherId(idVoucher));
     }
 
     @PostMapping("/add")
-    public void add(VocherDetail vocherDetail){
-        vocherDetailService.save(vocherDetail);
+    public ResponseEntity<?> add(@RequestBody List<VoucherDetailCreateRequest> requests) {
+        return new ResponseEntity<>(service.addList(requests), HttpStatus.CREATED);
     }
 
-    @PostMapping("/update/{id}")
-    public void update(VocherDetail vocherDetail, @PathVariable Long id){
-        vocherDetailService.update(vocherDetail, id);
+    @PutMapping("/update")
+    public ResponseEntity<?> update(@RequestBody List<VoucherDetailUpdateRequest> request) {
+        service.update(request);
+        return ResponseEntity.ok("Danh sách ChiTietSanPham đã được cập nhật thành công.");
     }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

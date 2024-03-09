@@ -72,8 +72,8 @@ public class Bill {
     @JoinColumn(name = "idUser")
     private User idUser;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "idBill")
-    List<VocherDetail> vocherDetails;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Vocher vocher;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idBill")
     List<BillDetail> billDetails;
@@ -86,6 +86,10 @@ public class Bill {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idBill")
     List<Return> returns;
+
+    @ManyToOne
+    @JoinColumn(name = "idAcc",referencedColumnName = "id")
+    private Account account;
 }
 
 

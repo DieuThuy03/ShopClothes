@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Space, Button, Input, Form, Modal, notification, Radio, Row, Select, DatePicker, InputNumber, Col, Tag, Popconfirm, Card, Switch, Popover } from 'antd';
+import {
+    Table, Space, Button, Input, Form, Modal,
+    notification, Radio, Row, Select, DatePicker,
+    InputNumber, Col, Tag, Popconfirm, Card, Switch,
+    Popover
+} from 'antd';
 import {
     PlusOutlined,
     RedoOutlined,
@@ -11,7 +16,8 @@ import {
 } from '@ant-design/icons';
 import './Voucher.css'
 import VoucherService from '~/service/VoucherService';
-import FormatDate from '~/utils/format-date';
+//import FormatDate from '~/utils/format-date';
+import { formatNgayTao } from 'utils/voucherFormatDate';
 import dayjs from 'dayjs';
 import formatCurrency from '~/utils/format-currency';
 const { TextArea } = Input;
@@ -19,7 +25,7 @@ const { Option } = Select;
 
 function Voucher() {
 
-    // const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [open, setOpen] = useState({ isModal: false, isMode: '', reacord: null });
 
@@ -37,6 +43,10 @@ function Voucher() {
 
     const [vouchers, setVouchers] = useState([]);
 
+    const [searchCode, setSearchCoode] = useState(null);
+    const [searchStatus, setSearchStatus] = useState(null);
+
+
     const [pagination, setPagination] = useState({ current: 1, pageSize: 5, total: 0 });
 
     const [filterVoucher, setFilterVoucher] = useState({
@@ -50,32 +60,91 @@ function Voucher() {
     const fetchVouchers = async () => {
         // setLoading(true);
 
-        await VoucherService.getVoucherByFilter(filterVoucher)
-            .then(response => {
+        //    const reponse = await VoucherService.getVoucherByFilter(filterVoucher)
+        //         .then(response => {
 
-                const formattedData = response.data.map((voucher, index) => ({
-                    ...voucher,
-                    key: index + 1,
-                    startDate: FormatDate(voucher.startDate),
-                    endDate: FormatDate(voucher.endDate)
-                }));
+        //             const formattedData = response.data.map((voucher, index) => ({
+        //                 ...voucher,
+        //                 key: index + 1,
+        //                 startDate: FormatDate(voucher.startDate),
+        //                 endDate: FormatDate(voucher.endDate)
+        //             }));
 
-                setVouchers(formattedData);
-                setPagination({
-                    ...pagination,
-                    total: response.totalCount,
-                });
+        //             setVouchers(formattedData);
+        //             setPagination({
+        //                 ...pagination,
+        //                 total: response.totalCount,
+        //             });
 
-                // setLoading(false);
+        //             // setLoading(false);
 
-            }).catch(error => {
-                console.error(error);
-            })
-    }
+        //         }).catch(error => {
+        //             console.error(error);
+        //         })
+        try {
+            const response = await VoucherService.getAll(
+                pagination.current - 1,
+                pagination.pageSize,
+                searchCode,
+                searchStatus
+            );
+            setLoading(true);
+            console.log('Reponse', response);
+            console.log('Status', response.status);
+            console.log('Data', response.data);
+
+            if (response && response.data) {
+                const status = response.status || (response.data && response.data.status);
+
+                if (status === 200) {
+                    const responseData = response.data;
+
+                    if (Array.isArray(responseData)) {
+                        console.log('Response Data:', response);
+                        const formattedVouchers = responseData.map(vocherResponse => ({
+                            key: vocherResponse.id,
+                            code: vocherResponse.code,
+                            name: vocherResponse.name,
+                            reducedValue: vocherResponse.reducedValue,
+                            startTime: dayjs(vocherResponse.startTime).format("HH:mm, DD/MM/YYYY"),
+                            endTime: dayjs(vocherResponse.endTime).format("HH:mm, DD/MM/YYYY"),
+                            quantity: vocherResponse.quantity,
+                            minimumOrder: vocherResponse.minimumOrder,
+                            minimize: vocherResponse.minimize,
+                            describe: vocherResponse.describe,
+                            status: vocherResponse.status?.moTa,
+                        }));
+                        setVouchers(formattedVouchers);
+                        setPagination({
+                            ...pagination,
+                            total: response.totalCount,
+                        });
+                    } else {
+                        console.error('Dữ liệu không phải là một mảng.');
+
+                    }
+                } else {
+                    console.error('Trạng thái không thành công: ', status);
+                }
+            } else {
+                console.error('Không có response hoặc response.data.');
+            }
+        } catch ({ response, message }) {
+            console.error('Lỗi khi gọi API: ', response || message);
+        } finally {
+            // ...
+        }
+    };
+
+    // useEffect(() => {
+    //     console.log("Fetching producers...");
+    //     fetchVouchers();
+    // }, [filterVoucher]);
 
     useEffect(() => {
+        console.log("Fetching producers...");
         fetchVouchers();
-    }, [filterVoucher]);
+    }, [pagination.current, pagination.pageSize, searchCode, searchStatus]);
 
     const handleTableChange = (pagination) => {
         setPagination({
@@ -121,15 +190,17 @@ function Voucher() {
     };
     const handleDelete = async (id) => {
 
-        await VoucherService.delete(id).then(() => {
+        try {
+            console.log("Deleting record with ID:", id);
+            await VoucherService.delete(id);
             fetchVouchers();
-        }).catch(error => {
+        } catch (error) {
             console.error(error);
             notification.error({
                 message: 'Thông báo',
-                description: 'Đã có lỗi xảy ra!',
+                description: 'Đã xảy ra lỗi!',
             });
-        });
+        }
 
     };
 
@@ -143,37 +214,37 @@ function Voucher() {
         },
         {
             title: 'Mã',
-            dataIndex: 'voucherCode',
-            key: 'voucherCode',
+            dataIndex: 'code',
+            key: 'code',
             width: '7%',
 
         },
         {
             title: 'Tên',
-            dataIndex: 'voucherName',
-            key: 'voucherName',
+            dataIndex: 'name',
+            key: 'name',
             width: '10%',
-
+            sorter: true,
         },
 
         {
-            title: 'Giảm giá',
-            dataIndex: 'discountRate',
-            key: 'discountRate',
+            title: 'Giảm Tri giá',
+            dataIndex: 'reducedValue',
+            key: 'reducedValue',
             width: '8%',
-            sorter: (a, b) => a.discountRate - b.discountRate,
+            sorter: (a, b) => a.reducedValue - b.reducedValue,
             render: (text) => <span>{formatCurrency(text)}</span>,
         },
         {
             title: 'Ngày bắt đầu',
-            dataIndex: 'startDate',
-            key: 'startDate',
+            dataIndex: 'startTime',
+            key: 'startTime',
             width: '9%',
         },
         {
             title: 'Ngày kết thúc',
-            dataIndex: 'endDate',
-            key: 'endDate',
+            dataIndex: 'endTime',
+            key: 'endTime',
             width: '9%',
         },
         {
@@ -185,31 +256,70 @@ function Voucher() {
         },
         {
             title: 'Đơn tối thiểu',
-            dataIndex: 'orderMinimum',
-            key: 'orderMinimum',
+            dataIndex: 'minimumOrder',
+            key: 'minimumOrder',
             width: '9%',
-            sorter: (a, b) => a.orderMinimum - b.orderMinimum,
+            sorter: (a, b) => a.minimumOrder - b.minimumOrder,
             render: (text) => <span>{formatCurrency(text)}</span>,
         },
         {
             title: 'Giảm tối đa',
-            dataIndex: 'maxReduce',
-            key: 'maxReduce',
+            dataIndex: 'minimize',
+            key: 'minimize',
             width: '9%',
-            sorter: (a, b) => a.maxReduce - b.maxReduce,
+            sorter: (a, b) => a.minimize - b.minimize,
             render: (text) => <span>{formatCurrency(text)}</span>,
+        },
+        {
+            title: 'Ghi Chú',
+            dataIndex: 'describe',
+            key: 'describe',
+            width: '9%',
         },
 
         {
             title: 'Trạng thái',
-            key: 'deleted',
-            dataIndex: 'deleted',
+            key: 'status',
+            dataIndex: 'status',
             width: '10%',
-            render: (text) => (
-                text ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#108ee9">Hoạt động</Tag>
-                    : <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#f50">Hết hạn</Tag>
-            )
+            // filters: [
+            //     {
+            //         text: 'Sắp diễn ra ',
+            //         value: 0,
+            //     },
+            //     {
+            //         text: 'Đang diễn ra',
+            //         value: 1,
+            //     },
+            //     {
+            //         text: 'Sắp hết hạn',
+            //         value: 2,
+            //     },
+            //     {
+            //         text: 'Hết hạn',
+            //         value: 3,
+            //     },
+            //     {
+            //         text: 'Đã hết',
+            //         value: 4,
+            //     },
+            //     {
+            //         text: 'Hủy bỏ',
+            //         value: 5,
+            //     },
+            // ],
+            // onFilter: (value, record) => record.deleted === value,
+            // render: (text) => (
+            //     text == 0 ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="gold">Sắp diễn ra</Tag>
+            //         : text == 1 ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="green">Đang diễn ra</Tag>
+            //             : text == 2 ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="volcano">Sắp hết hạn</Tag>
+            //                 : text == 3 ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="blue">Hết hạn</Tag>
+            //                     : text == 4 ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="purple">Đã hết</Tag>
+            //                         : <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="red">Hủy bỏ</Tag>
+
+            // )
         },
+
         {
             title: 'Hành động',
             key: 'action',
@@ -241,7 +351,7 @@ function Voucher() {
                 <Row>
                     <Col span={12} style={{ padding: '0 100px' }}>
                         <DatePicker
-                            format="HH:mm:ss - DD/MM/YYYY"
+                            format="hh:mm:ss - DD/MM/YYYY"
                             style={{
                                 width: '100%',
                                 height: '35px',
@@ -256,7 +366,7 @@ function Voucher() {
                     </Col>
                     <Col span={12} style={{ padding: '0 100px' }}>
                         <DatePicker
-                            format="HH:mm:ss - DD/MM/YYYY"
+                            format="hh:mm:ss - DD/MM/YYYY"
                             style={{
                                 width: '100%',
                                 height: '35px',
@@ -373,6 +483,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                         message: 'Thông báo',
                         description: 'Thêm mới thất bại!',
                     });
+                    console.log('a: ' + error)
                     console.error(error);
                 });
 
@@ -475,14 +586,14 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                         form={form}
                         initialValues={{
                             ...reacord,
-                            ...(reacord?.startDate && { startDate: dayjs(reacord.startDate, "HH:mm:ss - DD/MM/YYYY") }),
-                            ...(reacord?.endDate && { endDate: dayjs(reacord.endDate, "HH:mm:ss - DD/MM/YYYY") }),
+                            ...(reacord?.startTime && { startDate: dayjs(reacord.startTime, "HH:mm:ss - DD/MM/YYYY") }),
+                            ...(reacord?.endTime && { endDate: dayjs(reacord.endTime, "HH:mm:ss - DD/MM/YYYY") }),
                         }}
 
                     >
                         <Row>
                             <Col span={11}>
-                                <Form.Item label="Mã:" name="voucherCode" rules={[{ required: true, message: 'Vui lòng nhập mã giảm giá!' }
+                                <Form.Item label="Mã:" name="code" rules={[{ required: false, message: 'Vui lòng nhập mã giảm giá!' }
                                     ,
                                 {
                                     validator: (_, value) => {
@@ -492,7 +603,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                         const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                                         const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
                                         const isDuplicate = vouchers.some(
-                                            (voucher) => voucher.voucherCode.trim().toLowerCase() === lowercaseValue && voucher.id !== reacord.id
+                                            (voucher) => voucher.code.trim().toLowerCase() === lowercaseValue && voucher.id !== reacord.id
                                         );
                                         if (isDuplicate) {
                                             return Promise.reject('Mã voucher đã tồn tại!');
@@ -511,7 +622,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                             <Col span={1}>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Tên:" name="voucherName" rules={[{ required: true, message: 'Vui lòng nhập tên giảm giá!' }
+                                <Form.Item label="Tên:" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên giảm giá!' }
                                     ,
                                 {
                                     validator: (_, value) => {
@@ -521,7 +632,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                         const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                                         const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
                                         const isDuplicate = vouchers.some(
-                                            (voucher) => voucher.voucherName.trim().toLowerCase() === lowercaseValue && voucher.id !== reacord.id
+                                            (voucher) => voucher.name.trim().toLowerCase() === lowercaseValue && voucher.id !== reacord.id
                                         );
                                         if (isDuplicate) {
                                             return Promise.reject('Tên voucher đã tồn tại!');
@@ -542,8 +653,8 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                         <Row >
                             <Col span={11}>
                                 <Form.Item
-                                    label="Giảm giá:"
-                                    name="discountRate"
+                                    label="Giá Trị Giảm:"
+                                    name="reducedValue"
                                     rules={[
                                         {
                                             required: true,
@@ -615,7 +726,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                         </Row>
                         <Row>
                             <Col span={11}>
-                                <Form.Item label="Ngày bắt đầu:" name="startDate" rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu!' }]}>
+                                <Form.Item label="Ngày bắt đầu:" name="startTime" rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu!' }]}>
                                     <DatePicker style={{ width: '100%' }} showTime format="HH:mm:ss - DD/MM/YYYY" />
                                 </Form.Item>
                             </Col>
@@ -623,12 +734,13 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                             <Col span={12}>
                                 <Form.Item
                                     label="Ngày kết thúc:"
-                                    name="endDate"
+                                    name="endTime"
                                     rules={[
                                         { required: true, message: 'Vui lòng nhập ngày kết thúc!' },
                                         ({ getFieldValue }) => ({
                                             validator(_, endDate) {
-                                                const startDate = getFieldValue('startDate');
+                                                const startDate = getFieldValue('startTime');
+
                                                 const currentDate = dayjs();
 
                                                 if (!startDate || !endDate) {
@@ -656,10 +768,10 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                             </Col>
                         </Row>
                         <Row>
-                            <Col span={24}>
+                            <Col span={11}>
                                 <Form.Item
-                                    label="Tối thiểu:"
-                                    name="orderMinimum"
+                                    label="Đơn Tối Thiểu:"
+                                    name="minimumOrder"
                                     rules={[
                                         {
                                             required: false,
@@ -695,9 +807,9 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                     />
                                 </Form.Item>
                             </Col>
-                            {/* <Col span={1}></Col>
+                            <Col span={1}></Col>
                             <Col span={12}>
-                                <Form.Item label="Giảm tối đa:" name="maxReduce" rules={[
+                                <Form.Item label="Giảm tối đa:" name="minimize" rules={[
                                     {
                                         required: false,
                                         type: 'number',
@@ -730,20 +842,24 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                         parser={(value) => value.replace(/[^\d]/g, '')} // Chỉ giữ lại số
                                     />
                                 </Form.Item>
-                            </Col> */}
+                            </Col>
                         </Row>
 
 
                         <Form.Item label="Ghi chú:" name="note" >
                             <TextArea rows={4} placeholder="Nhập ghi chú..." />
                         </Form.Item>
-
-                        <Form.Item label="Trạng thái:" name="deleted" initialValue={true} >
+                        {/* 
+                        <Form.Item label="Trạng thái:" name="deleted"  >
                             <Radio.Group name="radiogroup" style={{ float: 'left' }}>
-                                <Radio value={true}>Hoạt động</Radio>
-                                <Radio value={false}>Hết hạn</Radio>
+                                <Radio >Sắp diễn ra</Radio>
+                                <Radio >Đang diễn ra</Radio>
+                                <Radio >Sắp hết hạn</Radio>
+                                <Radio >Hết hạn</Radio>
+                                <Radio >Đã hết</Radio>
+                                <Radio >Hủy bỏ</Radio>
                             </Radio.Group>
-                        </Form.Item>
+                        </Form.Item> */}
                     </Form>
                 </Modal>
             </Col>

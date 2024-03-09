@@ -44,7 +44,7 @@ public class Return {
     @JoinColumn(name = "idBill")
     private Bill idBill;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idAcc")
-    private Account idAcc;
+    @ManyToOne
+    @JoinColumn(name = "idAcc",referencedColumnName = "id")
+    private Account account;
 }

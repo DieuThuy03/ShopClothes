@@ -46,7 +46,10 @@ public class Cart {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idCart")
     List<CartDetail> cartDetails;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idAcc")
-    private Account idAcc;
+
+    @ManyToOne
+    @JoinColumn(name = "owner", referencedColumnName = "id")
+    private Account account;
+
+
 }

@@ -44,5 +44,9 @@ public class Address {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idUser")
     private User idUser;
+
+    @ManyToOne
+    @JoinColumn(name = "idAcc",referencedColumnName = "id")
+    private Account account;
 }
 
