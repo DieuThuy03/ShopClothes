@@ -35,7 +35,7 @@ public class SizeService implements sizeSevices {
 
     @Override
     public Size add(Size size) {
-        size.setName(size.getName());
+        size.setSizeName(size.getSizeName());
         return sizeRepo.save(size);
     }
 

@@ -23,4 +23,8 @@ public interface ProductServices {
     public Boolean updateProduct(ProductRequestDto productRequestDto, Long id);
 
     public Product findProductById(Long productId);
+
+    public Boolean deleteProduct(Long id);
+
+    public List<Product> findAllByDeletedTrue();
 }

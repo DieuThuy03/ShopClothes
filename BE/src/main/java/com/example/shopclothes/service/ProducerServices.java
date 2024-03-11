@@ -22,6 +22,8 @@ public interface ProducerServices {
 
     public Producer xoa( Long id);
 
+
+    public List<Producer> findByDeletedTrue();
 //    List<Producer> findByNhaSanXuatString (List<String> nsxString) ;
 
 //    Page<Producer> getSuppliers(String name, String status, Date dateCreate, Date dateUpdate, Pageable pageable);

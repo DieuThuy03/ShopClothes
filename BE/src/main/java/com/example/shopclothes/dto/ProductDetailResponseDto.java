@@ -28,5 +28,6 @@ public class ProductDetailResponseDto {
 
     private Double price;
 
+
     private Status status;
 }

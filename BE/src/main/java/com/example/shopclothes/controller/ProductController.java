@@ -48,6 +48,7 @@ public class ProductController {
 
     @PostMapping("create")
     public ResponseEntity<Product> create(@Valid @RequestBody ProductRequestDto productRequestDto) {
+        System.out.println("CategoryName in create method: " + productRequestDto.getProductName());
         Product  product = productService.createProduct(productRequestDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -73,5 +74,18 @@ public class ProductController {
                 .status(HttpStatus.OK)
                 .body(product);
     }
+
+    @DeleteMapping("delete")
+    public ResponseEntity<ResponseDto> delete(@RequestParam Long id) {
+        Boolean isDeleted = productService.deleteProduct(id);
+        if (isDeleted) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ResponseDto(NotificationConstants.STATUS_200, NotificationConstants.MESSAGE_200));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDto(NotificationConstants.STATUS_500, NotificationConstants.MESSAGE_500));
+        }
+    }
+
 
 }

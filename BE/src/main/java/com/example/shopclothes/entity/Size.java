@@ -30,7 +30,7 @@ public class Size {
     private String code;
 
     @Column(name = "name")
-    private String name;
+    private String sizeName;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)

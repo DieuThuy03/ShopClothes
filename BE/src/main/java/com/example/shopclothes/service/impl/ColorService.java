@@ -35,7 +35,7 @@ public class ColorService implements ColorServices {
 
     @Override
     public Color add(Color nhaSanXuat) {
-        nhaSanXuat.setName(nhaSanXuat.getName());
+        nhaSanXuat.setColorName(nhaSanXuat.getColorName());
         return colorRepo.save(nhaSanXuat);
     }
 

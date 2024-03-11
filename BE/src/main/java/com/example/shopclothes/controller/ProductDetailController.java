@@ -1,10 +1,7 @@
 package com.example.shopclothes.controller;
 
 import com.example.shopclothes.constants.NotificationConstants;
-import com.example.shopclothes.dto.ProductDetailRequestDto;
-import com.example.shopclothes.dto.ProductDetailResponseDto;
-import com.example.shopclothes.dto.ResponseDto;
-import com.example.shopclothes.dto.ResponseHandler;
+import com.example.shopclothes.dto.*;
 import com.example.shopclothes.entity.Product;
 import com.example.shopclothes.entity.ProductDetail;
 import com.example.shopclothes.entity.propertis.Status;
@@ -96,5 +93,17 @@ public class ProductDetailController {
                 HttpStatus.OK
                 , detailResponseDtoList
                 , responseDtoPage);
+    }
+
+    @PostMapping("getAllProductDetailsFilter")
+    public ResponseEntity<?> getProductDetails(@RequestBody ProductDetailFilterRequestDto requestDto) {
+
+        Page<ProductDetailResponseDto> productPage = productDetailService.getProductDetails(requestDto);
+
+        List<ProductDetailResponseDto> productResponseDtoList = productPage.getContent();
+        return ResponseHandler.generateResponse(
+                HttpStatus.OK
+                , productResponseDtoList
+                , productPage);
     }
 }

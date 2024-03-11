@@ -8,10 +8,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 
@@ -28,6 +30,21 @@ public interface CategoryRepo extends JpaRepository<Category, Long> {
     Page<Category> getAllByStatus(Status status, Pageable pageable);
 
 
+//    @Query("SELECT c FROM Category c WHERE c.status = 'DANG_HOAT_DONG' ORDER BY c.dateCreate DESC")
+//    Category findByCategoryName(String name);
+
+
+
+//    @Query("SELECT c FROM Category c WHERE c.status = 'DANG_HOAT_DONG' ORDER BY c.dateCreate DESC")
+//    Category findByCategoryName(String name);
+
+    @Query("SELECT c FROM Category c WHERE c.status = 'DANG_HOAT_DONG' AND c.categoryName = :name ORDER BY c.dateCreate DESC")
+    Optional<Category> findByCategoryName(@Param("name") String name);
+
+//    @Query("SELECT c FROM Category c WHERE c.status = 'DANG_HOAT_DONG' AND c.categoryName = :name ORDER BY c.dateCreate DESC")
+//    Category findByCategoryName(@Param("name") String name, Pageable pageable);
+
     @Query("SELECT c FROM Category c WHERE c.status = 'DANG_HOAT_DONG' ORDER BY c.dateCreate DESC")
-    Category findByName(String name);
+    List<Category> findByStatus();
+
 }

@@ -8,10 +8,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 
@@ -27,5 +29,14 @@ public interface SizeRepo extends JpaRepository<Size, Long> {
 
     Page<Size> getAllByStatus(Status status, Pageable pageable);
 
-    Size findByName(String name);
+
+//    Size findBySizeName(String sizeName);
+
+
+//    @Query("SELECT c FROM Size c WHERE c.status = 'DANG_HOAT_DONG' ORDER BY c.dateCreate DESC")
+//    Size findFirstBySizeName(String sizeName);
+
+
+    @Query("SELECT c FROM Size c WHERE c.status = 'DANG_HOAT_DONG' AND c.sizeName = :name ORDER BY c.dateCreate DESC")
+    Optional<Size> findFirstBySizeName(@Param("name") String name);
 }

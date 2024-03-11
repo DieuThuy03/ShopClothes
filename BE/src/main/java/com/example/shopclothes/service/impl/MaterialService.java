@@ -34,7 +34,7 @@ public class MaterialService implements MaterielServices {
 
     @Override
     public Material add(Material mt) {
-        mt.setName(mt.getName());
+        mt.setMaterialName(mt.getMaterialName());
         return materielRepo.save(mt);
     }
 

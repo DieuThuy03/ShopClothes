@@ -22,7 +22,10 @@ public class ProductFilterResponseDto {
     private String supplierName;
     private String productDescribe;
     private Long quantityTotal;
+    private Double price;
     private Status status;
     private LocalDateTime createdAt; // Thêm một tham số LocalDateTime
     private LocalDateTime createdBy;
+
+
 }

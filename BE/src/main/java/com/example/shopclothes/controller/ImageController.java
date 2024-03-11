@@ -78,7 +78,7 @@ public class ImageController {
         }
     }
 
-    @DeleteMapping("delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<ResponseDto> deleteImage(@RequestParam Long id) {
 
         Boolean isDeleted = imageService.deleteImage(id);

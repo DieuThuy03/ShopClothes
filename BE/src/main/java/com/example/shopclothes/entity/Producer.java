@@ -30,8 +30,8 @@ public class Producer  {
     @Column(name = "code")
     private String code;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "producer_name")
+    private String producerName;
 
     @Column(name = "email")
     private String email;

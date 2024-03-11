@@ -35,7 +35,7 @@ public class CategoryService implements CategoryServices {
 
     @Override
     public Category add(Category ct) {
-        ct.setName(ct.getName());
+        ct.setCategoryName(ct.getCategoryName());
         return categoryRepo.save(ct);
     }
 
@@ -55,6 +55,12 @@ public class CategoryService implements CategoryServices {
         } else {
             return null;
         }
+    }
+
+
+    @Override
+    public List<Category> findAllByDeletedTrue() {
+        return categoryRepo.findByStatus();
     }
 
 }
