@@ -19,6 +19,7 @@ import VoucherService from '~/service/VoucherService';
 import FormatDate from '~/utils/format-date';
 import { fomatVoucherDate } from 'utils/voucherFormatDate';
 import dayjs from 'dayjs';
+import arraySupport from 'dayjs/plugin/arraySupport';
 import formatCurrency from '~/utils/format-currency';
 const { TextArea } = Input;
 const { Option } = Select;
@@ -80,6 +81,7 @@ function Voucher() {
 
                     if (Array.isArray(responseData)) {
                         console.log('Response Data:', response);
+                        dayjs.extend(arraySupport)
                         const formattedVouchers = responseData.map(vocherResponse => ({
                             key: vocherResponse.id,
                             id: vocherResponse.id,
@@ -733,22 +735,22 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                             validator(_, endDate) {
                                                 const startDate = getFieldValue('startTime');
 
-                                                //const currentDate = dayjs();
+                                                const currentDate = dayjs();
 
                                                 if (!startDate || !endDate) {
                                                     // Nếu chưa có giá trị, không validate
                                                     return Promise.resolve();
                                                 }
 
-                                                // if (dayjs(startDate).isAfter(endDate)) {
-                                                //     // Ngày kết thúc không được trước ngày bắt đầu
-                                                //     return Promise.reject(new Error('Ngày kết thúc phải sau ngày bắt đầu!'));
-                                                // }
+                                                if (dayjs(startDate).isAfter(endDate)) {
+                                                    // Ngày kết thúc không được trước ngày bắt đầu
+                                                    return Promise.reject(new Error('Ngày kết thúc phải sau ngày bắt đầu!'));
+                                                }
 
-                                                // if (dayjs(endDate).isBefore(currentDate, 'day')) {
-                                                //     // Ngày kết thúc không được là ngày hiện tại hoặc ngày quá khứ
-                                                //     return Promise.reject(new Error('Ngày kết thúc không được là ngày hiện tại hoặc ngày quá khứ!'));
-                                                // }
+                                                if (dayjs(endDate).isBefore(currentDate, 'day')) {
+                                                    // Ngày kết thúc không được là ngày hiện tại hoặc ngày quá khứ
+                                                    return Promise.reject(new Error('Ngày kết thúc không được là ngày hiện tại hoặc ngày quá khứ!'));
+                                                }
 
                                                 return Promise.resolve();
                                             },
