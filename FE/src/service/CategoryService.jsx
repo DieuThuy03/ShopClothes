@@ -4,7 +4,7 @@ const API_URL = '/Category';
 
 const CategoryService = {
     getAll: (pageNo, pageSize, name, status) => {
-        return HttpClient.get(`${API_URL}/hien-thi`, {
+        return HttpClient.get(`${API_URL}/hien-thi-page`, {
             params: { pageNo, pageSize, name, status }
         })
             .then(response => response)  // Sửa dòng này
@@ -61,7 +61,7 @@ const CategoryService = {
     },
 
     findAllByDeletedTrue: () => {
-        return HttpClient.get(`${API_URL}findAllByDeletedTrue`)
+        return HttpClient.get(`${API_URL}/findAllByDeletedTrue`)
             .then(response => response)
             .catch(error => {
                 console.error('Error in findAllByDeletedTrue:', error);

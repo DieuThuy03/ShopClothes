@@ -87,32 +87,21 @@ function ProductAdd() {
     const handleCancelCategory = () => {
         setOpenCategory(false);
     };
-
+    ////Loại sp
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
-        fetchCategory();
+        fetchCategory()
     }, []);
 
     const fetchCategory = async () => {
-        try {
-            const response = await CategoryService.getAll();
-            console.log('Response from API:', response);
-
-            if (response && response.data) {
-                const categoryOptions = response.data.map(category => ({
-                    value: category.id,
-                    label: category.name,
-                }));
-                setCategories(categoryOptions);
-            } else {
-                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về danh mục.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi gọi API: ', error);
-        }
+        await CategoryService.findAllByDeletedTrue()
+            .then(response => {
+                setCategories(response.data)
+            }).catch(error => {
+                console.error(error);
+            })
     }
-
     //-------------------------------Chất liệu---------------------------------------
     const [openMaterial, setOpenMaterial] = useState(false);
 
@@ -130,22 +119,14 @@ function ProductAdd() {
     }, []);
     const fetchMaterial = async () => {
 
-        try {
-            const response = await MaterialService.getAll();
-            console.log('Response from API:', response);
+        await MaterialService.getAll()
+            .then(response => {
 
-            if (response && response.data) {
-                const mateOptions = response.data.map(mate => ({
-                    value: mate.id,
-                    label: mate.name,
-                }));
-                setMaterials(mateOptions);
-            } else {
-                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về màu sắc.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi gọi API: ', error);
-        }
+                setMaterials(response.data)
+
+            }).catch(error => {
+                console.error(error);
+            })
     }
     //--------------------------------Màu sắc---------------------------------------
     const [openColor, setOpenColor] = useState(false);
@@ -165,37 +146,17 @@ function ProductAdd() {
     }, []);
 
     const fetchColor = async () => {
-        try {
-            const response = await ColorService.getAll();
-            console.log('Response from API:', response);
 
-            if (response && response.data) {
-                const colorOptions = response.data.map(color => ({
-                    value: color.id,
-                    label: color.name,
-                }));
-                setColors(colorOptions);
-            } else {
-                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về màu sắc.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi gọi API: ', error);
-        }
+        await ColorService.getAll()
+            .then(response => {
+
+                setColors(response.data)
+
+            }).catch(error => {
+                console.error(error);
+            })
     }
 
-    // useEffect(() => {
-    //     fetchColor()
-    // }, []);
-    // const fetchColor = async () => {
-
-    //     await ColorService.findAllByDeletedTrue()
-    //         .then(response => {
-
-    //             setColors(response.data)
-    //         }).catch(error => {
-    //             console.error(error);
-    //         })
-    // }
     //----------------------------Kích thước------------------------------------------
     const [openSize, setOpenSize] = useState(false);
 
@@ -214,22 +175,13 @@ function ProductAdd() {
     }, []);
 
     const fetchSize = async () => {
-        try {
-            const response = await SizeService.getAll();
-            console.log('Response from API:', response);
 
-            if (response && response.data) {
-                const sizeOptions = response.data.map(size => ({
-                    value: size.id,
-                    label: size.name,
-                }));
-                setSizes(sizeOptions);
-            } else {
-                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về danh mục.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi gọi API: ', error);
-        }
+        await SizeService.getAll()
+            .then(response => {
+                setSizes(response.data)
+            }).catch(error => {
+                console.error(error);
+            })
     }
     //---------------------------------------------------------------------------------------
 
@@ -240,8 +192,8 @@ function ProductAdd() {
     const [selectedColors, setSelectedColors] = useState([]);
 
     // Xử lý sự kiện khi chọn màu sắc
-    const handleColorChange = (selectedColors) => {
-        setSelectedColors(selectedColors);
+    const handleColorChange = (selectedColor) => {
+        setSelectedColors(selectedColor);
     };
     // Trạng thái để theo dõi kích thước đã chọn
     const [selectedSizes, setSelectedSizes] = useState([]);
@@ -255,7 +207,6 @@ function ProductAdd() {
     const handleProductNameChange = (productName) => {
         setSelectedProductName(productName);
     };
-
     // Trạng thái để theo dõi chất liệu đã chọn
     const [selectedMaterial, setSelectedMaterial] = useState(null)
 
@@ -269,36 +220,7 @@ function ProductAdd() {
     const [form] = Form.useForm();
     const [formThuocTinh] = Form.useForm();
     const [confirmFileList, setConfirmFileList] = useState([]);
-    // const confirm = () => {
-    //     modal.confirm({
-    //         title: 'Thông báo!',
-    //         icon: <ExclamationCircleOutlined />,
-    //         content: 'Bạn có chắc muốn tạo mới một sản phẩm không?',
-    //         onOk: () => {
-    //             setLoading(true);
-    //             console.log('File List before handleCreate:', confirmFileList);
 
-    //             if (!fileList || !Array.isArray(fileList) || fileList.length === 0) {
-    //                 form.validateFields();
-    //                 formThuocTinh.validateFields();
-    //                 notification.warning({
-    //                     message: 'Thông báo',
-    //                     description: 'Ảnh không được để trống!',
-    //                 });
-    //                 setLoading(false);
-    //                 return;
-    //             }
-
-    //             setTimeout(() => {
-    //                 handleCreate(confirmFileList);  // Truyền fileList vào hàm handleCreate
-    //             }, 1000);
-    //         },
-
-
-    //         okText: 'Đồng ý',
-    //         cancelText: 'Hủy bỏ',
-    //     });
-    // }
 
     const confirm = () => {
         modal.confirm({
@@ -343,10 +265,13 @@ function ProductAdd() {
         }));
     };
 
+
+
     useEffect(() => {
         const tables = createColorTable(selectedColors, selectedSizes, selectedProductName, selectedMaterial);
         setColorTables(tables);
     }, [selectedColors, selectedSizes, selectedProductName, selectedMaterial, inputData]);
+
 
 
     const columns = [
@@ -396,6 +321,8 @@ function ProductAdd() {
             ),
         },
     ];
+
+
     let keyCounter = 1;
     const createColorTable = (selectedColors, selectedSizes, selectedProductName, selectedMaterial) => {
         const dataSource = [];
@@ -431,6 +358,7 @@ function ProductAdd() {
         setProductDetailData(dataSource);
     };
 
+
     // /nhà phẩn phối
     const [suppliers, setSuppliers] = useState([]);
 
@@ -439,171 +367,18 @@ function ProductAdd() {
     }, []);
 
     const fetchSupplier = async () => {
-        try {
-            const response = await SupplierService.getAll();
-            console.log('Response from API:', response);
 
-            if (response && response.data) {
-                const supplierOptions = response.data.map(sup => ({
-                    value: sup.id,
-                    label: sup.name,
-                }));
-                setSuppliers(supplierOptions); // Sửa lại thành setSuppliers
-            } else {
-                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về nhà cung cấp.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi gọi API: ', error);
-        }
+        await SupplierService.findAllByDeletedTrue()
+            .then(response => {
+
+                setSuppliers(response.data)
+            }).catch(error => {
+                console.error(error);
+            })
     }
 
-    // const fetchSupplier = async () => {
-
-    //     await SupplierService.findAllByDeletedTrue()
-    //         .then(response => {
-
-    //             setSuppliers(response.data)
-    //         }).catch(error => {
-    //             console.error(error);
-    //         })
-    // }
 
 
-
-    // const handleCancel = () => setPreviewOpen(false);
-
-    // const handleCreate = async () => {
-    //     setLoading(true);
-    //     try {
-
-    //         // Tạo mảng promises chứa tất cả các tác vụ upload ảnh
-    //         const uploadPromises = fileList.map(async (file) => {
-    //             const imgRef = ref(imageDB, `files/${uuidv4()}`);
-    //             await uploadBytes(imgRef, file.originFileObj);
-    //             const url = await getDownloadURL(imgRef);
-
-    //             return {
-    //                 imageName: file.name,
-    //                 imageLink: url,
-    //                 imageType: file.type,
-    //             };
-    //         });
-
-    //         // Sử dụng Promise.all để đợi tất cả các tác vụ upload ảnh hoàn tất
-    //         const uploadedFiles = await Promise.all(uploadPromises);
-
-    //         // Tạo sản phẩm và lấy productId từ kết quả
-    //         try {
-    //             const data = await form.getFieldsValue();
-    //             data.deleted = true;
-    //             const productId = await ProductService.create(data);
-
-
-    //             uploadedFiles.forEach(fileInfo => fileInfo.productId = productId.id);
-
-    //             await ImageService.create(uploadedFiles);
-
-    //             // const formValues = formThuocTinh.getFieldsValue()
-    //             const productDetail = productDetailData.map(item => ({
-    //                 ...item,
-    //                 productId: productId.id,
-    //             }));
-    //             console.log(productDetail);
-    //             // Gọi API để lưu thông tin ảnh vào backend
-    //             await ProductDetailService.create(productDetail);
-
-    //             setFileList([]);
-    //             setLoading(false);
-    //             notification.success({
-    //                 message: 'Thông báo',
-    //                 description: 'Thêm mới sản phẩm thành công!',
-    //             });
-    //             navigate(path_name.product);
-    //         } catch (error) {
-    //             setLoading(false);
-    //             notification.error({
-    //                 message: 'Thông báo',
-    //                 description: 'Lỗi thêm mới sản phẩm!',
-    //             });
-    //         }
-    //     } catch (error) {
-    //         setLoading(false);
-    //         notification.error({
-    //             message: 'Thông báo',
-    //             description: 'Lỗi thêm mới sản phẩm!',
-    //         });
-    //     }
-    // };
-    // const imageDB = getDatabase();
-    // const handleCreate = async (fileList) => {
-    //     setLoading(true);
-
-    //     try {
-
-    //         const uploadPromises = fileList.map(async (file) => {
-    //             // Kiểm tra xem file có đúng là hình ảnh không
-    //             if (file.type.startsWith('image/')) {
-    //                 const imgRef = ref(imageDB, `files/${uuidv4()}`);
-    //                 console.log('imageDB:', imageDB);
-    //                 console.log('Uploading image...');
-    //                 await uploadBytes(imgRef, file.originFileObj);
-    //                 const url = await getDownloadURL(imgRef);
-
-    //                 return {
-    //                     imageName: file.name,
-    //                     imageLink: url,
-    //                     imageType: file.type,
-    //                 };
-    //             } else {
-    //                 console.error('Only images are allowed.');
-    //                 return null; // Hoặc bạn có thể xử lý đúng cách tùy thuộc vào yêu cầu của bạn
-    //             }
-    //         });
-    //         const validFiles = (await Promise.all(uploadPromises)).filter(fileInfo => fileInfo !== null);
-    //         // const uploadedFiles = await Promise.all(uploadPromises);
-    //         const uploadedFiles = validFiles;
-
-    //         const data = form.getFieldsValue();
-    //         data.deleted = true;
-
-    //         const response = await ProductService.create(data);
-
-    //         if (response && !response.error) {
-    //             const productId = response.id;
-    //             uploadedFiles.forEach(fileInfo => fileInfo.productId = productId);
-
-    //             await ImageService.create(uploadedFiles);
-
-    //             const productDetail = productDetailData.map(item => ({
-    //                 ...item,
-    //                 productId: productId,
-    //             }));
-
-    //             await ProductDetailService.create(productDetail);
-
-    //             setFileList([]);
-    //             setLoading(false);
-    //             notification.success({
-    //                 message: 'Thông báo',
-    //                 description: 'Thêm mới sản phẩm thành công!',
-    //             });
-    //             navigate(path_name.product);
-    //         } else {
-    //             setLoading(false);
-    //             notification.error({
-    //                 message: 'Thông báo',
-    //                 description: 'Lỗi thêm mới sản phẩm!',
-    //             });
-    //         }
-    //     } catch (error) {
-    //         setLoading(false);
-    //         notification.error({
-    //             message: 'Thông báo',
-    //             description: 'Lỗi thêm mới sản phẩm!',
-    //         });
-    //         console.error(error);
-    //     }
-    // };
     const [fileList, setFileList] = useState([]);
 
     const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
@@ -726,19 +501,22 @@ function ProductAdd() {
                             <Col span={12} style={{ paddingLeft: '20px' }}>
                                 <Row>
                                     <Col span={22}>
-                                        <Form.Item
-                                            label="Danh mục:"
-                                            name="categoryId"
-                                            rules={[{ required: true, message: 'Vui lòng chọn danh mục !' }]}
-                                        >
+
+
+                                        <Form.Item label="Danh mục:" name="categoryName" rules={[{ required: true, message: 'Vui lòng chọn danh mục !' }]}>
                                             <Select
                                                 showSearch
-                                                style={{ width: '100%' }}
-                                                placeholder="Chọn loại sản phẩm "
+                                                style={{
+                                                    width: '100%',
+                                                    height: '35px'
+                                                }}
+                                                placeholder="Chọn loại sản phẩm"
+                                                // options={categories}
                                                 filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                                                options={categories}
+                                                options={categories.map(option => ({ value: option.categoryName, label: option.categoryName }))}
                                             />
                                         </Form.Item>
+
                                     </Col>
 
                                     <Col span={2}>
@@ -756,17 +534,15 @@ function ProductAdd() {
                         <Row gutter={16}>
                             {/* Nhà cung cấp */}
                             <Col span={11}>
-                                <Form.Item
-                                    label="Nhà cung cấp:"
-                                    name="supplierName"
-                                    rules={[{ required: true, message: 'Vui lòng chọn nhà cung cấp !' }]}
-                                >
+                                <Form.Item label="Nhà cung cấp:" name="producerName" rules={[{ required: true, message: 'Vui lòng chọn nhà cung cấp !' }]}>
                                     <Select
                                         showSearch
-                                        style={{ width: 'calc(100% - 3px)', height: '35px' }}
+                                        style={{
+                                            width: '100%',
+                                        }}
                                         placeholder="Chọn nhà cung cấp"
                                         filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                                        options={suppliers.map(option => ({ value: option.label, label: option.label }))}
+                                        options={suppliers.map(option => ({ value: option.producerName, label: option.producerName }))}
                                     />
                                 </Form.Item>
                             </Col>
@@ -798,7 +574,7 @@ function ProductAdd() {
                                     <Input
                                         placeholder="Nhập giá sản phẩm..."
                                         style={{ height: '35px', borderRadius: '5px', width: '100%' }}
-                                        onChange={(e) => handleProductNameChange(e.target.value)}
+                                    // onChange={(e) => handleProductNameChange(e.target.value)}
                                     />
                                 </Form.Item>
                             </Col>
@@ -849,44 +625,7 @@ function ProductAdd() {
 
                 </Card>
 
-                {/* <Card title={<span style={{ color: '#5a76f3' }}>Ảnh sản phẩm</span>}
-                    style={{ marginTop: '20px', borderRadius: '10px' }} >
 
-                    <Upload
-                        customRequest={async ({ file, onSuccess, onError }) => {
-                            try {
-                                // const isImage = file.type.startsWith('files/');
-                                const isImage = file.type.startsWith('image/');
-                                // const isImage = true;
-                                if (!isImage) {
-                                    throw new Error('Only images are allowed.');
-                                }
-
-                                const reader = new FileReader();
-                                reader.onload = (e) => {
-                                    onSuccess();
-                                };
-                                reader.readAsDataURL(file);
-                            } catch (error) {
-                                console.error('Error processing file:', error);
-                                onError(error);
-                            }
-                        }}
-                        listType="picture-card"
-                        fileList={fileList}
-                        onChange={handleChange}
-                        maxCount={5}
-                        multiple
-                    >
-                        {fileList?.length >= 5 ? null : (
-                            <div>
-                                <PlusOutlined />
-                                <div style={{ marginTop: 8 }}>Upload</div>
-                            </div>
-                        )}
-                    </Upload>
-
-                </Card> */}
 
                 <Card title={<span style={{ color: '#5a76f3' }}>Thuộc tính</span>}
                     style={{ marginTop: '20px', borderRadius: '10px' }} >
@@ -899,7 +638,7 @@ function ProductAdd() {
                             <Col span={8}>
                                 <Row>
                                     <Col span={20}>
-                                        <Form.Item label="Kích thước" name="name" rules={[{ required: true, message: 'Vui lòng chọn kích thước !' }]}>
+                                        <Form.Item label="Kích thước" name="sizeName" rules={[{ required: true, message: 'Vui lòng chọn kích thước !' }]}>
                                             <Select
                                                 mode="multiple"
                                                 allowClear
@@ -908,7 +647,7 @@ function ProductAdd() {
                                                 }}
                                                 placeholder="Chọn kích thước"
                                                 onChange={handleSizeChange}
-                                                options={sizes} />
+                                                options={sizes.map(option => ({ value: option.sizeName, label: option.sizeName }))} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={4}>
@@ -927,11 +666,7 @@ function ProductAdd() {
                             <Col span={8} >
                                 <Row>
                                     <Col span={20}>
-                                        <Form.Item
-                                            label="Màu sắc"
-                                            name="colors"  // Thay đổi name để phù hợp với trường trong dữ liệu của bạn
-                                            rules={[{ required: true, message: 'Vui lòng chọn màu sắc !' }]}
-                                        >
+                                        <Form.Item label="Màu sắc" name="colorName" rules={[{ required: true, message: 'Vui lòng chọn màu sắc !' }]}>
                                             <Select
                                                 showSearch
                                                 mode="multiple"
@@ -941,7 +676,12 @@ function ProductAdd() {
                                                 }}
                                                 placeholder="Chọn màu sắc"
                                                 onChange={handleColorChange}
-                                                options={colors}
+
+
+
+                                                filterOption={(input, option) => (option?.label ?? '').includes(input)}
+                                                options={colors.map(option => ({ value: option.colorName, label: option.colorName }))}
+                                            // options={materials.map(option => ({ value: option.materialName, label: option.materialName }))}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -961,7 +701,7 @@ function ProductAdd() {
                             <Col span={8}>
                                 <Row>
                                     <Col span={20}>
-                                        <Form.Item label="Chất liệu:" name="name" rules={[{ required: true, message: 'Vui lòng chọn chất liệu !' }]} >
+                                        <Form.Item label="Chất liệu:" name="materialName" rules={[{ required: true, message: 'Vui lòng chọn chất liệu !' }]} >
                                             <Select
                                                 showSearch
                                                 mode="multiple"
@@ -973,7 +713,7 @@ function ProductAdd() {
                                                 onChange={handleMaterialChange}
                                                 filterOption={(input, option) => (option?.label ?? '').includes(input)}
 
-                                                options={materials}
+                                                options={materials.map(option => ({ value: option.materialName, label: option.materialName }))}
                                             />
 
                                         </Form.Item>
@@ -1015,14 +755,7 @@ function ProductAdd() {
                 />
             }
 
-            {/* {
-                openBrand && <BrandModal
-                    isModal={openBrand}
-                    hideModal={handleCancelBrand}
-                    fetchBrands={fetchBrand}
-                    brands={brands}
-                />
-            } */}
+
             {
                 openCategory && <CategoryModal
                     isModal={openCategory}
@@ -1117,41 +850,17 @@ const ProductModal = ({ hideModal, isModal, fetchProducts }) => {
     }, []);
 
     const fetchCategory = async () => {
-        try {
-            const response = await CategoryService.getAll();
-            console.log('Response from API:', response);
 
-            if (response && response.data) {
-                const categoryOptions = response.data.map(cate => ({
-                    value: cate.id,
-                    label: cate.name,
-                }));
-                setCategories(categoryOptions);
-            } else {
-                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về danh mục.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi gọi API: ', error);
-        }
+        await CategoryService.findAllByDeletedTrue()
+            .then(response => {
+
+                setCategories(response.data)
+            }).catch(error => {
+                console.error(error);
+            })
     }
 
-    // // /thương hiệu
-    // const [brands, setBrands] = useState([]);
 
-    // useEffect(() => {
-    //     fetchBrand()
-    // }, []);
-    // const fetchBrand = async () => {
-
-    //     await BrandService.findAllByDeletedTrue()
-    //         .then(response => {
-
-    //             setBrands(response.data)
-
-    //         }).catch(error => {
-    //             console.error(error);
-    //         })
-    // }
 
 
     // /nhà phẩn phối
@@ -1203,35 +912,6 @@ const ProductModal = ({ hideModal, isModal, fetchProducts }) => {
     }
 
 
-    // const handleCreate = () => {
-    //     form.validateFields().then(async () => {
-
-    //         const data = form.getFieldsValue();
-
-    //         await ProductService.create(data)
-    //             .then(() => {
-    //                 notification.success({
-    //                     message: 'Thông báo',
-    //                     description: 'Thêm mới thành công!',
-    //                 });
-    //                 fetchProducts();
-    //                 // Đóng modal
-    //                 hideModal();
-    //             })
-    //             .catch(error => {
-    //                 notification.error({
-    //                     message: 'Thông báo',
-    //                     description: 'Thêm mới thất bại!',
-    //                 });
-    //                 console.error(error);
-    //             });
-
-    //     }).catch(error => {
-    //         console.error(error);
-    //     })
-
-    // }
-
     return (
 
         <Modal
@@ -1249,12 +929,12 @@ const ProductModal = ({ hideModal, isModal, fetchProducts }) => {
                 form={form}
 
             >
-                <Form.Item label="Tên sản phẩm:" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm!' }]}>
+                <Form.Item label="Tên sản phẩm:" name="productName" rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm!' }]}>
                     <Input placeholder="Nhập tên sản phẩm..." />
                 </Form.Item>
                 <Row>
                     <Col span={11}>
-                        <Form.Item label="Danh mục:" name="name" rules={[{ required: true, message: 'Vui lòng chọn danh mục !' }]}>
+                        <Form.Item label="Danh mục:" name="categoryName" rules={[{ required: true, message: 'Vui lòng chọn danh mục !' }]}>
                             <Select
                                 showSearch
                                 style={{
@@ -1262,13 +942,13 @@ const ProductModal = ({ hideModal, isModal, fetchProducts }) => {
                                 }}
                                 placeholder="Chọn loại sản phẩm"
                                 filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                                options={categories.map(option => ({ value: option.name, label: option.name }))}
+                                options={categories.map(option => ({ value: option.categoryName, label: option.categoryName }))}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={2}></Col>
                     <Col span={11}>
-                        <Form.Item label="Nhà cung cấp:" name="name" rules={[{ required: true, message: 'Vui lòng chọn nhà cung cấp !' }]}>
+                        <Form.Item label="Nhà cung cấp:" name="producerName" rules={[{ required: true, message: 'Vui lòng chọn nhà cung cấp !' }]}>
                             <Select
                                 showSearch
                                 style={{
@@ -1276,25 +956,13 @@ const ProductModal = ({ hideModal, isModal, fetchProducts }) => {
                                 }}
                                 placeholder="Chọn nhà cung cấp"
                                 filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                                options={suppliers.map(option => ({ value: option.supplierName, label: option.supplierName }))}
+                                options={suppliers.map(option => ({ value: option.producerName, label: option.producerName }))}
                             />
                         </Form.Item>
                     </Col>
                 </Row>
                 <Row>
-                    {/* <Col span={11}>
-                        <Form.Item label="Thương hiệu:" name="brandName" rules={[{ required: true, message: 'Vui lòng chọn thương hiệu !' }]}>
-                            <Select
-                                showSearch
-                                style={{
-                                    width: '100%',
-                                }}
-                                placeholder="Chọn thương hiệu"
-                                filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                                options={brands.map(option => ({ value: option.brandName, label: option.brandName }))}
-                            />
-                        </Form.Item>
-                    </Col> */}
+
                     <Col span={2}></Col>
                     <Col span={11}>
                         <Form.Item label="Trạng thái:" name="status" initialValue="DANG_HOAT_DONG">
@@ -1322,7 +990,7 @@ const MaterialModal = ({ hideModal, isModal, fetchMaterials, materials }) => {
         form.validateFields().then(async () => {
 
             const data = form.getFieldsValue();
-
+            data.status = 'DANG_HOAT_DONG';
             await MaterialService.create(data)
                 .then(() => {
                     notification.success({
@@ -1361,35 +1029,30 @@ const MaterialModal = ({ hideModal, isModal, fetchMaterials, materials }) => {
                 name="validateOnly" layout="vertical" autoComplete="off"
                 form={form}
             >
-                <Form.Item
-                    label="Tên"
-                    name="name"
-                    rules={[
-                        { required: true, message: 'Vui lòng nhập tên chất liệu!' },
-                        {
-                            validator: (_, value) => {
-                                if (!value) {
-                                    return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
-                                }
-                                const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
-                                const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
-                                const productNameFieldValue = form.getFieldValue('name'); // Đổi thành 'name'
-
-                                const isDuplicate = materials.some(
-                                    (material) => material.name.trim().toLowerCase() === lowercaseValue && material.id !== productNameFieldValue
-                                );
-                                if (isDuplicate) {
-                                    return Promise.reject('Tên chất liệu đã tồn tại!');
-                                }
-                                // Kiểm tra dấu cách ở đầu và cuối
-                                if (/^\s|\s$/.test(value)) {
-                                    return Promise.reject('Tên chất liệu không được chứa dấu cách ở đầu và cuối!');
-                                }
-                                return Promise.resolve();
-                            },
-                        },
-                    ]}
-                >
+                <Form.Item label="Tên" name="materialName" rules={[{ required: true, message: 'Vui lòng nhập tên chất liệu!' }
+                    ,
+                {
+                    validator: (_, value) => {
+                        if (!value) {
+                            return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
+                        }
+                        const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
+                        const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
+                        const productNameFieldValue = form.getFieldValue('materialName');
+                        const isDuplicate = materials.some(
+                            (material) => material.materialName.trim().toLowerCase() === lowercaseValue && material.id !== productNameFieldValue
+                        );
+                        if (isDuplicate) {
+                            return Promise.reject('Tên chất liệu đã tồn tại!');
+                        }
+                        // Kiểm tra dấu cách ở đầu và cuối
+                        if (/^\s|\s$/.test(value)) {
+                            return Promise.reject('Tên chất liệu không được chứa dấu cách ở đầu và cuối!');
+                        }
+                        return Promise.resolve();
+                    },
+                },
+                ]}>
                     <Input placeholder="Nhập tên chất liệu..." />
                 </Form.Item>
 
@@ -1409,7 +1072,7 @@ const ColorModal = ({ hideModal, isModal, fetchColors, colors }) => {
         form.validateFields().then(async () => {
 
             const data = form.getFieldsValue();
-            data.deleted = true
+            data.status = 'DANG_HOAT_DONG';
             await ColorService.create(data)
                 .then(() => {
                     notification.success({
@@ -1492,7 +1155,7 @@ const SizeModal = ({ hideModal, isModal, fetchSizes, sizes }) => {
         form.validateFields().then(async () => {
 
             const data = form.getFieldsValue();
-            data.deleted = true
+            data.status = 'DANG_HOAT_DONG';
             await SizeService.create(data)
                 .then(() => {
                     notification.success({
@@ -1569,89 +1232,7 @@ const SizeModal = ({ hideModal, isModal, fetchSizes, sizes }) => {
     );
 };
 
-// const BrandModal = ({ hideModal, isModal, fetchBrands, brands }) => {
 
-//     const [form] = Form.useForm();
-
-//     const handleCreate = () => {
-//         form.validateFields().then(async () => {
-
-//             const data = form.getFieldsValue();
-//             data.deleted = true;
-//             await BrandService.create(data)
-//                 .then(() => {
-//                     notification.success({
-//                         message: 'Thông báo',
-//                         description: 'Thêm mới thành công!',
-//                     });
-//                     fetchBrands();
-//                     // Đóng modal
-//                     hideModal();
-//                 })
-//                 .catch(error => {
-//                     notification.error({
-//                         message: 'Thông báo',
-//                         description: 'Thêm mới thất bại!',
-//                     });
-//                     console.error(error);
-//                 });
-
-//         }).catch(error => {
-//             console.error(error);
-//         })
-
-//     }
-
-//     return (
-
-//         <Modal
-//             title="Thêm mới một thương hiệu"
-//             open={isModal}
-//             onOk={handleCreate}
-//             onCancel={hideModal}
-//             okText="Thêm mới"
-//             cancelText="Hủy bỏ"
-//         >
-//             <Form
-//                 name="validateOnly" layout="vertical" autoComplete="off"
-//                 form={form}
-
-//             >
-//                 <Form.Item label="Tên:" name="brandName" rules={[{ required: true, message: 'Vui lòng nhập tên thương hiệu!' }
-//                     ,
-//                 {
-//                     validator: (_, value) => {
-//                         if (!value) {
-//                             return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
-//                         }
-//                         const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
-//                         const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
-//                         const productNameFieldValue = form.getFieldValue('brandName');
-//                         const isDuplicate = brands.some(
-//                             (brand) => brand.brandName.trim().toLowerCase() === lowercaseValue && brand.id !== productNameFieldValue
-//                         );
-//                         if (isDuplicate) {
-//                             return Promise.reject('Tên thương hiệu đã tồn tại!');
-//                         }
-//                         // Kiểm tra dấu cách ở đầu và cuối
-//                         if (/^\s|\s$/.test(value)) {
-//                             return Promise.reject('Tên thương hiệu không được chứa dấu cách ở đầu và cuối!');
-//                         }
-//                         return Promise.resolve();
-//                     },
-//                 },
-//                 ]}>
-//                     <Input placeholder="Nhập tên thương hiệu..." />
-//                 </Form.Item>
-
-//                 <Form.Item label="Ghi chú:" name="brandDescribe">
-//                     <TextArea rows={4} placeholder="Nhập ghi chú..." />
-//                 </Form.Item>
-
-//             </Form>
-//         </Modal>
-//     );
-// };
 
 const CategoryModal = ({ hideModal, isModal, fetchCategorys, categories }) => {
 
@@ -1661,7 +1242,7 @@ const CategoryModal = ({ hideModal, isModal, fetchCategorys, categories }) => {
         form.validateFields().then(async () => {
 
             const data = form.getFieldsValue();
-            data.deleted = true;
+            data.status = 'DANG_HOAT_DONG';
             await CategoryService.create(data)
                 .then(() => {
                     notification.success({
@@ -1728,7 +1309,7 @@ const CategoryModal = ({ hideModal, isModal, fetchCategorys, categories }) => {
                     <Input placeholder="Nhập tên loại sản phẩm..." />
                 </Form.Item>
 
-                <Form.Item label="Ghi chú:" name="categoryDescribe" >
+                <Form.Item label="Ghi chú:" name="ghi_chu" >
                     <TextArea rows={4} placeholder="Nhập ghi chú..." rules={[{ required: true, message: 'Vui lòng nhập ghi chú!' }]} />
                 </Form.Item>
 
@@ -1745,7 +1326,7 @@ const ProducerModal = ({ hideModal, isModal, fetchProducers, suppliers }) => {
         form.validateFields().then(async () => {
 
             const data = form.getFieldsValue();
-            data.deleted = true;
+            data.status = 'DANG_HOAT_DONG';
             await SupplierService.create(data)
                 .then(() => {
                     notification.success({
@@ -1784,35 +1365,43 @@ const ProducerModal = ({ hideModal, isModal, fetchProducers, suppliers }) => {
                 form={form}
 
             >
-                <Form.Item label="Tên:" name="supplierName" rules={[{ required: true, message: 'Vui lòng nhập tên nhà cung cấp!' }
+                <Form.Item label="Tên:" name="producerName" rules={[{ required: true, message: 'Vui lòng nhập tên nhà cung cấp!' }
                     ,
                 {
+                    // validator: (_, value) => {
+                    //     // Lấy giá trị của 'producerName' từ form
+                    //     const productNameFieldValue = form.getFieldValue('producerName');
 
-                    validator: (_, value) => {
-                        if (!value) {
-                            return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
-                        }
-                        const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
-                        const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
-                        const productNameFieldValue = form.getFieldValue('supplierName');
-                        const isDuplicate = suppliers.some(
-                            (supplier) => supplier.supplierName.trim().toLowerCase() === lowercaseValue && supplier.id !== productNameFieldValue
-                        );
-                        if (isDuplicate) {
-                            return Promise.reject('Tên nhà cung cấp đã tồn tại!');
-                        }
-                        // Kiểm tra dấu cách ở đầu và cuối
-                        if (/^\s|\s$/.test(value)) {
-                            return Promise.reject('Tên nhà cung cấp không được chứa dấu cách ở đầu và cuối!');
-                        }
-                        return Promise.resolve();
-                    },
+                    //     // Kiểm tra nếu giá trị là undefined hoặc rỗng
+                    //     if (!value || typeof value !== 'string') {
+                    //         return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
+                    //     }
+
+
+                    //     const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
+                    //     const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
+
+                    //     const isDuplicate = suppliers.some(
+                    //         (supplier) => supplier.producerName.trim().toLowerCase() === lowercaseValue && supplier.id !== productNameFieldValue
+                    //     );
+
+                    //     if (isDuplicate) {
+                    //         return Promise.reject('Tên nhà cung cấp đã tồn tại!');
+                    //     }
+
+                    //     // Kiểm tra dấu cách ở đầu và cuối
+                    //     if (/^\s|\s$/.test(value)) {
+                    //         return Promise.reject('Tên nhà cung cấp không được chứa dấu cách ở đầu và cuối!');
+                    //     }
+
+                    //     return Promise.resolve();
+                    // },
                 },
                 ]}>
                     <Input placeholder="Nhập tên..." />
                 </Form.Item>
 
-                <Form.Item label="Ghi chú:" name="supplierDescribe">
+                <Form.Item label="Ghi chú:" name="ghi_chu">
                     <TextArea rows={4} placeholder="Nhập ghi chú..." />
                 </Form.Item>
 

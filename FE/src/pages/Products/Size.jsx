@@ -65,7 +65,7 @@ function Size() {
                             key: size.id,
                             id: size.id,
                             code: size.code,
-                            name: size.name,
+                            sizeName: size.sizeName,
                             ghi_chu: size.ghi_chu,
                             dateCreate: new Date(size.dateCreate).toLocaleString(),
                             dateUpdate: size.dateUpdate ? new Date(size.dateUpdate).toLocaleString() : 'N/A',
@@ -202,11 +202,11 @@ function Size() {
         },
         {
             title: 'Tên Size',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'sizeName',
+            key: 'sizeName',
             width: '20%',
             filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
-            ...getColumnSearchProps('name')
+            ...getColumnSearchProps('sizeName')
         },
 
         {
@@ -410,7 +410,7 @@ const SizeModal = ({ isMode, reacord, hideModal, isModal, fetchSizes, sizes }) =
                 form={form}
                 initialValues={{ ...reacord }}
             >
-                <Form.Item label="Tên:" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên kích thước!' }
+                <Form.Item label="Tên:" name="sizeName" rules={[{ required: true, message: 'Vui lòng nhập tên kích thước!' }
                     ,
                 {
                     validator: (_, value) => {
@@ -420,7 +420,7 @@ const SizeModal = ({ isMode, reacord, hideModal, isModal, fetchSizes, sizes }) =
                         const trimmedValue = value.trim();
                         const lowercaseValue = trimmedValue.toLowerCase();
                         const isDuplicate = sizes.some(
-                            (size) => size.name.trim().toLowerCase() === lowercaseValue && size.id !== reacord.id
+                            (size) => size.sizeName.trim().toLowerCase() === lowercaseValue && size.id !== reacord.id
                         );
 
                         if (isDuplicate) {

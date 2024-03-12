@@ -32,15 +32,23 @@ const ProductDetailService = {
     //         });
     // },
 
+    // create: (data) => {
+    //     return HttpClient.post(`${API_URL}/createList`, data)
+    //         .then(response => response.data)
+    //         .catch(error => {
+    //             console.error('Error in create:', error);
+    //             throw error;
+    //         });
+    // },
+
     create: (data) => {
         return HttpClient.post(`${API_URL}/createList`, data)
             .then(response => response.data)
             .catch(error => {
-                console.error('Error in create:', error);
+                console.error('Error in getAll:', error);
                 throw error;
             });
     },
-
 
     update: (data, id) => {
         return HttpClient.put(`${API_URL}/update?id=${id}`, data)

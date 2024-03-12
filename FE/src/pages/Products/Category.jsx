@@ -90,7 +90,7 @@ function Category() {
                             key: cate.id,
                             id: cate.id,
                             code: cate.code,
-                            name: cate.name,
+                            categoryName: cate.categoryName,
                             ghi_chu: cate.ghi_chu,
                             dateCreate: new Date(cate.dateCreate).toLocaleString(),
                             dateUpdate: cate.dateUpdate ? new Date(cate.dateUpdate).toLocaleString() : 'N/A',
@@ -208,11 +208,11 @@ function Category() {
         },
         {
             title: 'Tên danh mục',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'categoryName',
+            key: 'categoryName',
             width: '20%',
             filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
-            ...getColumnSearchProps('name')
+            ...getColumnSearchProps('categoryName')
         },
 
         {
@@ -448,7 +448,7 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
             >
                 <Form.Item
                     label="Tên:"
-                    name="name"
+                    name="categoryName"
                     rules={[
                         { required: true, message: 'Vui lòng nhập tên danh mục!' },
                         {
@@ -459,7 +459,7 @@ const CategoryModal = ({ isMode, reacord, hideModal, isModal, fetchCategorys, ca
                                 const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                                 const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
                                 const isDuplicate = categories.some(
-                                    (category) => category.name.trim().toLowerCase() === lowercaseValue && category.id !== reacord.id
+                                    (category) => category.categoryName.trim().toLowerCase() === lowercaseValue && category.id !== reacord.id
                                 );
                                 if (isDuplicate) {
                                     return Promise.reject('Tên danh mục đã tồn tại!');

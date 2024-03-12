@@ -71,7 +71,7 @@ function Color() {
                             key: colors.id,
                             id: colors.id,
                             code: colors.code,
-                            name: colors.name,
+                            colorName: colors.colorName,
                             ghi_chu: colors.ghi_chu,
                             dateCreate: new Date(colors.dateCreate).toLocaleString(),
                             dateUpdate: colors.dateUpdate ? new Date(colors.dateUpdate).toLocaleString() : 'N/A',
@@ -189,8 +189,8 @@ function Color() {
         },
         {
             title: 'Tên nhà màu sắc',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'colorName',
+            key: 'colorName',
             width: '15%',
             filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
             ...getColumnSearchProps('colorName')
@@ -417,7 +417,7 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
                 form={form}
                 initialValues={{ ...reacord }}
             >
-                <Form.Item label="Tên:" name="name"
+                <Form.Item label="Tên:" name="colorName"
                     rules={[
                         { required: true, message: 'Vui lòng nhập tên màu sắc!' },
                         {
@@ -428,7 +428,7 @@ const ColorModal = ({ isMode, reacord, hideModal, isModal, fetchColors, colors }
                                 const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                                 const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
                                 const isDuplicate = colors.some(
-                                    (color) => color.name.trim().toLowerCase() === lowercaseValue && color.id !== reacord.id
+                                    (color) => color.colorName.trim().toLowerCase() === lowercaseValue && color.id !== reacord.id
                                 );
                                 if (isDuplicate) {
                                     return Promise.reject('Tên màu sắc đã tồn tại!');
