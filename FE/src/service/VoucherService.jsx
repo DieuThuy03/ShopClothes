@@ -35,27 +35,63 @@ const VoucherService = {
     },
 
     update: (id, data) => {
-        return HttpClient.put(`${API_URL}/?id=${id}`, data)
-            .then(response => response.data)
+        // return HttpClient.put(`${API_URL}/update/${id}`, data)
+        return HttpClient.put(`${API_URL}/update/${id}`, data)
             .catch(error => {
+                console.log('URL API:', `${API_URL}/update/${id}`);
                 console.error('Error in update:', error);
                 throw error;
             });
     },
 
     delete: (id) => {
-        return HttpClient.delete(`${API_URL}/delete?id=${id}`)
-            .then(response => response.data)
+        if (!isNaN(id)) {
+            const url = `${API_URL}/delete/${id}`;
+            console.log("DELETE request URL:", url);
+            return HttpClient.delete(url)
+                .then(response => response.data)
+                .catch(error => {
+                    console.error('Error in delete:', error);
+                    if (error.response) {
+                        console.error('Server responded with:', error.response.data);
+                    }
+                    throw error;
+                });
+        } else {
+            console.error('ID không hợp lệ:', id);
+        }
+    },
+    updateStatus: (id) => {
+        if (!isNaN(id)) {
+            const url = `${API_URL}/cancel-voucher/${id}`;
+            console.log("UpdateStatus request URL:", url);
+            return HttpClient.put(url)
+                .then(response => response.data)
+                .catch(error => {
+                    console.error('Error in delete:', error);
+                    if (error.response) {
+                        console.error('Server responded with:', error.response.data);
+                    }
+                    throw error;
+                });
+        } else {
+            console.error('ID không hợp lệ:', id);
+        }
+    },
+    findVoucherByID: (id) => {
+        return HttpClient.get(`${API_URL}/${id}`)
+            .then(response => response)
             .catch(error => {
-                console.error('Error in delete:', error);
+                console.error('Error in findVoucherByID:', error);
                 throw error;
             });
     },
-    findAllVoucherByDeletedTrue: () => {
-        return HttpClient.get(`${API_URL}findAllVoucherByDeletedTrue`)
+
+    findVoucherByCode: (code) => {
+        return HttpClient.get(`${API_URL}/${code}`)
             .then(response => response)
             .catch(error => {
-                console.error('Error in findAllByDeletedTrue:', error);
+                console.error('Error in findVoucherByCode:', error);
                 throw error;
             });
     },

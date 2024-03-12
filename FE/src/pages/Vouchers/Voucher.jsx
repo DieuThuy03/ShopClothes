@@ -16,7 +16,7 @@ import {
 } from '@ant-design/icons';
 import './Voucher.css'
 import VoucherService from '~/service/VoucherService';
-//import FormatDate from '~/utils/format-date';
+import FormatDate from '~/utils/format-date';
 import { fomatVoucherDate } from 'utils/voucherFormatDate';
 import dayjs from 'dayjs';
 import formatCurrency from '~/utils/format-currency';
@@ -33,6 +33,7 @@ function Voucher() {
         setOpen({
             isModal: true,
             isMode: mode,
+            record: record,
             reacord: record,
         });
     };
@@ -58,29 +59,7 @@ function Voucher() {
         pageSize: 5
     });
     const fetchVouchers = async () => {
-        // setLoading(true);
 
-        //    const reponse = await VoucherService.getVoucherByFilter(filterVoucher)
-        //         .then(response => {
-
-        //             const formattedData = response.data.map((voucher, index) => ({
-        //                 ...voucher,
-        //                 key: index + 1,
-        //                 startDate: FormatDate(voucher.startDate),
-        //                 endDate: FormatDate(voucher.endDate)
-        //             }));
-
-        //             setVouchers(formattedData);
-        //             setPagination({
-        //                 ...pagination,
-        //                 total: response.totalCount,
-        //             });
-
-        //             // setLoading(false);
-
-        //         }).catch(error => {
-        //             console.error(error);
-        //         })
         try {
             const response = await VoucherService.getAll(
                 pagination.current - 1,
@@ -103,6 +82,7 @@ function Voucher() {
                         console.log('Response Data:', response);
                         const formattedVouchers = responseData.map(vocherResponse => ({
                             key: vocherResponse.id,
+                            id: vocherResponse.id,
                             code: vocherResponse.code,
                             name: vocherResponse.name,
                             reducedValue: vocherResponse.reducedValue,
@@ -111,6 +91,8 @@ function Voucher() {
                             quantity: vocherResponse.quantity,
                             minimumOrder: vocherResponse.minimumOrder,
                             minimize: vocherResponse.minimize,
+                            dateCreate: new Date(vocherResponse.dateCreate).toLocaleString(),
+                            dateUpdate: vocherResponse.dateUpdate ? new Date(vocherResponse.dateUpdate).toLocaleString() : 'N/A',
                             describe: vocherResponse.describe,
                             status: vocherResponse.status?.moTa,
                         }));
@@ -136,13 +118,9 @@ function Voucher() {
         }
     };
 
-    // useEffect(() => {
-    //     console.log("Fetching producers...");
-    //     fetchVouchers();
-    // }, [filterVoucher]);
 
     useEffect(() => {
-        console.log("Fetching producers...");
+        console.log("Fetching voucher...");
         fetchVouchers();
     }, [pagination.current, pagination.pageSize, searchCode, searchStatus]);
 
@@ -189,10 +167,9 @@ function Voucher() {
         });
     };
     const handleDelete = async (id) => {
-
         try {
             console.log("Deleting record with ID:", id);
-            await VoucherService.delete(id);
+            await VoucherService.updateStatus(id);
             fetchVouchers();
         } catch (error) {
             console.error(error);
@@ -330,11 +307,16 @@ function Voucher() {
                     <Button type="text"
                         icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
                         onClick={() => showModal("edit", record)} />
-                    <Switch
-                        size="small"
-                        defaultChecked={record.deleted}
-                        onClick={() => handleDelete(record.id)}
-                    />
+                    confirm({
+
+                        <Button
+                            //size="small"
+                            icon={<DeleteOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
+                            //defaultChecked={record.deleted}
+                            onClick={() => record.id && handleDelete(record.id)}
+                        />
+                    })
+
                 </Space>
             }
 
@@ -351,7 +333,7 @@ function Voucher() {
                 <Row>
                     <Col span={12} style={{ padding: '0 100px' }}>
                         <DatePicker
-                            format="hh:mm:ss - DD/MM/YYYY"
+                            format="hh:mm - DD/MM/YYYY"
                             style={{
                                 width: '100%',
                                 height: '35px',
@@ -366,7 +348,7 @@ function Voucher() {
                     </Col>
                     <Col span={12} style={{ padding: '0 100px' }}>
                         <DatePicker
-                            format="hh:mm:ss - DD/MM/YYYY"
+                            format="hh:mm - DD/MM/YYYY"
                             style={{
                                 width: '100%',
                                 height: '35px',
@@ -493,11 +475,15 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
 
     }
     const handleUpdate = () => {
+        console.log('Record ID in handleUpdate:', reacord.id);
+        // reacord.startTime = fomatVoucherDate(reacord.startTime)
+        // reacord.endTime = fomatVoucherDate(reacord.endTime)
+
         form.validateFields().then(async () => {
 
-            const values = await form.validateFields();
-
-            await VoucherService.update(reacord.id, values)
+            const data = form.getFieldsValue();
+            console.log('Record ID in handleUpdate:', reacord.id);
+            await VoucherService.update(reacord.id, data)
                 .then(() => {
                     notification.success({
                         message: 'Thông báo',
@@ -515,9 +501,11 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                     console.error(error);
                 });
 
+
         }).catch(error => {
             console.error(error);
         })
+
 
     }
     const selectAfter = (
@@ -584,16 +572,15 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                     <Form
                         name="validateOnly" layout="vertical" autoComplete="off"
                         form={form}
-                        initialValues={{
-                            ...reacord,
-                            ...(reacord?.startTime && { startDate: dayjs(reacord.startTime, "HH:mm:ss - DD/MM/YYYY") }),
-                            ...(reacord?.endTime && { endDate: dayjs(reacord.endTime, "HH:mm:ss - DD/MM/YYYY") }),
-                        }}
+                    // initialValues={{
 
+                    //     ...reacord,
+                    // }
+                    // }
                     >
                         <Row>
                             <Col span={11}>
-                                <Form.Item label="Mã:" name="code" rules={[{ required: false, message: 'Vui lòng nhập mã giảm giá!' }
+                                <Form.Item label="Mã:" name="code" initialValue={reacord.code} rules={[{ required: false, message: 'Vui lòng nhập mã giảm giá!' }
                                     ,
                                 {
                                     validator: (_, value) => {
@@ -622,7 +609,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                             <Col span={1}>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Tên:" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên giảm giá!' }
+                                <Form.Item label="Tên:" name="name" initialValue={reacord.name} rules={[{ required: true, message: 'Vui lòng nhập tên giảm giá!' }
                                     ,
                                 {
                                     validator: (_, value) => {
@@ -655,6 +642,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                 <Form.Item
                                     label="Giá Trị Giảm:"
                                     name="reducedValue"
+                                    initialValue={reacord.reducedValue}
                                     rules={[
                                         {
                                             required: true,
@@ -690,6 +678,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                 <Form.Item
                                     label="Số lượng:"
                                     name="quantity"
+                                    initialValue={reacord.quantity}
                                     rules={[
                                         {
                                             required: true,
@@ -726,8 +715,10 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                         </Row>
                         <Row>
                             <Col span={11}>
-                                <Form.Item label="Ngày bắt đầu:" name="startTime" rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu!' }]}>
-                                    <DatePicker style={{ width: '100%' }} showTime format="HH:mm:ss - DD/MM/YYYY" />
+                                <Form.Item label="Ngày bắt đầu:" name="startTime" initialValue={dayjs(reacord.startTime)}
+
+                                    rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu!' }]}>
+                                    <DatePicker style={{ width: '100%' }} showTime format="HH:mm - DD/MM/YYYY" />
                                 </Form.Item>
                             </Col>
                             <Col span={1}></Col>
@@ -735,35 +726,36 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                 <Form.Item
                                     label="Ngày kết thúc:"
                                     name="endTime"
+                                    initialValue={dayjs(reacord.endTime)}
                                     rules={[
                                         { required: true, message: 'Vui lòng nhập ngày kết thúc!' },
                                         ({ getFieldValue }) => ({
                                             validator(_, endDate) {
                                                 const startDate = getFieldValue('startTime');
 
-                                                const currentDate = dayjs();
+                                                //const currentDate = dayjs();
 
                                                 if (!startDate || !endDate) {
                                                     // Nếu chưa có giá trị, không validate
                                                     return Promise.resolve();
                                                 }
 
-                                                if (dayjs(startDate).isAfter(endDate)) {
-                                                    // Ngày kết thúc không được trước ngày bắt đầu
-                                                    return Promise.reject(new Error('Ngày kết thúc phải sau ngày bắt đầu!'));
-                                                }
+                                                // if (dayjs(startDate).isAfter(endDate)) {
+                                                //     // Ngày kết thúc không được trước ngày bắt đầu
+                                                //     return Promise.reject(new Error('Ngày kết thúc phải sau ngày bắt đầu!'));
+                                                // }
 
-                                                if (dayjs(endDate).isBefore(currentDate, 'day')) {
-                                                    // Ngày kết thúc không được là ngày hiện tại hoặc ngày quá khứ
-                                                    return Promise.reject(new Error('Ngày kết thúc không được là ngày hiện tại hoặc ngày quá khứ!'));
-                                                }
+                                                // if (dayjs(endDate).isBefore(currentDate, 'day')) {
+                                                //     // Ngày kết thúc không được là ngày hiện tại hoặc ngày quá khứ
+                                                //     return Promise.reject(new Error('Ngày kết thúc không được là ngày hiện tại hoặc ngày quá khứ!'));
+                                                // }
 
                                                 return Promise.resolve();
                                             },
                                         }),
                                     ]}
                                 >
-                                    <DatePicker style={{ width: '100%' }} showTime format="HH:mm:ss - DD/MM/YYYY" />
+                                    <DatePicker style={{ width: '100%' }} showTime format="HH:mm - DD/MM/YYYY" />
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -772,6 +764,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                 <Form.Item
                                     label="Đơn Tối Thiểu:"
                                     name="minimumOrder"
+                                    initialValue={reacord.minimumOrder}
                                     rules={[
                                         {
                                             required: false,
@@ -809,33 +802,34 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                             </Col>
                             <Col span={1}></Col>
                             <Col span={12}>
-                                <Form.Item label="Giảm tối đa:" name="minimize" rules={[
-                                    {
-                                        required: false,
-                                        type: 'number',
-                                        min: 1,
-                                        message: 'Vui lòng nhập giảm tối đa!'
-                                    },
-                                    {
-                                        validator: (_, value) => {
-                                            const stringValue = String(value);
-                                            if (!value) {
-                                                return Promise.resolve();
-                                            }
-                                            if (/^\s|\s$/.test(stringValue)) {
-                                                return Promise.reject('Vui lòng nhập số nguyên và không có dấu cách ở đầu và cuối!');
-                                            }
-
-                                            const intValue = parseInt(stringValue, 10);
-
-                                            if (isNaN(intValue)) {
-                                                return Promise.reject('Vui lòng nhập số nguyên!');
-                                            }
-
-                                            return Promise.resolve();
+                                <Form.Item label="Giảm tối đa:" name="minimize" initialValue={reacord.minimize}
+                                    rules={[
+                                        {
+                                            required: false,
+                                            type: 'number',
+                                            min: 1,
+                                            message: 'Vui lòng nhập giảm tối đa!'
                                         },
-                                    },
-                                ]}>
+                                        {
+                                            validator: (_, value) => {
+                                                const stringValue = String(value);
+                                                if (!value) {
+                                                    return Promise.resolve();
+                                                }
+                                                if (/^\s|\s$/.test(stringValue)) {
+                                                    return Promise.reject('Vui lòng nhập số nguyên và không có dấu cách ở đầu và cuối!');
+                                                }
+
+                                                const intValue = parseInt(stringValue, 10);
+
+                                                if (isNaN(intValue)) {
+                                                    return Promise.reject('Vui lòng nhập số nguyên!');
+                                                }
+
+                                                return Promise.resolve();
+                                            },
+                                        },
+                                    ]}>
                                     <InputNumber
                                         style={{ width: '100%' }}
                                         formatter={(value) => formatNumberToiDa(value)}
@@ -846,7 +840,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                         </Row>
 
 
-                        <Form.Item label="Ghi chú:" name="note" >
+                        <Form.Item label="Ghi chú:" name="describe" initialValue={reacord.describe}>
                             <TextArea rows={4} placeholder="Nhập ghi chú..." />
                         </Form.Item>
                         {/* 

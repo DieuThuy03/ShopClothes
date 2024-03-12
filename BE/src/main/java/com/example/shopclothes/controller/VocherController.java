@@ -48,14 +48,15 @@ public class VocherController {
         return new ResponseEntity<>(service.add(request), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") Long id, @RequestBody VocherUpdateRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 
     @PutMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(service.delete(id));
+        service.cancelVoucher(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")

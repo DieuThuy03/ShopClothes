@@ -20,10 +20,10 @@ import java.util.Optional;
 
 public interface VocherRepo extends JpaRepository<Vocher, Long> {
 
-    @Modifying
-    @Transactional
-    @Query(value = " update Vocher set status = 'CANCELLED' where id =?1", nativeQuery = true)
-    void delete(Long id);
+//    @Modifying
+//    @Transactional
+//    @Query(" update Vocher vc set vc.status = 'CANCELLED' where vc.id = :id")
+//    void updateStatus(@Param("id") Long id);
 
 
     @Query("SELECT obj FROM Vocher obj WHERE (obj.code LIKE %:searchText% OR obj.name LIKE %:searchText%)" +
@@ -55,7 +55,7 @@ public interface VocherRepo extends JpaRepository<Vocher, Long> {
 //                       @Param("endTime") LocalDate endTime);
 
     ///
-    @Query("SELECT v FROM Vocher v WHERE v.status != 'CANCELLED'")
+    @Query(value = "SELECT * FROM Vocher WHERE status != 'CANCELLED'", nativeQuery = true)
     List<Vocher> danhSachVoucherKhongHuy();
 
     Optional<Vocher> findByCode(String code);
