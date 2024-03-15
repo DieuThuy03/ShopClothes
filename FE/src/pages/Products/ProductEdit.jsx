@@ -457,9 +457,9 @@ function ProductEdit() {
                                             }
 
                                             // Kiểm tra xem có dấu cách ở đầu và cuối không
-                                            if (value && (value.trim() !== value)) {
-                                                return Promise.reject('Tên sản phẩm không được có dấu cách ở đầu hoặc cuối');
-                                            }
+                                            // if (value && (value.trim() !== value)) {
+                                            //     return Promise.reject('Tên sản phẩm không được có dấu cách ở đầu hoặc cuối');
+                                            // }
 
                                             return Promise.resolve();
                                         },

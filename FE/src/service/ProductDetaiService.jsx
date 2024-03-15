@@ -6,7 +6,7 @@ const API_URL = '/ProductDetail';
 const ProductDetailService = {
 
     getAllProductDetailsFilter: (data) => {
-        return HttpClient.post(`${API_URL}getAllProductDetailsFilter`, data)
+        return HttpClient.post(`${API_URL}/getAllProductDetailsFilter`, data)
             .then(response => response.data)
             .catch(error => {
                 console.error('Error in getAll:', error);

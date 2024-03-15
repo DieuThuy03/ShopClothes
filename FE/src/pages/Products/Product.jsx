@@ -34,7 +34,7 @@ function Product() {
     const fetchCategory = async () => {
         try {
             const response = await CategoryService.getAll();
-            console.log('Response from API:', response);
+
 
             if (response && response.data) {
                 const categoryOptions = response.data.map(cate => ({
@@ -61,7 +61,7 @@ function Product() {
     const fetchSize = async () => {
         try {
             const response = await SizeService.getAll();
-            console.log('Response from API:', response);
+
 
             if (response && response.data) {
                 const sizeOptions = response.data.map(size => ({
@@ -86,7 +86,7 @@ function Product() {
 
         try {
             const response = await ColorService.getAll();
-            console.log('Response from API:', response);
+
 
             if (response && response.data) {
                 const colorOptions = response.data.map(color => ({
@@ -112,7 +112,7 @@ function Product() {
 
         try {
             const response = await MaterialService.getAll();
-            console.log('Response from API:', response);
+            // console.log('Response from API:', response);
 
             if (response && response.data) {
                 const mateOptions = response.data.map(mate => ({
@@ -191,28 +191,46 @@ function Product() {
     //             console.error(error);
     //         })
     // }
+    // const fetchProducts = async () => {
+    //     setLoading(true); // Đặt trạng thái loading thành true trước khi gọi API
+    //     try {
+    //         // Thêm console.log ở đây để kiểm tra filters
+    //         const response = await ProductService.getAll(filters);
+    //         console.log('API Response:', response);
+    //         setProduct(response.data);
+    //         setPagination({
+    //             ...pagination,
+    //             total: response.totalCount,
+    //         });
+    //     } catch (error) {
+    //         console.error(error);
+    //     } finally {
+    //         setLoading(false); // Đặt trạng thái loading thành false sau khi nhận kết quả từ API
+    //     }
+    // };
     const fetchProducts = async () => {
-        console.log('Filters:', filters);
         setLoading(true);
-        await ProductService.getAll(filters)
-            .then(response => {
-                console.log('API Response:', response.data);
-                setProduct(response.data);
-                setPagination({
-                    ...pagination,
-                    total: response.totalCount,
-                });
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error(error);
+        try {
+            const response = await ProductService.getAll(filters);
+            console.log('API Response:', response);
+            setProduct(response.data);
+            setPagination({
+                ...pagination,
+                total: response.totalCount,
             });
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     };
+
 
 
     useEffect(() => {
         fetchProducts();
     }, [filters]);
+
 
     // const handleTableChange = (pagination) => {
     //     setPagination({
@@ -226,15 +244,12 @@ function Product() {
     // };
 
     const handleTableChange = (pagination) => {
-        console.log('Pagination Change:', pagination); // In giá trị ra console để kiểm tra
-        setPagination({
-            ...pagination,
-        });
-        setFilters({
-            ...filters,
-            pageNo: pagination.current - 1,
+        console.log('Current filters in handleTableChange:', filters); // Log trạng thái của filters
+        setPagination((prevPagination) => ({
+            ...prevPagination,
+            current: pagination.current,
             pageSize: pagination.pageSize,
-        });
+        }));
     };
 
 
@@ -251,18 +266,16 @@ function Product() {
         });
 
     };
-    console.log("products", products);
 
     const handleFilterChange = (property, value) => {
-        console.log(property, value);
-
+        console.log("Previous filters:", filters); // Log trạng thái filters trước khi cập nhật
         if (property === 'priceRange') {
             setPriceRange(value);
             setFilters({
                 ...filters,
                 priceMin: calculateMinPrice(value),
                 priceMax: calculateMaxPrice(value),
-                pageNo: 0,
+                pageNo: 0
             });
         } else {
             setFilters({
@@ -272,6 +285,27 @@ function Product() {
             });
         }
     };
+
+    // const handleFilterChange = (property, value) => {
+    //     console.log(property, value);
+    //     if (property === 'priceRange') {
+    //         setPriceRange(value);
+    //         setFilters(prevFilters => ({
+    //             ...prevFilters,
+    //             priceMin: calculateMinPrice(value),
+    //             priceMax: calculateMaxPrice(value),
+    //             pageNo: 0
+    //         }));
+    //     } else {
+    //         setFilters(prevFilters => ({
+    //             ...prevFilters,
+    //             [property]: value,
+    //             pageNo: 0,
+    //         }));
+    //     }
+    //     fetchProducts(); // Gọi fetchProducts sau khi cập nhật filters
+    // };
+
 
 
     const [searchKeyword, setSearchKeyword] = useState(null);
@@ -292,9 +326,8 @@ function Product() {
     //     return true;
     // };
     const validateInput = (value) => {
-        const trimmedValue = value?.trim();
+        const trimmedValue = value.trim();
 
-        // Kiểm tra nếu giá trị không tồn tại sau khi trim
         if (value !== trimmedValue) {
             notification.error({
                 message: 'Lỗi',
@@ -303,31 +336,35 @@ function Product() {
             });
             return false;
         }
+
+        // Thực hiện các xử lý cần thiết khi validate thành công
         return true;
     };
 
     const handleSearch = () => {
         // Kiểm tra giá trị trước khi gọi hàm setSearchKeyword
-        // if (validateInput(searchKeyword)) {
-        //     setFilters({
-        //         ...filters,
-        //         keyword: searchKeyword,
-        //         pageNo: 0,
-        //         pageSize: 5
-        //     });
-        // } else {
-        //     // Nếu giá trị không hợp lệ, có thể thực hiện các xử lý cần thiết
-        //     console.error('Giá trị không hợp lệ');
-        // }
-        setFilters({
-            ...filters,
-
-            keyword: searchKeyword,
-            pageNo: 0,
-            pageSize: 5
-        });
-        console.log(filters);
+        if (validateInput(searchKeyword)) {
+            setFilters({
+                ...filters,
+                keyword: searchKeyword,
+                pageNo: 0,
+                pageSize: 5
+            });
+        } else {
+            // Nếu giá trị không hợp lệ, có thể thực hiện các xử lý cần thiết
+            console.error('Giá trị không hợp lệ');
+        }
     };
+    // const handleSearch = () => {
+    //     let newFilters = {
+    //         ...filters,
+    //         keyword: searchKeyword,
+    //         pageNo: 0, // Reset to first page when search keyword changes
+    //     };
+
+    //     setFilters(newFilters);
+    //     // fetchProducts(); // Remove this line as we're already fetching data in handleTableChange
+    // };
 
 
     //lọc theo khoảng giá
@@ -430,6 +467,17 @@ function Product() {
             sorter: (a, b) => a.quantityTotal - b.quantityTotal,
 
         },
+        // {
+        //     title: 'Ngày tạo',
+        //     dataIndex: 'createdAt',
+        //     key: 'createdAt',
+        //     width: '10%',
+        //     render: (createdAt) => {
+        //         const date = new Date(...createdAt);
+        //         const formattedDate = date.toLocaleString('en-US', { hour12: false });
+        //         return <span>{formattedDate}</span>;
+        //     },
+        // },
         {
             title: 'Ngày tạo',
             dataIndex: 'createdAt',
@@ -488,55 +536,31 @@ function Product() {
             >
                 <Row>
                     <Col span={8} style={{ padding: '0 50px' }}>
+                        <span>Khoảng giá:</span>
                         <Select
-                            style={{
-                                width: '100%',
-                                height: '35px',
-                            }}
+                            style={{ width: '100%', height: '35px' }}
                             allowClear
-                            placeholder="Khoảng giá"
+                            placeholder="Chọn khoảng giá"
                             value={priceRange}
                             onChange={(value) => handleFilterChange('priceRange', value)}
                             options={[
-                                {
-                                    value: 1,
-                                    label: 'Dưới 200.000 đ',
-                                },
-                                {
-                                    value: 2,
-                                    label: '200.000 đ - 400.000 đ',
-                                },
-                                {
-                                    value: 3,
-                                    label: '400.000 đ - 600.000 đ',
-                                },
-                                {
-                                    value: 4,
-                                    label: 'Trên 600.000 đ',
-                                },
+                                { value: 1, label: 'Dưới 200.000 đ' },
+                                { value: 2, label: '200.000 đ - 400.000 đ' },
+                                { value: 3, label: '400.000 đ - 600.000 đ' },
+                                { value: 4, label: 'Trên 600.000 đ' },
                             ]}
                         />
                     </Col>
                     <Col span={8} style={{ padding: '0 50px' }}>
-
+                        <span>Danh mục:</span>
                         <Select
-                            style={{
-                                width: '100%',
-                                height: '35px',
-                            }}
+                            style={{ width: '100%', height: '35px' }}
                             allowClear
-                            placeholder="Danh mục"
-                            showSearch
-                            filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                            filterSort={(optionA, optionB) =>
-                                (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-                            }
+                            placeholder="Chọn danh mục"
                             value={filters.categoryId}
                             onChange={(value) => handleFilterChange('categoryId', value)}
                             options={categories}
                         />
-
-
                     </Col>
 
                 </Row>
@@ -653,18 +677,16 @@ function Product() {
                 </Row>
 
             </Card>
+
             <Card
                 title={<span style={{ color: '#5a76f3' }}><FileDoneOutlined /> Danh sách sản phẩm</span>}
                 style={{ marginTop: '20px', borderRadius: '10px' }}
             >
-
                 <Table
                     dataSource={products?.map((product, index) => ({
                         ...product,
                         key: index + 1,
-                        createdAt: FormatDate(product.createdAt)
                     }))}
-
                     loading={loading}
                     columns={columns}
                     onChange={handleTableChange}
@@ -675,7 +697,8 @@ function Product() {
                         pageSizeOptions: ['5', '10', '15'],
                         total: pagination.total,
                         showSizeChanger: true,
-                    }}></Table >
+                    }}
+                ></Table>
             </Card>
             {/* {open.isModal && <ProductModal
                 reacord={open.reacord}

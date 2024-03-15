@@ -558,7 +558,7 @@ function ProductAdd() {
                             </Col>
 
                             {/* Giá */}
-                            <Col span={11} style={{ paddingLeft: '20px' }}>
+                            {/* <Col span={11} style={{ paddingLeft: '20px' }}>
                                 <Form.Item
                                     label="Giá:"
                                     name="productPrice"
@@ -577,7 +577,7 @@ function ProductAdd() {
                                     // onChange={(e) => handleProductNameChange(e.target.value)}
                                     />
                                 </Form.Item>
-                            </Col>
+                            </Col> */}
                         </Row>
 
 

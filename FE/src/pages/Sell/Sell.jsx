@@ -155,7 +155,8 @@ export default function Sell() {
         }
     };
 
-
+    const [quantityProduct, setQuantityProduct] = useState(1); // Khởi tạo quantityProduct
+    const [quantityModal, setQuantityModal] = useState({ isModal: false, record: null }); // Khởi tạo quantityModal
 
     const [modal, contextHolder] = Modal.useModal();
     const confirm = () => {
@@ -234,18 +235,22 @@ export default function Sell() {
         getAllOrderByStatusName();
 
     }, []);
-
-    const handleQuantityChange = async (key, value) => {
-        try {
-            await OrderDetailService.updateQuantityOrderDetail(value, key);
-            fetchOrderDetail();
-        } catch (error) {
-            if (error?.outOfDate === false) {
-                console.error("error", error);
-            } else {
-                message.error(error.response.data.errorMessage);
-            }
+    // Thay đổi số lượng sản phẩm
+    const handleQuantityChange = (value) => {
+        // Kiểm tra giá trị nhập vào có hợp lệ không
+        if (value <= 0) {
+            // Hiển thị thông báo lỗi nếu số lượng nhỏ hơn hoặc bằng 0
+            message.error("Số lượng sản phẩm phải là một số nguyên dương.");
+            return;
         }
+        // Kiểm tra số lượng nhập vào có vượt quá số lượng tồn kho không
+        if (value > quantityModal.record.quantity) {
+            // Hiển thị thông báo lỗi nếu số lượng vượt quá số lượng tồn kho
+            message.error("Số lượng sản phẩm không đủ.");
+            return;
+        }
+        // Nếu số lượng nhập vào hợp lệ, cập nhật state
+        setQuantityProduct(value);
     };
     const columnOrderDetail = [
 
@@ -1135,24 +1140,6 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
                 console.error(error);
             })
     }
-    //-----------------------Thương hiệu-------------------------------
-    const [brands, setBrands] = useState([]);
-
-    useEffect(() => {
-        fetchBrand()
-    }, []);
-    const fetchBrand = async () => {
-
-        await BrandService.findAllByDeletedTrue()
-            .then(response => {
-
-                setBrands(response.data)
-
-            }).catch(error => {
-                console.error(error);
-            })
-    }
-
     //---------------------------Kích thước-------------------------------------
     const [sizes, setSizes] = useState([]);
 
@@ -1162,7 +1149,7 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
 
     const fetchSize = async () => {
 
-        await SizeService.findAllByDeletedTrue()
+        await SizeService.getAll()
             .then(response => {
                 setSizes(response.data)
             }).catch(error => {
@@ -1177,7 +1164,7 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
     }, []);
     const fetchColor = async () => {
 
-        await ColorService.findAllByDeletedTrue()
+        await ColorService.getAll()
             .then(response => {
 
                 setColors(response.data)
@@ -1193,7 +1180,7 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
     }, []);
     const fetchMaterial = async () => {
 
-        await MaterialService.findAllByDeletedTrue()
+        await MaterialService.getAll()
             .then(response => {
 
                 setMaterials(response.data)
@@ -1212,7 +1199,6 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
         colorId: null,
         sizeId: null,
         materialId: null,
-        brandId: null,
         priceMin: null,
         priceMax: null,
         categoryId: null,
@@ -1340,7 +1326,6 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
             colorId: null,
             sizeId: null,
             materialId: null,
-            brandId: null,
             priceMin: null,
             priceMax: null,
             categoryId: null,
@@ -1359,6 +1344,29 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
     const handleQuantityChange = (value) => {
         setQuantityProduct(value);
     };
+    // const handleCreate = async () => {
+    //     const data = {
+    //         productDetailId: quantityModal.record.id,
+    //         orderId: orderId,
+    //         quantity: quantityProduct,
+    //         price: quantityModal.record.price
+    //     };
+
+    //     try {
+    //         await OrderDetailService.create(data);
+    //         message.success("Thêm sản phẩm vào đơn hàng thành công !");
+
+    //         fetchOrderDetail();
+    //         fetchProductDetails();
+    //         handleQuantityCancel();
+    //     } catch (error) {
+    //         if (error?.response?.data?.outOfDate === false) {
+    //             console.error("error", error);
+    //         } else {
+    //             message.error(error.response.data.errorMessage);
+    //         }
+    //     }
+    // };
     const handleCreate = async () => {
         const data = {
             productDetailId: quantityModal.record.id,
@@ -1368,20 +1376,42 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
         };
 
         try {
+            // Lấy số lượng sản phẩm trong kho từ dữ liệu đã có
+            const availableQuantity = quantityModal.record.quantity;
+
+            // Kiểm tra số lượng sản phẩm trong kho
+            if (quantityProduct > availableQuantity) {
+                message.error('Số lượng sản phẩm không đủ trong kho!');
+                return;
+            }
+
+            // Kiểm tra số lượng sản phẩm nhập vào có hợp lệ hay không
+            if (quantityProduct <= 0) {
+                message.error('Số lượng sản phẩm không hợp lệ!');
+                return;
+            }
+
+            // Kiểm tra số lượng sản phẩm nhập vào có vượt quá số lượng tồn kho không
+            if ((quantityProduct + availableQuantity) > availableQuantity) {
+                message.error('Số lượng sản phẩm vượt quá số lượng tồn kho!');
+                return;
+            }
+
+            // Thực hiện tạo đơn hàng
             await OrderDetailService.create(data);
             message.success("Thêm sản phẩm vào đơn hàng thành công !");
-
             fetchOrderDetail();
             fetchProductDetails();
             handleQuantityCancel();
         } catch (error) {
-            if (error?.outOfDate === false) {
+            if (error && error.response && error.response.data && error.response.data.outOfDate === false) {
                 console.error("error", error);
             } else {
-                message.error(error.response.data.errorMessage);
+                message.error(error?.response?.data?.errorMessage || 'Đã có lỗi xảy ra');
             }
         }
     };
+
 
     const columns = [
         {
@@ -1523,27 +1553,7 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
                                     }))}
                                 />
                             </Col>
-                            <Col span={8} style={{ padding: '0 50px' }}>
-                                <Select
-                                    style={{
-                                        width: '100%',
-                                        height: '35px',
-                                    }}
-                                    allowClear
-                                    placeholder="Thương hiệu"
-                                    showSearch
-                                    filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                                    filterSort={(optionA, optionB) =>
-                                        (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-                                    }
-                                    value={filterProduct.brandId}
-                                    onChange={(value) => handleFilterChange('brandId', value)}
-                                    options={brands.map(item => ({
-                                        value: item.id,
-                                        label: item.brandName,
-                                    }))}
-                                />
-                            </Col>
+
                         </Row>
                         <Row style={{ marginTop: '20px' }}>
                             <Col span={8} style={{ padding: '0 50px' }}>
@@ -1673,7 +1683,7 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
                 </div>
             </Modal >
 
-            {quantityModal.isModal &&
+            {/* {quantityModal.isModal &&
                 <Modal
                     title={`Số lượng sản phẩm: ${quantityModal.record.quantity}`}
                     open={quantityModal.isModal}
@@ -1688,8 +1698,26 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
                     <p>[ Màu: {quantityModal.record.colorName} - Kích thước: {quantityModal.record.sizeName} ]</p>
                     <InputNumber min={1} max={quantityModal.record.quantity} defaultValue={1} onChange={handleQuantityChange} />
                 </Modal>
-            }
+            } */}
 
+            {quantityModal.isModal &&
+                <Modal
+                    title={`Số lượng sản phẩm: ${quantityModal.record.quantity}`}
+                    open={quantityModal.isModal}
+                    onCancel={handleQuantityCancel}
+                    width={400}
+                    onOk={handleCreate}
+                    style={{ textAlign: 'center' }}
+                    okText="Thêm"
+                    cancelText="Hủy bỏ"
+                >
+                    <p>{quantityModal.record.productName}</p>
+                    <p>[ Màu: {quantityModal.record.colorName} - Kích thước: {quantityModal.record.sizeName} ]</p>
+                    {/* <InputNumber min={1} max={quantityModal.record.quantity} defaultValue={1} onChange={handleQuantityChange} /> */}
+                    <InputNumber min={1} max={quantityModal.record.quantity} defaultValue={1} onChange={handleQuantityChange} />
+
+                </Modal>
+            }
         </ >
     );
 };
