@@ -27,7 +27,7 @@ public class VocherController {
     @Autowired
     private VocherService service;
 
-    @GetMapping()
+    @GetMapping("/hien-thi-page")
     public ResponseEntity<?> getAll(
             @RequestParam(name = "page", defaultValue = "1") Integer page,
             @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,

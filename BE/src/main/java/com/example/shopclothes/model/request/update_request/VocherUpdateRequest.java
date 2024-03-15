@@ -18,7 +18,7 @@ public class VocherUpdateRequest {
 
     private  Long id;
 
-//    private String code;
+    //private String code;
 
     private String name;
 

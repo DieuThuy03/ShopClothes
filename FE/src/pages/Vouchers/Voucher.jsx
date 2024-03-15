@@ -19,10 +19,13 @@ import VoucherService from '~/service/VoucherService';
 import FormatDate from '~/utils/format-date';
 import { fomatVoucherDate } from 'utils/voucherFormatDate';
 import dayjs from 'dayjs';
+import vi from 'dayjs/locale/vi';
 import arraySupport from 'dayjs/plugin/arraySupport';
 import formatCurrency from '~/utils/format-currency';
 const { TextArea } = Input;
 const { Option } = Select;
+
+
 
 function Voucher() {
 
@@ -82,14 +85,25 @@ function Voucher() {
                     if (Array.isArray(responseData)) {
                         console.log('Response Data:', response);
                         dayjs.extend(arraySupport)
+                        // const localizedFormat = require('dayjs/plugin/localizedFormat');
+                        // dayjs.extend(localizedFormat);
+                        // //tiếng việt
+                        // require('dayjs/locale/vi');
+                        dayjs.locale('vi'); // use locale globally
+                        // //timezone
+                        // const utc = require('dayjs/plugin/utc'); // dependent on utc plugin
+                        // const timezone = require('dayjs/plugin/timezone');
+                        // dayjs.extend(utc);
+                        // dayjs.extend(timezone);
+                        // dayjs.tz.setDefault(dayjs.tz.guess());
                         const formattedVouchers = responseData.map(vocherResponse => ({
                             key: vocherResponse.id,
                             id: vocherResponse.id,
                             code: vocherResponse.code,
                             name: vocherResponse.name,
                             reducedValue: vocherResponse.reducedValue,
-                            startTime: fomatVoucherDate(vocherResponse.startTime),
-                            endTime: fomatVoucherDate(vocherResponse.endTime),
+                            startTime: dayjs(vocherResponse.startTime).format("DD/MM/YYYY"),
+                            endTime: dayjs(vocherResponse.endTime).locale('vi').format("DD/MM/YYYY"),
                             quantity: vocherResponse.quantity,
                             minimumOrder: vocherResponse.minimumOrder,
                             minimize: vocherResponse.minimize,
@@ -168,7 +182,9 @@ function Voucher() {
             pageSize: 5,
         });
     };
+
     const handleDelete = async (id) => {
+
         try {
             console.log("Deleting record with ID:", id);
             await VoucherService.updateStatus(id);
@@ -309,15 +325,15 @@ function Voucher() {
                     <Button type="text"
                         icon={<FormOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
                         onClick={() => showModal("edit", record)} />
-                    confirm({
 
-                        <Button
-                            //size="small"
-                            icon={<DeleteOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
-                            //defaultChecked={record.deleted}
-                            onClick={() => record.id && handleDelete(record.id)}
-                        />
-                    })
+
+                    <Button
+                        //size="small"
+                        icon={<DeleteOutlined style={{ color: 'rgb(214, 103, 12)' }} />}
+                        //defaultChecked={record.deleted}
+                        onClick={() => record.id && handleDelete(record.id)}
+                    />
+
 
                 </Space>
             }
@@ -441,6 +457,22 @@ function Voucher() {
     )
 };
 export default Voucher;
+// const [modal, contextHolder] = Modal.useModal();
+// const confirm = () => {
+//     modal.confirm({
+//         title: 'Thông báo!',
+//         icon: <ExclamationCircleOutlined />,
+//         content: 'Bạn có chắc muốn tạo mới một voucher không?',
+//         onOk: () => {
+//             setLoading(true);
+//             setTimeout(() => {
+//                 handleCreate();
+//             }, 2000);
+//         },
+//         okText: 'Đồng ý',
+//         cancelText: 'Hủy bỏ',
+//     })
+// }
 
 
 const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouchers }) => {
@@ -478,8 +510,6 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
     }
     const handleUpdate = () => {
         console.log('Record ID in handleUpdate:', reacord.id);
-        // reacord.startTime = fomatVoucherDate(reacord.startTime)
-        // reacord.endTime = fomatVoucherDate(reacord.endTime)
 
         form.validateFields().then(async () => {
 
@@ -720,7 +750,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                 <Form.Item label="Ngày bắt đầu:" name="startTime" initialValue={dayjs(reacord.startTime)}
 
                                     rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu!' }]}>
-                                    <DatePicker style={{ width: '100%' }} showTime format="HH:mm - DD/MM/YYYY" />
+                                    <DatePicker style={{ width: '100%' }} showTime format="DD/MM/YYYY" />
                                 </Form.Item>
                             </Col>
                             <Col span={1}></Col>
@@ -757,7 +787,7 @@ const VoucherModal = ({ isMode, reacord, hideModal, isModal, fetchVouchers, vouc
                                         }),
                                     ]}
                                 >
-                                    <DatePicker style={{ width: '100%' }} showTime format="HH:mm - DD/MM/YYYY" />
+                                    <DatePicker style={{ width: '100%' }} showTime format="DD/MM/YYYY" />
                                 </Form.Item>
                             </Col>
                         </Row>

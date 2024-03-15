@@ -39,5 +39,5 @@ export function formatNgayTao(dateString) {
 }
 
 export function fomatVoucherDate(arr) {
-    return `${arr[3]}:${arr[4]} ${arr[2]}/${arr[1]}/${arr[0]}`;
+    return `${arr[3]}:${arr[4]} - ${arr[2]}/${arr[1]}/${arr[0]}`;
 }

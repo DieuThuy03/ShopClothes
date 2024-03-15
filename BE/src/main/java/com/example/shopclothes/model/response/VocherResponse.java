@@ -1,6 +1,7 @@
 package com.example.shopclothes.model.response;
 
 import com.example.shopclothes.common.ComonEnum;
+import com.example.shopclothes.entity.Bill;
 import com.example.shopclothes.entity.VocherDetail;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,5 +41,7 @@ public class VocherResponse {
     private ComonEnum.TrangThaiVoucher status;
 
     private List<VocherDetail> vocherDetails;
+
+    private List<Bill> bills;
 
 }

@@ -73,6 +73,7 @@ public class Bill {
     private User idUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vocher_id", referencedColumnName = "id")
     private Vocher vocher;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idBill")

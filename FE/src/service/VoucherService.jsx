@@ -5,7 +5,7 @@ const API_URL = '/Vocher';
 const VoucherService = {
 
     getAll: (pageNo, pageSize, name, status) => {
-        return HttpClient.get(`${API_URL}`, {
+        return HttpClient.get(`${API_URL}/hien-thi-page`, {
             params: { pageNo, pageSize, name, status }
         })
             .then(response => response)  // Sửa dòng này
@@ -62,6 +62,7 @@ const VoucherService = {
         }
     },
     updateStatus: (id) => {
+
         if (!isNaN(id)) {
             const url = `${API_URL}/cancel-voucher/${id}`;
             console.log("UpdateStatus request URL:", url);
