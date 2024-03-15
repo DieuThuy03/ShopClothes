@@ -45,7 +45,7 @@ const ImageService = {
     // },
 
     delete: (id) => {
-        return HttpClient.delete(`${API_URL}delete?id=${id}`)
+        return HttpClient.delete(`${API_URL}/delete?id=${id}`)
             .then(response => response.data)
             .catch(error => {
                 console.error('Error in delete:', error);
@@ -53,8 +53,8 @@ const ImageService = {
             });
     },
 
-    findImageByProductId: (id) => {
-        return HttpClient.get(`${API_URL}/findImageByProductId/${id}`)
+    findImageByProductId: (productId) => {
+        return HttpClient.get(`${API_URL}/findImageByProductId?productId=${productId}`)
             .then(response => response)
             .catch(error => {
                 console.error('Error in findImageByProductId:', error);

@@ -16,7 +16,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 
 
@@ -98,10 +97,28 @@ public class MaterielController {
         }
     }
 
-    @GetMapping(value = "/find-material-by-product/{id}")
-    public List<Material> findMaterialByIdProduct(@PathVariable Long id){
-        return this.materialService.findMaterialByProduct(id);
-    }
-
-
+//    @GetMapping("/hien-thi")
+//    public List<Material> hienThi(){
+//        return materialService.select();
+//    }
+//
+//    @GetMapping("/delete/{id}")
+//    public void delete(@PathVariable Long id){
+//        materialService.delete(id);
+//    }
+//
+//    @GetMapping("/search/{id}")
+//    public void search(@PathVariable Long id){
+//        materialService.search(id);
+//    }
+//
+//    @PostMapping("/add")
+//    public void add(Material material){
+//        materialService.save(material);
+//    }
+//
+//    @PostMapping("/update/{id}")
+//    public void update(Material material, @PathVariable Long id){
+//        materialService.update(material, id);
+//    }
 }

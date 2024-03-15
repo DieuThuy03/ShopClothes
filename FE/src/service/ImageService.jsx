@@ -45,7 +45,7 @@ const ImageService = {
     // },
 
     delete: (id) => {
-        return HttpClient.delete(`${API_URL}delete?id=${id}`)
+        return HttpClient.delete(`${API_URL}/delete?id=${id}`)
             .then(response => response.data)
             .catch(error => {
                 console.error('Error in delete:', error);

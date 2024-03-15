@@ -1,6 +1,5 @@
 package com.example.shopclothes.service;
 
-import com.example.shopclothes.entity.Color;
 import com.example.shopclothes.entity.Size;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +17,4 @@ public interface sizeSevices {
     public Size detail(Long id);
 
     public Size xoa(Long id);
-
-    public List<Size> findSizeByProduct(Long id);
 }

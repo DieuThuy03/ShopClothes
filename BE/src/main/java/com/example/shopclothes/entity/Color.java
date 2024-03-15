@@ -30,7 +30,7 @@ public class Color  {
     private String code;
 
     @Column(name = "name")
-    private String name;
+    private String colorName;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)

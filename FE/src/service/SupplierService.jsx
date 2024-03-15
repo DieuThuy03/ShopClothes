@@ -59,7 +59,7 @@ const SupplierService = {
     },
 
     findAllByDeletedTrue: () => {
-        return HttpClient.get(`${API_URL}findAllByDeletedTrue`)
+        return HttpClient.get(`${API_URL}/findAllByDeletedTrue`)
             .then(response => response)
             .catch(error => {
                 console.error('Error in findAllByDeletedTrue:', error);

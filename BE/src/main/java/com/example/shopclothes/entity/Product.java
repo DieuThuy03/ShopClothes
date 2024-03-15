@@ -30,7 +30,7 @@ public class Product  {
     private String code;
 
     @Column(name = "name")
-    private String name;
+    private String productName;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)
@@ -45,16 +45,25 @@ public class Product  {
     @Column(name = "discribe")
     private String discribe;
 
+//    @ManyToOne(fetch = FetchType.LAZY)
+////    @JoinColumn(name = "idCategory")
+//    @JoinColumn(name = "id_cate")
+//    @JsonProperty("idCategory")
+//    private Category idCategory;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne()
     @JoinColumn(name = "id_cate")
     @JsonProperty("idCategory")
     private Category idCategory;
 
 
-    @ManyToOne(fetch = FetchType.EAGER)
+
+    @ManyToOne()
     @JoinColumn(name = "idProducer")
     @JsonProperty("idProducer")
     private Producer idProducer;
 
+
+//    @OneToMany(fetch = FetchType.LAZY,mappedBy = "idProduct")
+//    List<ProductDetail> productDetails;
 }

@@ -24,7 +24,7 @@ public class ProductDeatilsDTO {
     private Status status;
     private String productName;  // Đổi tên thành productName
     private String categoryName; // Đổi tên thành categoryName
-    private String keyword;
+    private String imageName;
 
 //    private String sizeName;
 //    private String colorName;

@@ -16,5 +16,5 @@ public interface ImgaeServices {
 
     public List<Imege> findImageByProductId(Long productId);
 
-//    public List<Imege> findByImageLink(String imageLink);
+    public List<Imege> findByImageLink(String imageLink);
 }

@@ -23,7 +23,7 @@ const Home = () => {
     //----------------------------------Sản phẩm--------------------------------------------------
     const [products, setProducts] = useState([]);
 
-    const [pagination, setPagination] = useState({ current: 1, pageSize: 12, total: 0 });
+    const [pagination, setPagination] = useState({ current: 1, pageSize: 8, total: 0 });
 
 
     const getProductHomePageByProducts = async () => {
@@ -47,9 +47,8 @@ const Home = () => {
 
                 setPagination({
                     ...pagination,
-                    current: response.pagination.currentPage,
-                    pageSize: response.pagination.pageSize,
-                    total: response.totalCount,
+                    current: 1,
+                    pageSize: 8,
                 });
 
             }).catch(error => {
@@ -65,7 +64,7 @@ const Home = () => {
     };
 
     const handleSizeChange = (current, size) => {
-        getProductHomePageByProducts(0, size);
+        getProductHomePageByProducts(8, size);
     };
 
     useEffect(() => {
@@ -128,7 +127,7 @@ const Home = () => {
             <div className='container' style={{ marginTop: '50px' }}>
                 <Row gutter={[16, 16]}>
                     {products.map((item) => (
-                        <Col xs={24} sm={12} md={8} lg={6} >
+                        <Col xs={24} sm={12} md={8} lg={6} key={item.id} >
                             <Link to={`${path_name.product_detail}/${item.id}`}>
                                 <Card
                                     hoverable
@@ -149,7 +148,7 @@ const Home = () => {
                 <Pagination
                     onChange={handlePageChange}
                     onShowSizeChange={handleSizeChange}
-                    defaultCurrent={1}
+                    defaultCurrent={5}
                     current={pagination.current}
                     pageSize={pagination.pageSize}
                     total={pagination.total}

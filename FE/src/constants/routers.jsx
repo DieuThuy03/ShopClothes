@@ -7,6 +7,7 @@ const path_name = {
     product: '/san-pham',
     add_product: '/them-san-pham',
     edit_product: '/sua-san-pham',
+    brand: '/thuong-hieu',
     color: '/mau-sac',
     category: '/loai-san-pham',
     material: '/chat-lieu',

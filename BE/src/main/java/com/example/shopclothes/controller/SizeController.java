@@ -1,9 +1,13 @@
 package com.example.shopclothes.controller;
 
 import com.example.shopclothes.entity.Color;
+import com.example.shopclothes.entity.Imege;
+import com.example.shopclothes.entity.ProductDetail;
 import com.example.shopclothes.entity.Size;
 import com.example.shopclothes.entity.propertis.Status;
+import com.example.shopclothes.repositories.ProductDetailRepo;
 import com.example.shopclothes.repositories.SizeRepo;
+import com.example.shopclothes.service.impl.ProductDetailService;
 import com.example.shopclothes.service.impl.SizeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +35,12 @@ public class SizeController {
 
     @Autowired
     private SizeRepo sizeRepo;
+
+    @Autowired
+    private ProductDetailRepo productDetailRepo;
+
+    @Autowired
+    private ProductDetailService productDetailService;
 
     @GetMapping("/hien-thi")
     public ResponseEntity<?> hienThi(){
@@ -94,8 +104,9 @@ public class SizeController {
         }
     }
 
-    @GetMapping(value = "/find-size-by-product/{id}")
-    public List<Size> findColorByIdProduct(@PathVariable Long id){
-        return this.sizeService.findSizeByProduct(id);
+    @GetMapping(value = "find-size-by-product")
+    public ResponseEntity<List<ProductDetail>> findColorByIdProduct(@RequestParam Long idSize){
+        List<ProductDetail> sizeProductList = productDetailService.findSizeByProductId(idSize);
+        return ResponseEntity.status(HttpStatus.OK).body(sizeProductList);
     }
 }

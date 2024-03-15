@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 
@@ -28,16 +29,25 @@ public interface ProducerRepo extends JpaRepository<Producer, Long> {
 
     Page<Producer> getAllByStatus(Status status, Pageable pageable);
 
-    // Seacrh
-    @Query(value = "SELECT * FROM producer " +
-            "WHERE (:key IS NULL OR producer.code LIKE CONCAT('%', :key, '%')) " +
-            "AND (:key IS NULL OR producer.name LIKE CONCAT('%', :key , '%')) " +
-            "AND (:status IS NULL OR producer.status = :status)",
-            nativeQuery = true)
-    Page<Producer> searchPageNSX(@Param("key") String key,
-                                 @Param("status") Integer trangThai,
-                                 Pageable pageable);
+// Seacrh
+@Query(value = "SELECT * FROM producer " +
+        "WHERE (:key IS NULL OR producer.code LIKE CONCAT('%', :key, '%')) " +
+        "AND (:key IS NULL OR producer.name LIKE CONCAT('%', :key , '%')) " +
+        "AND (:status IS NULL OR producer.status = :status)",
+        nativeQuery = true)
+Page<Producer> searchPageNSX(@Param("key") String key,
+                             @Param("status") Integer trangThai,
+                             Pageable pageable);
 
-    @Query("SELECT c FROM Producer c WHERE c.status = 'DANG_HOAT_DONG' ORDER BY c.dateCreate DESC")
-    Producer findByName(String name);
+
+
+    @Query("SELECT c FROM Producer c WHERE c.status = 'DANG_HOAT_DONG' AND c.producerName = :name ORDER BY c.dateCreate DESC")
+    Optional<Producer> findByProducerName(@Param("name") String name);
+
+//    @Query("SELECT s FROM Producer s WHERE s.status = 'DANG_HOAT_DONG' ORDER BY s.dateCreate DESC")
+//    Producer findByProducerName(String name);
+
+    @Query("SELECT s FROM Producer s WHERE s.status = 'DANG_HOAT_DONG' ORDER BY s.dateCreate DESC")
+    List<Producer> findByDeletedTrue();
+
 }

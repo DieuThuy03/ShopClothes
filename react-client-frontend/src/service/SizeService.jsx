@@ -50,8 +50,8 @@ const SizeService = {
         }
     },
 
-    findAllByDeletedTrue: () => {
-        return HttpClient.get(`${API_URL}findAllByDeletedTrue`)
+    findAllByDeletedTrue: (idSize) => {
+        return HttpClient.get(`${API_URL}/find-size-by-product?idSize=${idSize}`)
             .then(response => response)
             .catch(error => {
                 console.error('Error in findAllByDeletedTrue:', error);

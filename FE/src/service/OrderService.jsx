@@ -30,6 +30,7 @@ const OrderService = {
                 throw error;
             });
     },
+
     getAllOrderByStatusName: () => {
         return HttpClient.get(`${API_URL}getAllOrderByStatusName`)
             .then(response => response.data)

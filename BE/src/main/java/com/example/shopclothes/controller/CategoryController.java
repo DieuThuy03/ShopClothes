@@ -92,4 +92,13 @@ public class CategoryController {
         }
     }
 
+    @GetMapping("findAllByDeletedTrue")
+    public ResponseEntity<List<Category>> findAllByDeletedTrue() {
+
+        List<Category> categoryList = categoryService.findAllByDeletedTrue();
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(categoryList);
+    }
 }

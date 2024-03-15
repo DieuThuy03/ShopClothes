@@ -95,11 +95,4 @@ public class ColorController {
         }
     }
 
-    @GetMapping(value = "/find-color-by-product/{id}")
-    public List<Color> findColorByIdProduct(@PathVariable Long id){
-        return this.colorService.findColorByProduct(id);
-    }
-
-
-
 }

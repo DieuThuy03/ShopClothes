@@ -32,7 +32,7 @@ public class ImageController {
                 .body(imageList);
     }
 
-    @GetMapping("/findImageByProductId")
+    @GetMapping("findImageByProductId")
     public ResponseEntity<List<Imege>> findImageByProductId(@RequestParam Long productId) {
 
         List<Imege> imageList = imageService.findImageByProductId(productId);
@@ -41,14 +41,14 @@ public class ImageController {
                 .body(imageList);
     }
 
-//    @GetMapping("/findImageByImageLink")
-//    public ResponseEntity<List<Imege>> findImageByImageLink(@RequestParam String imageLink) {
-//
-//        List<Imege> imageList = imageService.findByImageLink(imageLink);
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(imageList);
-//    }
+    @GetMapping("findImageByImageLink")
+    public ResponseEntity<List<Imege>> findImageByImageLink(@RequestParam String imageLink) {
+
+        List<Imege> imageList = imageService.findByImageLink(imageLink);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(imageList);
+    }
 
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> creatImage(@RequestBody List<ImageRequestDto> imageRequestDto) {
@@ -78,7 +78,7 @@ public class ImageController {
         }
     }
 
-    @DeleteMapping("delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<ResponseDto> deleteImage(@RequestParam Long id) {
 
         Boolean isDeleted = imageService.deleteImage(id);
@@ -90,11 +90,6 @@ public class ImageController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDto(NotificationConstants.STATUS_500,NotificationConstants.MESSAGE_500));
         }
-    }
-
-    @GetMapping("/findImageByProductId/{id}")
-    public List<Imege> findImageByProductId2(@PathVariable Long id) {
-        return imageService.findImageByProductId(id);
     }
 
 }

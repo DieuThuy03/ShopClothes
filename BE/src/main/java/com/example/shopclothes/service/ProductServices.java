@@ -1,7 +1,9 @@
 package com.example.shopclothes.service;
 
 import com.example.shopclothes.dto.ProductClientDTO;
+import com.example.shopclothes.dto.ProductDTONamePrice;
 import com.example.shopclothes.dto.ProductDetailFilterRequestDto;
+import com.example.shopclothes.dto.ProductDetailMate;
 import com.example.shopclothes.dto.ProductFilterResponseDto;
 import com.example.shopclothes.dto.ProductRequestDto;
 import com.example.shopclothes.entity.Product;
@@ -25,5 +27,11 @@ public interface ProductServices {
 
     public Product findProductById(Long productId);
 
-    public Page<ProductClientDTO> search(Pageable pageable);
+    public Boolean deleteProduct(Long id);
+
+    public List<Product> findAllByDeletedTrue();
+
+    public Page<ProductClientDTO> search(Pageable pageable, String key);
+
+    public List<ProductDTONamePrice> fillterProductByNamePrice(Long idProduct);
 }

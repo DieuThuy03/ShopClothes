@@ -27,4 +27,8 @@ public class Payments {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "payments")
     List<PaymentsDetail> paymentsDetails;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order orders;
 }

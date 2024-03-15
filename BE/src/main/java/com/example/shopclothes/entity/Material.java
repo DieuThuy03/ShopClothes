@@ -28,7 +28,7 @@ public class Material  {
     private String code;
 
     @Column(name = "name")
-    private String name;
+    private String materialName;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)

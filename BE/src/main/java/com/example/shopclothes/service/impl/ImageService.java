@@ -122,14 +122,17 @@ public class ImageService implements ImgaeServices {
 
     @Override
     public List<Imege> findImageByProductId(Long productId) {
-        return imageRepo.findImegeByIdCtsp(productId);
+
+        List<Imege> imageList = imageRepo.findImegeByIdCtsp(productId);
+
+        return imageList;
     }
 
 
-//    @Override
-//    public List<Imege> findByImageLink(String imageLink) {
-//        return imageRepo.findByImageLink(imageLink);
-//    }
+    @Override
+    public List<Imege> findByImageLink(String imageLink) {
+        return imageRepo.findByImageLink(imageLink);
+    }
 //    @Override
 //    public void save(Imege object) {
 //        imageRepo.save(object);

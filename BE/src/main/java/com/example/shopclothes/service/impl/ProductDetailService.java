@@ -1,10 +1,7 @@
 package com.example.shopclothes.service.impl;
 
-import com.example.shopclothes.dto.ProductDeatilsDTO;
-import com.example.shopclothes.dto.ProductDetailRequestDto;
-import com.example.shopclothes.dto.ProductDetailResponseDto;
-import com.example.shopclothes.dto.ResponseDto;
-import com.example.shopclothes.entity.ProductDetail;
+import com.example.shopclothes.dto.*;
+import com.example.shopclothes.entity.*;
 import com.example.shopclothes.entity.propertis.Status;
 import com.example.shopclothes.exception.ResourceNotFoundException;
 import com.example.shopclothes.repositories.*;
@@ -23,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -70,9 +68,23 @@ public class ProductDetailService implements ProductdetailsServices {
             ProductDetail productDetail = new ProductDetail();
 
             productDetail.setIdProduct(productRepo.findById(productDetailRequestDto.getProductId()).orElse(null));
-            productDetail.setIdColor(colorRepo.findByName(productDetailRequestDto.getColorName()));
-            productDetail.setIdSize(sizeRepo.findByName(productDetailRequestDto.getSizeName()));
-            productDetail.setIdMaterial(materielRepo.findByName(productDetailRequestDto.getMaterialName()));
+//            Color
+            Optional<Color> ColorOptional = colorRepo.findFirstByColorName(productDetailRequestDto.getColorName());
+            Color color = ColorOptional.get();
+            productDetail.setIdColor(color);
+
+//            productDetail.setIdColor(colorRepo.findFirstByColorName(productDetailRequestDto.getColorName()));
+//            Size
+                Optional<Size> SizeOptional = sizeRepo.findFirstBySizeName(productDetailRequestDto.getSizeName());
+            Size size = SizeOptional.get();
+            productDetail.setIdSize(size);
+//            productDetail.setIdSize(sizeRepo.findFirstBySizeName(productDetailRequestDto.getSizeName()));
+//            Chat lieu
+            Optional<Material> MateOptional = materielRepo.findFirstByMaterialName(productDetailRequestDto.getMaterialName());
+            Material mate = MateOptional.get();
+            productDetail.setIdMaterial(mate);
+
+//            productDetail.setIdMaterial(materielRepo.findFirstByMaterialName(productDetailRequestDto.getMaterialName()));
             productDetail.setQuantity(productDetailRequestDto.getQuantity());
             productDetail.setPrice(productDetailRequestDto.getPrice());
             productDetail.setStatus(Status.DANG_HOAT_DONG);
@@ -90,9 +102,23 @@ public class ProductDetailService implements ProductdetailsServices {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy id sản phẩm chi tiết này!"));
 
         productDetail.setIdProduct(productRepo.findById(requestDto.getProductId()).orElse(null));
-        productDetail.setIdColor(colorRepo.findByName(requestDto.getColorName()));
-        productDetail.setIdSize(sizeRepo.findByName(requestDto.getSizeName()));
-        productDetail.setIdMaterial(materielRepo.findByName(requestDto.getMaterialName()));
+//        Color
+        Optional<Color> producerOptional = colorRepo.findFirstByColorName(requestDto.getColorName());
+        System.out.println("ColorName from ProductRequestDto: " + requestDto.getColorName());
+        Color color = producerOptional.get();
+        productDetail.setIdColor(color);
+//        productDetail.setIdColor(colorRepo.findFirstByColorName(requestDto.getColorName()));
+//        Size
+        Optional<Size> SizeOptional = sizeRepo.findFirstBySizeName(requestDto.getSizeName());
+        Size size = SizeOptional.get();
+        productDetail.setIdSize(size);
+
+//        productDetail.setIdSize(sizeRepo.findFirstBySizeName(requestDto.getSizeName()));
+//        Chat lieu
+        Optional<Material> MateOptional = materielRepo.findFirstByMaterialName(requestDto.getMaterialName());
+        Material mate = MateOptional.get();
+        productDetail.setIdMaterial(mate);
+//        productDetail.setIdMaterial(materielRepo.findFirstByMaterialName(requestDto.getMaterialName()));
         productDetail.setQuantity(requestDto.getQuantity());
         productDetail.setPrice(requestDto.getPrice());
         productDetail.setStatus(Status.DANG_HOAT_DONG);
@@ -107,7 +133,51 @@ public class ProductDetailService implements ProductdetailsServices {
     }
 
     @Override
-    public Page<ProductDetail> getAll(Pageable pageable) {
-        return productDetailRepo.getAll(pageable);
+    public Boolean deleteProduct(Long id) {
+
+        Product product = productRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy id sản phẩm này!"));
+
+        product.setStatus(Status.NGUNG_HOAT_DONG);
+        productRepo.save(product);
+        return true;
+    }
+
+    @Override
+    public Page<ProductDetailResponseDto> getProductDetails(ProductDetailFilterRequestDto requestDto) {
+
+        Pageable pageable = PageRequest.of(requestDto.getPageNo(), requestDto.getPageSize());
+
+        return productDetailRepo
+                .getProductDetails(requestDto.getColorId(),
+                        requestDto.getSizeId(),
+                        requestDto.getMaterialId(),
+                        requestDto.getPriceMin(),
+                        requestDto.getPriceMax(),
+                        requestDto.getCategoryId(),
+                        requestDto.getKeyword(),
+                        pageable);
+    }
+
+    @Override
+    public List<ProductDetailSize> fillterProductDetailBySize(Long idSize) {
+        return productDetailRepo.fillterProductDetailBySize(idSize);
+    }
+
+    @Override
+    public List<ProductDetailCol> fillterProductDetailByCol(Long idCol) {
+        return productDetailRepo.fillterProductDetailByCol(idCol);
+    }
+
+    @Override
+    public List<ProductDetailMate> fillterProductDetailByMate(Long idMate) {
+        return productDetailRepo.fillterProductDetailByMate(idMate);
+    }
+
+
+    @Override
+    public List<ProductDetail> findSizeByProductId(Long productId) {
+
+        return null;
     }
 }

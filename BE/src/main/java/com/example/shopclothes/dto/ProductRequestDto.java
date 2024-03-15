@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -29,8 +27,6 @@ public class ProductRequestDto {
     private Boolean productNew;
 
     private String productDescribe;
-
-    private BigDecimal price;
 
     private Status status;
 }

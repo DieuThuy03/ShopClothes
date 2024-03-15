@@ -60,7 +60,8 @@ public class ProductDetail {
 //    private List<Imege> imeges;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "idProduct")
     @JsonProperty("idProduct")
     private Product idProduct;
@@ -71,13 +72,13 @@ public class ProductDetail {
 //    @JsonProperty("idCategory")
 //    private Category idCategory;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
 //    @JoinColumn(name = "idColor")
     @JoinColumn(name = "id_col")
     @JsonProperty("idColor")
     private Color idColor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
 //    @JoinColumn(name = "idMaterial")
     @JoinColumn(name = "id_mate")
     @JsonProperty("idMaterial")
@@ -88,7 +89,7 @@ public class ProductDetail {
 //    @JsonProperty("idProducer")
 //    private Producer idProducer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
 //    @JoinColumn(name = "idSize")
     @JoinColumn(name = "id_size")
     @JsonProperty("idSize")

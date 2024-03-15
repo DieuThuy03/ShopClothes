@@ -66,7 +66,7 @@ function Material() {
                             key: mate.id,
                             id: mate.id,
                             code: mate.code,
-                            name: mate.name,
+                            materialName: mate.materialName,
                             ghi_chu: mate.ghi_chu,
                             dateCreate: new Date(mate.dateCreate).toLocaleString(),
                             dateUpdate: mate.dateUpdate ? new Date(mate.dateUpdate).toLocaleString() : 'N/A',
@@ -203,11 +203,11 @@ function Material() {
 
         {
             title: 'Tên chất liệu',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'materialName',
+            key: 'materialName',
             width: '20%',
             filterIcon: <SearchOutlined style={{ fontSize: '14px', color: 'rgb(158, 154, 154)' }} />,
-            ...getColumnSearchProps('name')
+            ...getColumnSearchProps('materialName')
         },
 
         {
@@ -410,7 +410,7 @@ const MaterialModal = ({ isMode, reacord, hideModal, isModal, fetchMaterials, ma
                 form={form}
                 initialValues={{ ...reacord }}
             >
-                <Form.Item label="Tên:" name="name"
+                <Form.Item label="Tên:" name="materialName"
                     rules={[{ required: true, message: 'Vui lòng nhập tên chất liệu!' },
                     {
                         validator: (_, value) => {
@@ -420,7 +420,7 @@ const MaterialModal = ({ isMode, reacord, hideModal, isModal, fetchMaterials, ma
                             const trimmedValue = value.trim(); // Loại bỏ dấu cách ở đầu và cuối
                             const lowercaseValue = trimmedValue.toLowerCase(); // Chuyển về chữ thường
                             const isDuplicate = materials.some(
-                                (material) => material.name.trim().toLowerCase() === lowercaseValue && material.id !== reacord.id
+                                (material) => material.materialName.trim().toLowerCase() === lowercaseValue && material.id !== reacord.id
                             );
                             if (isDuplicate) {
                                 return Promise.reject('Tên chất liệu đã tồn tại!');
@@ -451,3 +451,4 @@ const MaterialModal = ({ isMode, reacord, hideModal, isModal, fetchMaterials, ma
         </Modal>
     );
 };
+

@@ -5,9 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 @Getter
@@ -24,15 +23,10 @@ public class Account {
     @Column(name = "code")
     private String code;
 
-    @Column(name = "ghi_chu")
-    private String ghi_chu;
-
     @Column(name = "dateCreate")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private java.util.Date dateCreate;
+    private Date dateCreate;
 
     @Column(name = "dateUpdate")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateUpdate;
 
     @Column(name = "password")

@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -30,12 +29,10 @@ public class Vocher {
     private String name;
 
     @Column(name = "dateCreate")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private java.util.Date dateCreate;
+    private Date dateCreate;
 
     @Column(name = "dateUpdate")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private java.util.Date dateUpdate;
+    private Date dateUpdate;
 
     @Column(name = "peplerCreate")
     private String peplerCreate;

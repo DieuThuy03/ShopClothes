@@ -91,11 +91,11 @@ public class ProducerServiceIPL implements ProducerServices {
 
     @Override
     public Producer add(Producer nhaSanXuat) {
-        nhaSanXuat.setName(nhaSanXuat.getName());
+        nhaSanXuat.setProducerName(nhaSanXuat.getProducerName());
         return producerRepo.save(nhaSanXuat);
     }
 
-    //    @Override
+//    @Override
 //    public Producer add(Producer nhaSanXuat) {
 //        // Kiểm tra nếu nhà sản xuất đã tồn tại
 //        Optional<Producer> existingProducer = producerRepo.findById(nhaSanXuat.getId());
@@ -128,13 +128,9 @@ public class ProducerServiceIPL implements ProducerServices {
         }
     }
 
-//    @Override
-//    public List<Producer> findByNhaSanXuatString(List<String> nsxString) {
-//        List<Producer> nhaSanXuats = new ArrayList<>();
-//        for (String nsx: nsxString) {
-//            Producer nhaSanXuat = producerRepo.findByTen(nsx);
-//            nhaSanXuats.add(nhaSanXuat);
-//        }
-//        return nhaSanXuats;
-//    }
+    @Override
+    public List<Producer> findByDeletedTrue() {
+        return producerRepo.findByDeletedTrue();
+    }
+
 }

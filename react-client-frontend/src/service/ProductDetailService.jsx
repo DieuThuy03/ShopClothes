@@ -1,6 +1,6 @@
 import HttpClient from '~/utils/http-client';
 
-const API_URL = 'productDetails/';
+const API_URL = '/public/productDetail';
 
 
 const ProductDetailService = {
@@ -16,7 +16,7 @@ const ProductDetailService = {
             });
     },
     findColorNamesByProductId: (productId) => {
-        return HttpClient.get(`${API_URL}findColorNamesByProductId`, {
+        return HttpClient.get(`${API_URL}/filterProductDetailByCol?idCol=${productId}`, {
             params: {
                 productId
             }
@@ -27,7 +27,7 @@ const ProductDetailService = {
             });
     },
     findMaterialNamesByProductId: (productId) => {
-        return HttpClient.get(`${API_URL}findMaterialNamesByProductId`, {
+        return HttpClient.get(`${API_URL}/filterProductDetailByMate?idMate=${productId}`, {
             params: {
                 productId
             }
@@ -38,7 +38,7 @@ const ProductDetailService = {
             });
     },
     findSizeNamesByProductId: (productId) => {
-        return HttpClient.get(`${API_URL}findSizeNamesByProductId`,
+        return HttpClient.get(`${API_URL}/filterProductDetailBySize?idSize=${productId}`,
             {
                 params: {
                     productId
@@ -85,16 +85,7 @@ const ProductDetailService = {
             });
     },
 
-    getAll: (pageNo, pageSize, name, status) => {
-        return HttpClient.get(`${API_URL}/hien-thi`, {
-            params: { pageNo, pageSize, name, status }
-        })
-            .then(response => response)  // Sửa dòng này
-            .catch(error => {
-                console.error('Error in getAll:', error);
-                throw error;
-            });
-    },
+
 };
 
 export default ProductDetailService;

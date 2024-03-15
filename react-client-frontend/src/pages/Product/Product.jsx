@@ -42,22 +42,22 @@ function Product() {
             })
     }
     //-----------------------Thương hiệu-------------------------------
-    const [brands, setBrands] = useState([]);
+    // const [brands, setBrands] = useState([]);
 
-    useEffect(() => {
-        fetchBrand()
-    }, []);
-    const fetchBrand = async () => {
+    // useEffect(() => {
+    //     fetchBrand()
+    // }, []);
+    // const fetchBrand = async () => {
 
-        await BrandService.findAllByDeletedTrue()
-            .then(response => {
+    //     await BrandService.findAllByDeletedTrue()
+    //         .then(response => {
 
-                setBrands(response.data)
+    //             setBrands(response.data)
 
-            }).catch(error => {
-                console.error(error);
-            })
-    }
+    //         }).catch(error => {
+    //             console.error(error);
+    //         })
+    // }
 
     //---------------------------Kích thước-------------------------------------
     const [sizes, setSizes] = useState([]);
@@ -124,10 +124,10 @@ function Product() {
         productName: null,
     });
 
-    const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+    const [pagination, setPagination] = useState({ current: 1, pageSize: 12, total: 0 });
     const findProductsByFilters = async () => {
 
-        await ProductService.getAll(pagination.current - 1)
+        await ProductService.getAll1(pagination.current - 1)
             .then(response => {
                 const listProduct = response.data.content;
                 console.log(response.data.content);
@@ -145,9 +145,8 @@ function Product() {
 
                 setPagination({
                     ...pagination,
-                    current: response.pagination.currentPage,
-                    pageSize: response.pagination.pageSize,
-                    total: response.totalCount,
+                    current: 1,
+                    pageSize: 12,
                 });
 
             }).catch(error => {
@@ -302,7 +301,7 @@ function Product() {
                                                     {categories.map((category) => (
                                                         <Col key={category.id} span={24}>
                                                             <Checkbox value={category.id}>
-                                                                {category.name}
+                                                                {category.categoryName}
                                                             </Checkbox>
                                                         </Col>
                                                     ))}
@@ -314,7 +313,7 @@ function Product() {
                             ]}
                         />
 
-                        <Collapse
+                        {/* <Collapse
                             size="small"
                             style={{ border: 'none' }}
                             items={[
@@ -337,7 +336,7 @@ function Product() {
 
                                 },
                             ]}
-                        />
+                        /> */}
                         <Collapse
                             size="small"
                             style={{ border: 'none' }}
@@ -350,7 +349,7 @@ function Product() {
                                             <Row gutter={[6, 6]} >
                                                 {materials.map((material) => (
                                                     <Col key={material.id} span={24}>
-                                                        <Checkbox value={material.id}>{material.name}</Checkbox>
+                                                        <Checkbox value={material.id}>{material.materialName}</Checkbox>
                                                     </Col>
                                                 ))}
                                             </Row>
@@ -371,7 +370,7 @@ function Product() {
                                             <Row gutter={[6, 6]} >
                                                 {colors.map((color) => (
                                                     <Col key={color.id} span={12}>
-                                                        <Checkbox value={color.id}>{color.name}</Checkbox>
+                                                        <Checkbox value={color.id}>{color.colorName}</Checkbox>
                                                     </Col>
                                                 ))}
                                             </Row>
@@ -393,7 +392,7 @@ function Product() {
                                             <Row gutter={[6, 6]} >
                                                 {sizes.map((size) => (
                                                     <Col key={size.id} span={12}>
-                                                        <Checkbox value={size.id}>{size.name}</Checkbox>
+                                                        <Checkbox value={size.id}>{size.sizeName}</Checkbox>
                                                     </Col>
                                                 ))}
                                             </Row>

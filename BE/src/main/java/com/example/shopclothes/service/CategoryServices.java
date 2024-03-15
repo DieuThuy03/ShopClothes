@@ -17,4 +17,6 @@ public interface CategoryServices {
     public Category detail(Long id);
 
     public Category xoa(Long id);
+
+    public List<Category> findAllByDeletedTrue();
 }

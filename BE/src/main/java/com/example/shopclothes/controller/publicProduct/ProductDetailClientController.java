@@ -1,6 +1,9 @@
 package com.example.shopclothes.controller.publicProduct;
 
+import com.example.shopclothes.dto.ProductDetailCol;
+import com.example.shopclothes.dto.ProductDetailMate;
 import com.example.shopclothes.dto.ProductDetailResponseDto;
+import com.example.shopclothes.dto.ProductDetailSize;
 import com.example.shopclothes.dto.ResponseHandler;
 import com.example.shopclothes.entity.Product;
 import com.example.shopclothes.entity.ProductDetail;
@@ -50,10 +53,30 @@ public class ProductDetailClientController {
                 , responseDtoPage);
     }
 
-    @GetMapping("/hien-thi")
-    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0") Integer page){
-        Pageable pageable = PageRequest.of(page, 5);
-        Page<ProductDetail> productDetails = productDetailRepo.getAll(pageable);
-        return ResponseEntity.ok(productDetails.getContent());
+//    @GetMapping("/hien-thi")
+//    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0") Integer page){
+//        Pageable pageable = PageRequest.of(page, 5);
+//        Page<ProductDetail> productDetails = productDetailRepo.getAll(pageable);
+//        return ResponseEntity.ok(productDetails.getContent());
+//    }
+
+    @GetMapping("filterProductDetailBySize")
+    public ResponseEntity<List<ProductDetailSize>> filterProductDetailBySize(@RequestParam Long idSize){
+        List<ProductDetailSize> sizeProductList = productDetailService.fillterProductDetailBySize(idSize);
+        return ResponseEntity.status(HttpStatus.OK).body(sizeProductList);
     }
+
+    @GetMapping("filterProductDetailByCol")
+    public ResponseEntity<List<ProductDetailCol>> filterProductDetailByCol(@RequestParam Long idCol){
+        List<ProductDetailCol> sizeProductList = productDetailService.fillterProductDetailByCol(idCol);
+        return ResponseEntity.status(HttpStatus.OK).body(sizeProductList);
+    }
+
+    @GetMapping("filterProductDetailByMate")
+    public ResponseEntity<List<ProductDetailMate>> filterProductDetailByMate(@RequestParam Long idMate){
+        List<ProductDetailMate> sizeProductList = productDetailService.fillterProductDetailByMate(idMate);
+        return ResponseEntity.status(HttpStatus.OK).body(sizeProductList);
+    }
+
+
 }

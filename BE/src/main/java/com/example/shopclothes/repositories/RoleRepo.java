@@ -36,6 +36,6 @@ public interface RoleRepo extends JpaRepository<Role, Long> {
             "AND (:status IS NULL OR role.status = :status)",
             nativeQuery = true)
     Page<Role> searchRole(@Param("key") String key,
-                                   @Param("status") Integer trangThai,
-                                   Pageable pageable);
+                          @Param("status") Integer trangThai,
+                          Pageable pageable);
 }

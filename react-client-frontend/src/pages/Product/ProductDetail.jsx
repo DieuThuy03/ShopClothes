@@ -75,123 +75,66 @@ function ProductDetail() {
         setOpen(false);
     };
     //----------------load Màu sắc----------------------------------
-    // const [colors, setColors] = useState([]);
-
-    // const findColorNamesByProductId = async () => {
-    //     await ProductDetailService.findColorNamesByProductId(id)
-    //         .then(response => {
-    //             setColors(response);
-    //             // console.log(response)
-    //         }).catch(error => {
-    //             console.error(error);
-    //         })
-    // }
-
-    // useEffect(() => {
-    //     findColorNamesByProductId();
-    // }, []);
-
-    const [openColor, setOpenColor] = useState(false);
-
-    const showModalColor = () => {
-        setOpenColor(true);
-    };
-
-    const handleCancelColor = () => {
-        setOpenColor(false);
-    };
 
     const [colors, setColors] = useState([]);
 
-    useEffect(() => {
-        fetchColor()
-    }, []);
-    const fetchColor = async () => {
-
-        await ColorService.findAllByDeletedTrue(id)
+    const findColorNamesByProductId = async () => {
+        await ProductDetailService.findColorNamesByProductId(id)
             .then(response => {
-
-                setColors(response.data)
+                setColors(response);
+                // console.log(response)
             }).catch(error => {
                 console.error(error);
             })
     }
+
+    useEffect(() => {
+        findColorNamesByProductId();
+    }, []);
+
 
     //----------------Load--Kích thước------------------------------------
 
-    // const [sizes, setSizes] = useState([]);
-
-    // const findSizeNamesByProductId = async () => {
-    //     await ProductDetailService.findSizeNamesByProductId(id)
-    //         .then(response => {
-
-    //             setSizes(response);
-
-    //             // console.log(response)
-    //         }).catch(error => {
-    //             console.error(error);
-    //         })
-    // }
-
-    // useEffect(() => {
-    //     findSizeNamesByProductId();
-    // }, []);
-
-    const [openSize, setOpenSize] = useState(false);
-
-    const showModalSize = () => {
-        setOpenSize(true);
-    };
-
-    const handleCancelSize = () => {
-        setOpenSize(false);
-    };
-
     const [sizes, setSizes] = useState([]);
 
-    useEffect(() => {
-        fetchSize()
-    }, []);
-
-    const fetchSize = async () => {
-
-        await SizeService.getAll()
+    const findSizeNamesByProductId = async () => {
+        await ProductDetailService.findSizeNamesByProductId(id)
             .then(response => {
-                setSizes(response.data)
+
+                setSizes(response);
+
+                // console.log(response)
             }).catch(error => {
                 console.error(error);
             })
     }
+
+    useEffect(() => {
+        findSizeNamesByProductId();
+    }, []);
+
 
 
     //----------------Load--Chất liệu------------------------------------
 
 
-    const [openMaterial, setOpenMaterial] = useState(false);
-
-    const showModalMaterial = () => {
-        setOpenMaterial(true);
-    };
-
-    const handleCancelMaterial = () => {
-        setOpenMaterial(false);
-    };
     const [materials, setMaterials] = useState([]);
 
-    useEffect(() => {
-        fetchMaterial()
-    }, []);
-    const fetchMaterial = async () => {
-
-        await MaterialService.findAllByDeletedTrue(id)
+    const findNamesByProductId = async () => {
+        await ProductDetailService.findMaterialNamesByProductId(id)
             .then(response => {
 
-                setMaterials(response.data)
+                setMaterials(response);
 
+                // console.log(response)
             }).catch(error => {
                 console.error(error);
             })
     }
+
+    useEffect(() => {
+        findNamesByProductId();
+    }, []);
 
     //---------------------Load sản phẩm -----------------------------------
     const [products, setProducts] = useState([]);
@@ -201,10 +144,12 @@ function ProductDetail() {
     }, []);
 
     const fetchProductDetails = async () => {
-        await ProductService.getAll()
+        await ProductService.findNamePriceByProductId(id)
             .then(response => {
-                setProducts(response.data)
 
+                setProducts(response);
+
+                // console.log(response)
             }).catch(error => {
                 console.error(error);
             })
@@ -232,6 +177,8 @@ function ProductDetail() {
     const [selectedColorId, setSelectedColorId] = useState(null);
     const [selectedSizeId, setSelectedSizeId] = useState(null);
     const [selectedMaterialId, setSelectedMaterialId] = useState(null);
+
+    const [productDetail, setProductDetail] = useState(null);
 
     const [error, setError] = useState(null)
 
@@ -326,10 +273,10 @@ function ProductDetail() {
             const newCartItem = {
                 id: productId,
                 productImage: images[0]?.imageLink || '',
-                // productName: productDetail.productName,
-                colorName: selectedColor?.colorName || '',
+                productName: products.productName,
+                colorName: selectedColor?.colName || '',
                 sizeName: selectedSize?.sizeName || '',
-                materialName: selectedMaterial?.materialName || '',
+                materialName: selectedMaterial?.mateName || '',
                 quantity: cartDetail.quantity,
                 // price: price,
                 // totalPrice: price * cartDetail.quantity,
@@ -363,21 +310,39 @@ function ProductDetail() {
     };
 
     const items = [
-        // {
-        //     key: '1',
-        //     label: 'Mô tả',
-        //     children: <>
-        //         <Row style={{ marginTop: '10px' }}>
-        //             <span>Danh mục: {productDetail.categoryName}</span>
-        //         </Row>
-        //         <Row style={{ marginTop: '10px' }}>
-        //             <span>Thương hiệu: {productDetail.brandName}</span>
-        //         </Row>
-        //         <Row style={{ marginTop: '10px' }}>
-        //             <span>Mô tả: {productDetail.productDescribe}</span>
-        //         </Row>
-        //     </>,
-        // },
+        {
+            key: '1',
+            label: 'Mô tả',
+            children: <>
+                <Row style={{ marginTop: '10px' }}>
+                    <span>Danh mục :
+                        {products.map((color) => (
+                            <label
+                                key={color.id}
+                            >
+                                {color.nameCate}
+                            </label>
+                        ))}</span>
+                </Row>
+
+                {/* <Row style={{ marginTop: '10px' }}>
+                    <span>Thương hiệu: {productDetail.brandName}</span>
+                </Row> */}
+                <Row style={{ marginTop: '10px' }}>
+                    <span>Mô tả :
+
+                        {products.map((color) => (
+                            <label
+                                key={color.id}
+                            >
+                                {color.discribe}
+                            </label>
+                        ))}
+
+                    </span>
+                </Row>
+            </>,
+        },
 
     ];
     return (
@@ -428,14 +393,35 @@ function ProductDetail() {
 
                         <Row>
                             <h1 style={{ color: '#656565', fontSize: '23px' }}  >
-                                {/* {productDetail.productName} */}
+
+                                {products.map((color) => (
+                                    <label
+                                        key={color.id}
+                                    >
+                                        {color.productName}
+                                    </label>
+                                ))}
                             </h1>
+
                         </Row>
                         <Row style={{ marginTop: '10px' }}>
                             <label
                                 style={{ fontWeight: 'bolder', color: 'red' }}
                             >
-                                {/* {formatCurrency(price)} */}
+                                <h1 style={{ color: '#656565', fontSize: '23px' }}  >
+                                    Giá
+                                    {products.map((color) => (
+                                        <label
+                                            key={color.id}
+
+                                        >
+                                            : {color.price} đ
+                                        </label>
+                                    ))}
+
+
+
+                                </h1>
                             </label>
                         </Row>
 
@@ -452,7 +438,7 @@ function ProductDetail() {
                                                 color: selectedColor === color ? '#2123bf' : '#656565',
                                             }}
                                         >
-                                            {color.name}
+                                            {color.colName}
                                         </label>
                                     ))}
                                 </Row>
@@ -473,7 +459,7 @@ function ProductDetail() {
                                                 color: selectedSize === size ? '#2123bf' : '#656565',
                                             }}
                                         >
-                                            {size.name}
+                                            {size.sizeName}
                                         </label>
                                     ))}
                                 </Row>
@@ -492,7 +478,7 @@ function ProductDetail() {
                                                 color: selectedMaterial === material ? '#2123bf' : '#656565',
                                             }}
                                         >
-                                            {material.name}
+                                            {material.mateName}
                                         </label>
                                     ))}
                                 </Row>

@@ -18,6 +18,4 @@ public interface ColorServices {
     public Color detail(Long id);
 
     public Color xoa(Long id);
-
-    public List<Color> findColorByProduct(Long id);
 }

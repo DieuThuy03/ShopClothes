@@ -15,20 +15,14 @@ import lombok.Setter;
 public class ProductDetailFilterRequestDto {
 
     private Long colorId;
-
     private Long sizeId;
-
     private Long materialId;
-
     private Double priceMin;
-
     private Double priceMax;
-
     private Long categoryId;
-
     private String keyword;
-//    private int pageNo;
-//    private int pageSize;
+    private Integer pageNo;
+    private Integer pageSize;
 
 
 }

@@ -34,7 +34,7 @@ public class MaterialService implements MaterielServices {
 
     @Override
     public Material add(Material mt) {
-        mt.setName(mt.getName());
+        mt.setMaterialName(mt.getMaterialName());
         return materielRepo.save(mt);
     }
 
@@ -54,11 +54,6 @@ public class MaterialService implements MaterielServices {
         } else {
             return null; // Hoặc giá trị tương tự để biểu thị không có gì thay đổi.
         }
-    }
-
-    @Override
-    public List<Material> findMaterialByProduct(Long id) {
-        return materielRepo.findByIdProductMaterial(id);
     }
 
 //    @Override

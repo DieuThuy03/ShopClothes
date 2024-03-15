@@ -35,7 +35,7 @@ public class ColorService implements ColorServices {
 
     @Override
     public Color add(Color nhaSanXuat) {
-        nhaSanXuat.setName(nhaSanXuat.getName());
+        nhaSanXuat.setColorName(nhaSanXuat.getColorName());
         return colorRepo.save(nhaSanXuat);
     }
 
@@ -55,11 +55,6 @@ public class ColorService implements ColorServices {
         } else {
             return null; // Hoặc giá trị tương tự để biểu thị không có gì thay đổi.
         }
-    }
-
-    @Override
-    public List<Color> findColorByProduct(Long id) {
-        return colorRepo.findByIdProduct(id);
     }
 
 

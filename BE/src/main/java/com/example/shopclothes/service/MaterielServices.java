@@ -1,6 +1,5 @@
 package com.example.shopclothes.service;
 
-import com.example.shopclothes.entity.Color;
 import com.example.shopclothes.entity.Material;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +17,4 @@ public interface MaterielServices {
     public Material detail(Long id);
 
     public Material xoa(Long id);
-
-    public List<Material> findMaterialByProduct(Long id);
 }

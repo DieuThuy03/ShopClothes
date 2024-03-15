@@ -26,8 +26,8 @@ public class Category  {
     @Column(name = "code")
     private String code;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "category_name")
+    private String categoryName;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)

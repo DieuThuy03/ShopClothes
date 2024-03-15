@@ -1,8 +1,13 @@
 package com.example.shopclothes.service;
 
 import com.example.shopclothes.dto.ProductDeatilsDTO;
+import com.example.shopclothes.dto.ProductDetailCol;
+import com.example.shopclothes.dto.ProductDetailFilterRequestDto;
+import com.example.shopclothes.dto.ProductDetailMate;
 import com.example.shopclothes.dto.ProductDetailRequestDto;
 import com.example.shopclothes.dto.ProductDetailResponseDto;
+import com.example.shopclothes.dto.ProductDetailSize;
+import com.example.shopclothes.entity.Imege;
 import com.example.shopclothes.entity.ProductDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,5 +30,16 @@ public interface ProductdetailsServices {
 
     public Page<ProductDetailResponseDto> findAllByProductId(Long id, Pageable pageable);
 
-    public Page<ProductDetail> getAll(Pageable pageable);
+    public Boolean deleteProduct(Long id);
+
+    Page<ProductDetailResponseDto> getProductDetails(ProductDetailFilterRequestDto requestDto);
+
+    public List<ProductDetailSize> fillterProductDetailBySize(Long idSize);
+
+    public List<ProductDetailCol> fillterProductDetailByCol(Long idCol);
+
+    public List<ProductDetailMate> fillterProductDetailByMate(Long idMate);
+
+
+    public List<ProductDetail> findSizeByProductId(Long sizeId);
 }

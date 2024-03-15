@@ -35,7 +35,7 @@ public class SizeService implements sizeSevices {
 
     @Override
     public Size add(Size size) {
-        size.setName(size.getName());
+        size.setSizeName(size.getSizeName());
         return sizeRepo.save(size);
     }
 
@@ -56,11 +56,6 @@ public class SizeService implements sizeSevices {
         } else {
             return null; // Hoặc giá trị tương tự để biểu thị không có gì thay đổi.
         }
-    }
-
-    @Override
-    public List<Size> findSizeByProduct(Long id) {
-        return sizeRepo.findByIdProductSize(id);
     }
 
 }

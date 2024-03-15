@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
+import java.util.List;
 import java.util.Random;
 
 
@@ -39,7 +40,7 @@ public class ProducerController {
     }
 
 
-    //    @GetMapping("getAll")
+//    @GetMapping("getAll")
 //    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0") Integer pageNo,
 //                                          @RequestParam(defaultValue = "4") Integer pageSize,
 //                                          @RequestParam(required = false) String name,
@@ -56,12 +57,12 @@ public class ProducerController {
 //                        supplierList,
 //                        supplierPage);
 //    }
-    @GetMapping("/hien-thi-page")
-    public ResponseEntity<?> hienThiPage(@RequestParam(defaultValue = "0") Integer page) {
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<Producer> producerPage = producerRepo.getAllByStatus(Status.DANG_HOAT_DONG, pageable);
-        return ResponseEntity.ok(producerPage.getContent());
-    }
+@GetMapping("/hien-thi-page")
+public ResponseEntity<?> hienThiPage(@RequestParam(defaultValue = "0") Integer page) {
+    Pageable pageable = PageRequest.of(page, 10);
+    Page<Producer> producerPage = producerRepo.getAllByStatus(Status.DANG_HOAT_DONG, pageable);
+    return ResponseEntity.ok(producerPage.getContent());
+}
 
 
     @GetMapping("/hien-thi-page-search")
@@ -149,9 +150,12 @@ public class ProducerController {
     }
 
 
-//    @PutMapping("/delete/{id}")
-//    public ResponseEntity<?> delete(@PathVariable Long id, @RequestBody Producer nhaSanXuat){
-//        nhaSanXuat.setId(id);
-//        return ResponseEntity.ok(producerService.xoa(id));
-//    }
+    @GetMapping("findAllByDeletedTrue")
+    public ResponseEntity<List<Producer>> findByDeletedTrue() {
+
+        List<Producer> supplierList = producerService.findByDeletedTrue();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(supplierList);
+    }
 }

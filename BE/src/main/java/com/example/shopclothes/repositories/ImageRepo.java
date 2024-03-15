@@ -20,10 +20,8 @@ public interface ImageRepo extends JpaRepository<Imege, Long> {
     @Query(value = "update Imege set status = 0 where id =?1", nativeQuery = true)
     void delete(Long id);
 
-    @Query(value = "\n" +
-            "select i.date_create, i.date_update, i.id, i.id_product, i.code, i.image_link," +
-            " i.image_type, i.name, i.status from imege i join product pd on i.id_product = pd.id where id_product = ?1", nativeQuery = true)
-    List<Imege> findImegeByIdCtsp(Long id);
+    @Query("SELECT i FROM Imege i WHERE i.product.id = :productId")
+    List<Imege> findImegeByIdCtsp(@Param("productId") Long productId);
 
-//    List<Imege> findByImageLink(String imageLink);
+    List<Imege> findByImageLink(String imageLink);
 }
