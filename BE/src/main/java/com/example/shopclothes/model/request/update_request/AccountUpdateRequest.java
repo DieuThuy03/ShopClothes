@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -17,6 +18,8 @@ public class AccountUpdateRequest {
     @Pattern(message = "Họ và tên không hợp lệ", regexp = "^[\\p{L}\\s]+$")
     private String fullname;
 
+    @NotBlank(message = "Vui lòng điền số căn cước công dân")
+    private String citizenIdentificationCard;
 
     @NotNull(message = "Vui lòng chọn ngày sinh")
     @PastOrPresent(message = "Ngày sinh không thể trong tương lai")
@@ -47,6 +50,6 @@ public class AccountUpdateRequest {
 
     private MultipartFile flieAnhDaiDien;
 
-    private ComonEnum.TrangThaiThuocTinh trangThai;
+    private ComonEnum.TrangThaiThuocTinh status;
 
 }

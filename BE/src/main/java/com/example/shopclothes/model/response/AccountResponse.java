@@ -2,15 +2,10 @@ package com.example.shopclothes.model.response;
 
 import com.example.shopclothes.common.ComonEnum;
 import com.example.shopclothes.entity.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -21,18 +16,11 @@ public class AccountResponse {
 
     private Long id;
 
-    private String code;
-
-
     private String fullName;
 
+    private String citizenIdentificationCard;
+
     private LocalDate birthday;
-
-    private Integer age;
-
-    private LocalDateTime dateCreate;
-
-    private LocalDateTime dateUpdate;
 
     private ComonEnum.GioiTinh sex;
 
@@ -40,17 +28,21 @@ public class AccountResponse {
 
     private String email;
 
-    private String avatar;
-
     private String city;
 
-    private String district;
+    private String district; // quan/huyen
 
-    private String wards;
+    private String wards; // phuong/ xa
 
-    private String specificAddress;
+    private String specificAddress; //dai
+
+    private String avatar;
 
     private String password;
+
+    private Date dateCreate;
+
+    private Date dateUpdate;
 
     private ComonEnum.TrangThaiThuocTinh status;
 
