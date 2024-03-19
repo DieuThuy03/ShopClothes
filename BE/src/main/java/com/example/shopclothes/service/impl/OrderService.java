@@ -1,6 +1,7 @@
 package com.example.shopclothes.service.impl;
 
 import com.example.shopclothes.dto.OrderInStoreRequestDto;
+import com.example.shopclothes.dto.OrderStatusRequestDto;
 import com.example.shopclothes.entity.*;
 import com.example.shopclothes.exception.ResourceNotFoundException;
 import com.example.shopclothes.repositories.*;
@@ -32,6 +33,9 @@ public class OrderService implements OrderServiceIPL {
 
     @Autowired
     private UserRepo userRepository;
+
+    @Autowired
+    private ProductDetailRepo productDetailRepository;
 
     @Override
     public Order createOrderInStore() {
@@ -174,5 +178,36 @@ public class OrderService implements OrderServiceIPL {
                 pageable);
     }
 
+    @Override
+    public Boolean updateOrderStatus(OrderStatusRequestDto orderStatusRequestDto) {
+        Order order = orderRepository.findById(orderStatusRequestDto.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng này!"));
+
+        OrderStatus orderStatus = orderStatusRepository.findByStatusName(orderStatusRequestDto.getNewStatusName()).orElse(null);
+
+        // Kiểm tra nếu trạng thái mới là "Đã hủy"
+        if (orderStatusRequestDto.getNewStatusName().equals("Đã hủy")) {
+            // Thực hiện các thao tác cộng lại số lượng sản phẩm
+            List<OrderDetail> orderDetails = order.getOrderDetails();
+            for (OrderDetail orderDetail : orderDetails) {
+                ProductDetail productDetail = orderDetail.getProductDetail();
+                productDetail.setQuantity(productDetail.getQuantity() + orderDetail.getQuantity());
+                productDetailRepository.save(productDetail);
+            }
+        }
+
+        order.setNote(orderStatusRequestDto.getNote());
+        order.setOrderStatus(orderStatus);
+        orderRepository.save(order);
+
+        // Xét lịch sử đơn hàng
+        OrderHistory orderHistory = new OrderHistory();
+        orderHistory.setOrder(order);
+        orderHistory.setStatus(orderStatus);
+        orderHistory.setNote(orderStatusRequestDto.getNote());
+        orderHistoryRepository.save(orderHistory);
+
+        return true;
+    }
 
 }

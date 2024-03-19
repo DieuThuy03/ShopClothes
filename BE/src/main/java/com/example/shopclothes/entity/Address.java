@@ -1,6 +1,7 @@
 package com.example.shopclothes.entity;
 
 import com.example.shopclothes.entity.propertis.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,11 +39,21 @@ public class Address {
     @Column(name = "DateUpdate")
     private Date DateUpdate;
 
-    @Column(name = "status")
-    private Status status;
+//    @Column(name = "status")
+//    private Status status;
 
+    @Column(name = "status")
+    private Boolean status = false;
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idUser")
     private User idUser;
+
+    @Column(name = "recipient_name")
+    private String recipientName;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
 }
 

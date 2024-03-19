@@ -2561,11 +2561,17 @@ const AddressModal = ({ isMode, reacord, hideModal, isModal, fetchAddress }) => 
                     </Form.Item>
                     <Row>
                         <Col span={11}>
-                            <Form.Item label="Tỉnh/Thành phố:" name="city" rules={[{ required: true, message: 'Vui lòng chọn tỉnh/thành phố!' }]}>
+                            <Form.Item
+                                label="Tỉnh/Thành phố:"
+                                name="city"
+                                rules={[{ required: true, message: 'Vui lòng chọn tỉnh/thành phố!' }]}
+                                initialValue={address?.city}
+                            >
                                 <Select
                                     showSearch
                                     style={{
                                         width: '100%',
+                                        height: '40px',
                                     }}
                                     onChange={handleCityChange}
                                     placeholder="Chọn Tỉnh/Thành phố"
@@ -2573,17 +2579,21 @@ const AddressModal = ({ isMode, reacord, hideModal, isModal, fetchAddress }) => 
                                     filterSort={(optionA, optionB) =>
                                         (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                     }
-                                    options={cities.map(city => ({ value: city.code, label: city.name }))}
+                                    options={cities.map(city => ({ value: city.idProvince, label: city.name }))}
+
                                 />
                             </Form.Item>
                         </Col>
                         <Col span={2} />
                         <Col span={11}>
-                            <Form.Item label="Quận/Huyện:" name="district" rules={[{ required: true, message: 'Vui lòng chọn quận/huyện!' }]}>
+                            <Form.Item label="Quận/Huyện:" name="district"
+                                initialValue={address?.district}
+                                rules={[{ required: true, message: 'Vui lòng chọn quận/huyện!' }]}>
                                 <Select
                                     showSearch
                                     style={{
                                         width: '100%',
+                                        height: '40px'
                                     }}
                                     onChange={handleDistrictChange}
                                     placeholder="Chọn Quận/Huyện"
@@ -2592,29 +2602,52 @@ const AddressModal = ({ isMode, reacord, hideModal, isModal, fetchAddress }) => 
                                         (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                     }
                                     disabled={!selectedCity}
-                                    options={districts.map(district => ({ value: district.code, label: district.name }))}
-                                />
+                                    value={selectedDistrict} // Ensure selected value is set
+                                >
+                                    {districts.map(district => (
+                                        <Select.Option key={district.idProvince} value={district.idDistrict}>
+                                            {district.name}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
+
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row>
                         <Col span={11}>
-                            <Form.Item label="Phường/Xã:" name="ward" rules={[{ required: true, message: 'Vui lòng chọn phường/xã!' }]}>
+                            <Form.Item
+                                label="Phường/Xã:"
+                                name="ward"
+                                initialValue={address?.ward}
+                                rules={[{ required: true, message: 'Vui lòng chọn phường/xã!' }]}
+                            >
                                 <Select
                                     showSearch
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    placeholder="Chọn Phường/Xã"
+                                    style={{ width: '100%', height: '40px' }}
+                                    placeholder={!selectedDistrict ? 'Vui lòng chọn Quận/Huyện trước' : 'Chọn Phường/Xã'}
                                     onChange={value => setSelectedWard(value)}
                                     filterOption={(input, option) => (option?.label ?? '').includes(input)}
                                     filterSort={(optionA, optionB) =>
                                         (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                     }
                                     disabled={!selectedDistrict}
-                                    options={wards.map(ward => ({ value: ward.code, label: ward.name }))}
-                                />
+                                    value={selectedWard} // Ensure selected value is set
+                                >
+                                    {selectedDistrict &&
+                                        wards &&
+                                        wards.length > 0 &&
+                                        wards.map(ward => (
+                                            <Select.Option key={ward.idCommune} value={ward.idCommune}>
+                                                {ward.name}
+                                            </Select.Option>
+                                        ))
+                                    }
+                                </Select>
+
+
                             </Form.Item>
+
                         </Col>
                         <Col span={2} />
                         <Col span={11}>

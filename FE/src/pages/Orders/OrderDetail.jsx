@@ -465,10 +465,13 @@ export default function OrderDetail() {
                     </Descriptions.Item>
 
 
-                    <Descriptions.Item label="Địa chỉ" span={2}>  {orders.ward && orders.district && orders.city && orders.addressDetail
-                        ? `${orders.addressDetail} - ${orders.ward} - ${orders.district} - ${orders.city}`
-                        : "Không có"}
-                    </Descriptions.Item>
+                    <Descriptions title="Thông tin địa chỉ">
+                        <Descriptions.Item label="Địa chỉ">
+                            {orders.ward && orders.district && orders.city && orders.addressDetail ?
+                                `${orders.addressDetail} - ${orders.ward} - ${orders.district} - ${orders.city}` : "Không có"}
+                        </Descriptions.Item>
+                    </Descriptions>
+
 
                     <Descriptions.Item label="Phí vận chuyển">
                         {formatCurrency(orders.transportFee)}

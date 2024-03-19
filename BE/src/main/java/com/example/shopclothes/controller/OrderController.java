@@ -2,10 +2,7 @@ package com.example.shopclothes.controller;
 
 
 import com.example.shopclothes.constants.NotificationConstants;
-import com.example.shopclothes.dto.FilterOrderRequestDto;
-import com.example.shopclothes.dto.OrderInStoreRequestDto;
-import com.example.shopclothes.dto.ResponseDto;
-import com.example.shopclothes.dto.ResponseHandler;
+import com.example.shopclothes.dto.*;
 import com.example.shopclothes.entity.Order;
 import com.example.shopclothes.service.impl.OrderService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -95,5 +92,18 @@ public class OrderController {
                         HttpStatus.OK,
                         orderList,
                         orderPage);
+    }
+
+    @PatchMapping("updateOrderStatus")
+    public ResponseEntity<ResponseDto> updateOrderStatus(@RequestBody OrderStatusRequestDto orderStatusRequestDto) {
+        Boolean isUpdated = orderService.updateOrderStatus(orderStatusRequestDto);
+
+        if (isUpdated) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ResponseDto(NotificationConstants.STATUS_200, NotificationConstants.MESSAGE_200));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDto(NotificationConstants.STATUS_500, NotificationConstants.MESSAGE_500));
+        }
     }
 }
