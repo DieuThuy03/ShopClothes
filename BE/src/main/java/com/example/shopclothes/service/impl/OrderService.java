@@ -3,14 +3,16 @@ package com.example.shopclothes.service.impl;
 import com.example.shopclothes.dto.OrderInStoreRequestDto;
 import com.example.shopclothes.entity.*;
 import com.example.shopclothes.exception.ResourceNotFoundException;
-import com.example.shopclothes.repositories.OrderDetailRepository;
-import com.example.shopclothes.repositories.OrderHistoryRepository;
-import com.example.shopclothes.repositories.OrderRepository;
-import com.example.shopclothes.repositories.OrderStatusRepository;
+import com.example.shopclothes.repositories.*;
 import com.example.shopclothes.service.OrderServiceIPL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -27,6 +29,9 @@ public class OrderService implements OrderServiceIPL {
 
     @Autowired
     private OrderDetailRepository orderDetailRepository;
+
+    @Autowired
+    private UserRepo userRepository;
 
     @Override
     public Order createOrderInStore() {
@@ -125,4 +130,49 @@ public class OrderService implements OrderServiceIPL {
         }
         return order;
     }
+
+    @Override
+    public Order updateOrderUser(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy id hóa đơn này!"));
+
+        User user = (userId != null) ? userRepository.findById(userId).orElse(null) : null;
+        order.setUser(user);
+        orderRepository.save(order);
+        return order;
+    }
+
+//    @Override
+//    public Page<Order> getAllOrders(String orderStatusName, String orderId, String orderType,
+//                                    LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+//        return orderRepository.findAllByStatusNameAndDeletedIsTrue(
+//                orderStatusName,
+//                orderId,
+//                orderType,
+//                startDate,
+//                endDate,
+//                pageable);
+//    }
+
+    @Override
+    public Page<Order> getAllOrders(String orderStatusName, String orderId, String orderType,
+                                    LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+        Date convertedStartDate = startDate != null ? Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant()) : null;
+        Date convertedEndDate = endDate != null ? Date.from(endDate.atZone(ZoneId.systemDefault()).toInstant()) : null;
+        Long convertedOrderId = null;
+        try {
+            convertedOrderId = orderId != null ? Long.parseLong(orderId) : null;
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        return orderRepository.findAllByStatusNameAndDeletedIsTrue(
+                orderStatusName,
+                convertedOrderId,
+                orderType,
+                convertedStartDate,
+                convertedEndDate,
+                pageable);
+    }
+
+
 }

@@ -1,8 +1,12 @@
 package com.example.shopclothes.service.impl;
 
+import com.example.shopclothes.dto.PaymentRequestDto;
+import com.example.shopclothes.entity.Order;
 import com.example.shopclothes.entity.Payments;
+import com.example.shopclothes.repositories.OrderRepository;
 import com.example.shopclothes.repositories.PaymentsRepo;
 import com.example.shopclothes.service.IService;
+import com.example.shopclothes.service.PaymentsServiceIPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,33 +14,32 @@ import java.util.List;
 
 @Service
 
-public class PaymentsService implements IService<Payments> {
+public class PaymentsService implements PaymentsServiceIPL {
 
     @Autowired
-    private PaymentsRepo paymentsRepo;
+    private PaymentsRepo paymentRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Override
-    public void save(Payments object) {
-        paymentsRepo.save(object);
+    public Boolean createPayment(PaymentRequestDto paymentRequestDto) {
+
+        Order order = orderRepository.findById(paymentRequestDto.getOrderId()).orElse(null);
+        Payments payment = new Payments();
+        payment.setOrders(order);
+        payment.setPaymentMethod(paymentRequestDto.getPaymentMethod());
+        payment.setPaymentDate(paymentRequestDto.getPaymentDate());
+        payment.setAmount(paymentRequestDto.getAmount());
+        payment.setNote(paymentRequestDto.getNote());
+        payment.setStatus(paymentRequestDto.getStatus());
+        paymentRepository.save(payment);
+
+        return true;
     }
 
     @Override
-    public void update(Payments object, Long id) {
-        paymentsRepo.save(object);
-    }
-
-    @Override
-    public void delete(Long id) {
-        paymentsRepo.delete(id);
-    }
-
-    @Override
-    public void search(Long id) {
-        paymentsRepo.findById(id).orElse(null);
-    }
-
-    @Override
-    public List<Payments> select() {
-        return paymentsRepo.findAll();
+    public List<Payments> findByOrdersId(Long orderId) {
+        return paymentRepository.findByOrdersId(orderId);
     }
 }

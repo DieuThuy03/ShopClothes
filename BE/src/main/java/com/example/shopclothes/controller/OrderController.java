@@ -2,12 +2,17 @@ package com.example.shopclothes.controller;
 
 
 import com.example.shopclothes.constants.NotificationConstants;
+import com.example.shopclothes.dto.FilterOrderRequestDto;
 import com.example.shopclothes.dto.OrderInStoreRequestDto;
 import com.example.shopclothes.dto.ResponseDto;
+import com.example.shopclothes.dto.ResponseHandler;
 import com.example.shopclothes.entity.Order;
 import com.example.shopclothes.service.impl.OrderService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -64,5 +69,31 @@ public class OrderController {
         Order  order = orderService.updateOrder(requestDto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(order);
+    }
+
+    @PatchMapping("updateOrderUser")
+    public ResponseEntity<Order> updateOrderUser(@RequestParam(required = false) Long orderId,@RequestParam(required = false) Long userId) {
+        Order  order = orderService.updateOrderUser(orderId,userId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(order);
+    }
+
+    @PostMapping("getAllOrdersAndFilter")
+    public ResponseEntity<?> getOrders(@RequestBody FilterOrderRequestDto orderRequestDto) {
+
+        Pageable pageable = PageRequest.of(orderRequestDto.getPageNo(), orderRequestDto.getPageSize());
+        Page<Order> orderPage = orderService.getAllOrders(
+                orderRequestDto.getOrderStatusName(),
+                orderRequestDto.getOrderId(),
+                orderRequestDto.getOrderType(),
+                orderRequestDto.getStartDate(),
+                orderRequestDto.getEndDate(),
+                pageable);
+        List<Order> orderList = orderPage.getContent();
+        return ResponseHandler
+                .generateResponse(
+                        HttpStatus.OK,
+                        orderList,
+                        orderPage);
     }
 }

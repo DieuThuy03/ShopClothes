@@ -29,6 +29,7 @@ import PaymentService from '~/service/PaymentService';
 import { useNavigate } from 'react-router-dom';
 import User from '../User/User';
 
+
 export default function Sell() {
 
     //bật địa chỉ giao hàng
@@ -527,6 +528,107 @@ export default function Sell() {
         }
     };
 
+    //Đoạn mã lấy api tỉnh thành, quận huyện, phường xã
+    const [cities, setCities] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
+    const [selectedCity, setSelectedCity] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+    const [selectedWard, setSelectedWard] = useState('');
+
+
+    useEffect(() => {
+        // Gọi hàm từ service API để lấy dữ liệu tỉnh/thành phố
+        getProvinces(3)
+            .then(data => setCities(data))
+            .catch(error => console.error('Lỗi khi lấy dữ liệu tỉnh/thành phố:', error));
+    }, []);
+
+    useEffect(() => {
+        // Gọi hàm từ service API để lấy dữ liệu quận/huyện dựa trên tỉnh/thành phố được chọn
+        if (selectedCity) {
+            getDistrictsByCity(selectedCity, 2)
+                .then(data => setDistricts(data))
+                .catch(error => console.error('Lỗi khi lấy dữ liệu quận/huyện:', error));
+        }
+    }, [selectedCity]);
+
+    useEffect(() => {
+        console.log("Selected district:", selectedDistrict); // Kiểm tra giá trị của selectedDistrict
+        if (selectedDistrict) {
+            getWardsByDistrict(selectedDistrict, 2)
+                .then(data => setWards(data))
+                .catch(error => console.error('Lỗi khi lấy dữ liệu phường/xã:', error));
+        }
+    }, [selectedDistrict]);
+
+
+    const handleCityChange = (value) => {
+        console.log("Selected city:", value);
+        setSelectedCity(value);
+        setSelectedDistrict('');
+        setSelectedWard('');
+    };
+
+
+    const handleDistrictChange = (value) => {
+        console.log("Selected district:", value);
+        setSelectedDistrict(value);
+        setSelectedWard('');
+
+        // Gọi hàm để lấy dữ liệu phường/xã dựa trên quận/huyện được chọn
+        getWardsByDistrict(value)
+            .then(data => setWards(data))
+            .catch(error => console.error('Lỗi khi lấy dữ liệu phường/xã:', error));
+    };
+
+
+    // //----------------------------load địa chỉ mặc định------------------------
+    const [form] = Form.useForm();
+    const [formPayment] = Form.useForm();
+
+    const handleDeleteUser = async () => {
+        await OrderService.updateOrderUser(orderId, 22062002);
+        findOrderById();
+        setAddress({});
+    };
+    const handleDeleteVoucher = async () => {
+        await OrderService.updateOrderVoucher(orderId, 22062002);
+        findOrderById();
+    }
+    const [address, setAddress] = useState({});
+
+    useEffect(() => {
+        if (address) {
+            // Use form.setFieldsValue to set values for multiple fields
+            form.setFieldsValue({
+                recipientName: address.recipientName,
+                phoneNumber: address.phoneNumber,
+                city: address.city,
+                district: address.district,
+                ward: address.ward,
+                addressDetail: address.addressDetail,
+            });
+        } else {
+            setAddress({})
+        }
+    }, [address, form, order.user]);
+
+    const findAddressesByUserIdAnDeletedTrue = async () => {
+        await AddressService.findAddressesByUserIdAnDeletedTrue(order.user.id)
+            .then(response => {
+                setAddress(response);
+                console.log(response)
+            }).catch(error => {
+                console.error(error);
+            })
+    }
+    useEffect(() => {
+        if (order.user) {
+            findAddressesByUserIdAnDeletedTrue();
+        }
+    }, [order.user])
+    // //---------------------------------------------------- 
     const tabContent = (tabKey) => (
         <>
             <div style={{ borderBottom: '1px solid #cdcdcd', margin: '10px 0', paddingBottom: '10px' }}>
@@ -684,7 +786,9 @@ export default function Sell() {
                             <Row >
                                 <Col span={12} style={{ paddingRight: '15px' }}>
 
-                                    <Form.Item label="Tỉnh/Thành phố:" name="city"
+                                    <Form.Item
+                                        label="Tỉnh/Thành phố:"
+                                        name="city"
                                         rules={[{ required: true, message: 'Vui lòng chọn tỉnh/thành phố!' }]}
                                         initialValue={address?.city}
                                     >
@@ -693,7 +797,6 @@ export default function Sell() {
                                             style={{
                                                 width: '100%',
                                                 height: '40px',
-
                                             }}
                                             onChange={handleCityChange}
                                             placeholder="Chọn Tỉnh/Thành phố"
@@ -701,10 +804,9 @@ export default function Sell() {
                                             filterSort={(optionA, optionB) =>
                                                 (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                             }
-                                            options={cities.map(city => ({ value: city.code, label: city.name }))}
+                                            options={cities.map(city => ({ value: city.idProvince, label: city.name }))}
 
                                         />
-
                                     </Form.Item>
 
                                 </Col>
@@ -726,8 +828,15 @@ export default function Sell() {
                                                 (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                             }
                                             disabled={!selectedCity}
-                                            options={districts.map(district => ({ value: district.code, label: district.name }))}
-                                        />
+                                            value={selectedDistrict} // Ensure selected value is set
+                                        >
+                                            {districts.map(district => (
+                                                <Select.Option key={district.idProvince} value={district.idDistrict}>
+                                                    {district.name}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+
                                     </Form.Item>
 
                                 </Col>
@@ -735,25 +844,67 @@ export default function Sell() {
 
                             <Row >
                                 <Col span={12} style={{ paddingRight: '15px' }}>
-                                    <Form.Item label="Phường/Xã:" name="ward"
+                                    {/* <Form.Item
+                                        label="Phường/Xã:"
+                                        name="ward"
                                         initialValue={address?.ward}
-                                        rules={[{ required: true, message: 'Vui lòng chọn phường/xã!' }]}>
+                                        rules={[{ required: true, message: 'Vui lòng chọn phường/xã!' }]}
+                                    >
                                         <Select
                                             showSearch
-                                            style={{
-                                                width: '100%',
-                                                height: '40px'
-                                            }}
+                                            style={{ width: '100%', height: '40px' }}
                                             placeholder="Chọn Phường/Xã"
                                             onChange={value => setSelectedWard(value)}
                                             filterOption={(input, option) => (option?.label ?? '').includes(input)}
                                             filterSort={(optionA, optionB) =>
                                                 (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
                                             }
+                                            disabled={!selectedCity}
+                                            value={selectedWard} // Ensure selected value is set
+                                        >
+
+                                            {wards && wards.length > 0 && wards.map(ward => (
+                                                <Select.Option key={ward.idDistrict} value={ward.idCommune}>
+                                                    {ward.name}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item> */}
+                                    <Form.Item
+                                        label="Phường/Xã:"
+                                        name="ward"
+                                        initialValue={address?.ward}
+                                        rules={[{ required: true, message: 'Vui lòng chọn phường/xã!' }]}
+                                    >
+                                        <Select
+                                            showSearch
+                                            style={{ width: '100%', height: '40px' }}
+                                            placeholder={!selectedDistrict ? 'Vui lòng chọn Quận/Huyện trước' : 'Chọn Phường/Xã'}
+                                            onChange={value => setSelectedWard(value)}
+                                            filterOption={(input, option) => (option?.label ?? '').includes(input)}
+                                            filterSort={(optionA, optionB) =>
+                                                (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                            }
                                             disabled={!selectedDistrict}
-                                            options={wards.map(ward => ({ value: ward.code, label: ward.name }))}
-                                        />
+                                            value={selectedWard} // Ensure selected value is set
+                                        >
+                                            {selectedDistrict &&
+                                                wards &&
+                                                wards.length > 0 &&
+                                                wards.map(ward => (
+                                                    <Select.Option key={ward.idCommune} value={ward.idCommune}>
+                                                        {ward.name}
+                                                    </Select.Option>
+                                                ))
+                                            }
+                                        </Select>
+
+
                                     </Form.Item>
+
+
+
+
 
                                 </Col>
                                 <Col span={12} style={{ paddingRight: '15px' }}>
@@ -949,95 +1100,8 @@ export default function Sell() {
     );
 
 
-    //Đoạn mã lấy api tỉnh thành, quận huyện, phường xã
-    const [cities, setCities] = useState([]);
-    const [districts, setDistricts] = useState([]);
-    const [wards, setWards] = useState([]);
-    const [selectedCity, setSelectedCity] = useState('');
-    const [selectedDistrict, setSelectedDistrict] = useState('');
-    const [selectedWard, setSelectedWard] = useState('');
 
 
-    useEffect(() => {
-        // Gọi hàm từ service API để lấy dữ liệu tỉnh/thành phố
-        getProvinces(3)
-            .then(data => setCities(data))
-            .catch(error => console.error('Lỗi khi lấy dữ liệu tỉnh/thành phố:', error));
-    }, []);
-
-    useEffect(() => {
-        // Gọi hàm từ service API để lấy dữ liệu quận/huyện dựa trên tỉnh/thành phố được chọn
-        if (selectedCity) {
-            getDistrictsByCity(selectedCity, 2)
-                .then(data => setDistricts(data))
-                .catch(error => console.error('Lỗi khi lấy dữ liệu quận/huyện:', error));
-        }
-    }, [selectedCity]);
-
-    useEffect(() => {
-        // Gọi hàm từ service API để lấy dữ liệu phường/xã dựa trên quận/huyện được chọn
-        if (selectedDistrict) {
-            getWardsByDistrict(selectedDistrict, 2)
-                .then(data => setWards(data))
-                .catch(error => console.error('Lỗi khi lấy dữ liệu phường/xã:', error));
-        }
-    }, [selectedDistrict]);
-
-    const handleCityChange = (value) => {
-        setSelectedCity(value);
-        setSelectedDistrict('');
-        setSelectedWard('');
-    };
-
-    const handleDistrictChange = (value) => {
-        setSelectedDistrict(value);
-        setSelectedWard('');
-    };
-    // //----------------------------load địa chỉ mặc định------------------------
-    const [form] = Form.useForm();
-    const [formPayment] = Form.useForm();
-
-    const handleDeleteUser = async () => {
-        await OrderService.updateOrderUser(orderId, 22062002);
-        findOrderById();
-        setAddress({});
-    };
-    const handleDeleteVoucher = async () => {
-        await OrderService.updateOrderVoucher(orderId, 22062002);
-        findOrderById();
-    }
-    const [address, setAddress] = useState({});
-
-    useEffect(() => {
-        if (address) {
-            // Use form.setFieldsValue to set values for multiple fields
-            form.setFieldsValue({
-                recipientName: address.recipientName,
-                phoneNumber: address.phoneNumber,
-                city: address.city,
-                district: address.district,
-                ward: address.ward,
-                addressDetail: address.addressDetail,
-            });
-        } else {
-            setAddress({})
-        }
-    }, [address, form, order.user]);
-
-    const findAddressesByUserIdAnDeletedTrue = async () => {
-        await AddressService.findAddressesByUserIdAnDeletedTrue(order.user.id)
-            .then(response => {
-                setAddress(response);
-                console.log(response)
-            }).catch(error => {
-                console.error(error);
-            })
-    }
-    useEffect(() => {
-        if (order.user) {
-            findAddressesByUserIdAnDeletedTrue();
-        }
-    }, [order.user])
     //load mã hóa đơn lên tabs
     const items = [
         ...orders.map((order, index) => ({
@@ -1339,11 +1403,12 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
             pageSize: 5,
         });
     };
-    const [quantityProduct, setQuantityProduct] = useState(1); // Add this line
+    const [quantityProduct, setQuantityProduct] = useState(1); // Khởi tạo giá trị ban đầu của quantityProduct là 1
 
     const handleQuantityChange = (value) => {
-        setQuantityProduct(value);
+        setQuantityProduct(value); // Cập nhật giá trị của quantityProduct khi số lượng sản phẩm thay đổi
     };
+
     // const handleCreate = async () => {
     //     const data = {
     //         productDetailId: quantityModal.record.id,
@@ -1391,11 +1456,12 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
                 return;
             }
 
+
             // Kiểm tra số lượng sản phẩm nhập vào có vượt quá số lượng tồn kho không
-            if ((quantityProduct + availableQuantity) > availableQuantity) {
-                message.error('Số lượng sản phẩm vượt quá số lượng tồn kho!');
-                return;
-            }
+            // if ((quantityProduct + availableQuantity) > availableQuantity) {
+            //     message.error('Số lượng sản phẩm vượt quá số lượng tồn kho!');
+            //     return;
+            // }
 
             // Thực hiện tạo đơn hàng
             await OrderDetailService.create(data);
@@ -1411,6 +1477,10 @@ const ProductModal = ({ isModal, hideModal, orderId, fetchOrderDetail }) => {
             }
         }
     };
+
+
+
+
 
 
     const columns = [
@@ -1742,7 +1812,7 @@ const UserModal = ({ isModal, hideModal, orderId, findOrderById }) => {
         keyword: null,
         birthOfDay: null,
         gender: null,
-        status: true,
+        status: 'DANG_HOAT_DONG',
         pageNo: 0,
         pageSize: 5
     });
@@ -1751,6 +1821,7 @@ const UserModal = ({ isModal, hideModal, orderId, findOrderById }) => {
     const [paginationUser, setPaginationUser] = useState({ current: 1, pageSize: 5, total: 0 });
 
     const fetchUsers = async () => {
+
         await UserService.getAllUserByFilter(filterUser)
             .then(response => {
 
@@ -1825,9 +1896,9 @@ const UserModal = ({ isModal, hideModal, orderId, findOrderById }) => {
         setSearchKeywordUser(null)
         setFilterUser({
             keyword: null,
-            birthOfDay: null,
-            gender: null,
-            status: null,
+            birthday: null,
+            sex: null,
+            status: 'DANG_HOAT_DONG',
             pageNo: 0,
             pageSize: 5
         });
@@ -1846,8 +1917,8 @@ const UserModal = ({ isModal, hideModal, orderId, findOrderById }) => {
         },
         {
             title: 'Tên',
-            dataIndex: 'userName',
-            key: 'userName',
+            dataIndex: 'usersName',
+            key: 'usersName',
             width: '15%',
         },
         {
@@ -1865,8 +1936,8 @@ const UserModal = ({ isModal, hideModal, orderId, findOrderById }) => {
         },
         {
             title: 'Giới tính',
-            dataIndex: 'gender',
-            key: 'gender',
+            dataIndex: 'sex',
+            key: 'sex',
             width: '15%',
             render: (text) => {
                 return text !== null ? (text === true ? "Nam" : "Nữ") : '';
@@ -1874,9 +1945,10 @@ const UserModal = ({ isModal, hideModal, orderId, findOrderById }) => {
         },
         {
             title: 'Ngày sinh',
-            dataIndex: 'birthOfDay',
-            key: 'birthOfDay',
+            dataIndex: 'birthday',
+            key: 'birthday',
             width: '15%',
+            // render: (text, record) => moment(text).format('DD/MM/YYYY'),
         },
         {
             title: 'Hành động',
@@ -1917,8 +1989,8 @@ const UserModal = ({ isModal, hideModal, orderId, findOrderById }) => {
                                     }}
 
                                     placeholder="Ngày sinh"
-                                    value={filterUser.birthOfDay}
-                                    onChange={(value) => handleFilterUserChange('birthOfDay', value)}
+                                    value={filterUser.birthday}
+                                    onChange={(value) => handleFilterUserChange('birthday', value)}
                                 />
 
                             </Col>
@@ -1930,8 +2002,8 @@ const UserModal = ({ isModal, hideModal, orderId, findOrderById }) => {
                                     }}
                                     allowClear
                                     placeholder="Giới tính"
-                                    value={filterUser.gender}
-                                    onChange={(value) => handleFilterUserChange('gender', value)}
+                                    value={filterUser.sex}
+                                    onChange={(value) => handleFilterUserChange('sex', value)}
                                     options={[
                                         {
                                             value: true,
@@ -2044,7 +2116,7 @@ const UserCreateModal = ({ isModal, hideModal, fetchUsers, users }) => {
         form.validateFields().then(async () => {
 
             const data = await form.getFieldsValue();
-            data.deleted = true;
+            data.status = 'DANG_HOAT_DONG';
             data.role = "USER";
             await UserService.create(data)
                 .then(() => {
@@ -2309,13 +2381,13 @@ const ShowAddressModal = ({ reacord, hideModal, isModal, findAddressesByUserIdAn
 
 const AddressModal = ({ isMode, reacord, hideModal, isModal, fetchAddress }) => {
     //Đoạn mã lấy api tỉnh thành, quận huyện, phường xã
+    const [address, setAddress] = useState({});
     const [cities, setCities] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
     const [selectedCity, setSelectedCity] = useState('');
     const [selectedDistrict, setSelectedDistrict] = useState('');
     const [selectedWard, setSelectedWard] = useState('');
-
 
     useEffect(() => {
         // Gọi hàm từ service API để lấy dữ liệu tỉnh/thành phố
@@ -2339,16 +2411,23 @@ const AddressModal = ({ isMode, reacord, hideModal, isModal, fetchAddress }) => 
             getWardsByDistrict(selectedDistrict, 2)
                 .then(data => setWards(data))
                 .catch(error => console.error('Lỗi khi lấy dữ liệu phường/xã:', error));
+            console.log(getWardsByDistrict);
         }
     }, [selectedDistrict]);
 
     const handleCityChange = (value) => {
+        console.log("Selected district:", value);
         setSelectedCity(value);
         setSelectedDistrict('');
         setSelectedWard('');
     };
 
+    // const handleDistrictChange = (value) => {
+    //     setSelectedDistrict(value);
+    //     setSelectedWard('');
+    // };
     const handleDistrictChange = (value) => {
+        console.log("Selected district:", value); // Kiểm tra giá trị được chọn
         setSelectedDistrict(value);
         setSelectedWard('');
     };

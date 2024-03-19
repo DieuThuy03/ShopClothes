@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Repository
 
 public interface PaymentsRepo extends JpaRepository<Payments, Long> {
@@ -15,4 +17,6 @@ public interface PaymentsRepo extends JpaRepository<Payments, Long> {
     @Transactional
     @Query(value = "update Payments set status = 0 where id = ?1", nativeQuery = true)
     void delete(Long id);
+
+    List<Payments> findByOrdersId(Long orderId);
 }

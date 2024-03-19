@@ -1,30 +1,55 @@
 package com.example.shopclothes.entity;
 
 import com.example.shopclothes.entity.propertis.Propertis;
+import com.example.shopclothes.entity.propertis.Status;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.*;
 import java.sql.Date;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Setter
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "User")
+public class User  {
 
-public class User extends Propertis {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
-    private boolean sex;
+    @Column(name = "name")
+    private String usersName;
 
+    @Column(name = "sex")
+    private Boolean sex;
+
+    @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "email")
     private String email;
 
+    @Column(name = "birthday")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private Date birthday;
+
+
+    @Column(name = "status")
+    @Enumerated(value = EnumType.STRING)
+    private Status status;
+
+    @Column(name = "dateUpdate")
+    private LocalDateTime dateUpdate;
+
+    @Column(name = "dateCreate")
+    private LocalDateTime dateCreate;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idAcc")

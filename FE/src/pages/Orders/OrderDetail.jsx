@@ -24,14 +24,40 @@ export default function OrderDetail() {
     //Lưu lịch sử để load đơn hàng
     const [orderHistories, setOrderHistories] = useState([]);
 
+    // const getAllTimeLineByOrderId = async () => {
+    //     OrderHistoryService.getAllTimeLineByOrderId(id).then(response => {
+
+    //         const convertedTimeline = response.map((event) => ({
+    //             title: event.status.statusName,
+    //             subtitle: FormatDate(event.createdAt),
+    //             color: getStatusColor(event.status.statusName),
+    //             icon: getIconByStatus(event.status.statusName),
+    //         }));
+
+    //         setTimeLines(convertedTimeline);
+
+    //         setOrderHistories(response.map((item, index) => (
+    //             {
+    //                 key: index + 1,
+    //                 date: FormatDate(item.createdAt),
+    //                 status: item.status.statusName,
+    //                 createdBy: item.createdBy,
+    //                 note: item.note
+    //             }
+    //         )))
+
+    //     }).catch((error) => {
+    //         console.error('Lỗi:', error);
+    //     })
+
+    // };
     const getAllTimeLineByOrderId = async () => {
         OrderHistoryService.getAllTimeLineByOrderId(id).then(response => {
-
             const convertedTimeline = response.map((event) => ({
-                title: event.status.statusName,
+                title: event.status ? event.status.statusName : "", // Kiểm tra nếu status không null trước khi truy cập statusName
                 subtitle: FormatDate(event.createdAt),
-                color: getStatusColor(event.status.statusName),
-                icon: getIconByStatus(event.status.statusName),
+                color: event.status ? getStatusColor(event.status.statusName) : "", // Tương tự kiểm tra status trước khi truy cập getStatusColor
+                icon: event.status ? getIconByStatus(event.status.statusName) : "", // Kiểm tra status trước khi truy cập getIconByStatus
             }));
 
             setTimeLines(convertedTimeline);
@@ -40,17 +66,16 @@ export default function OrderDetail() {
                 {
                     key: index + 1,
                     date: FormatDate(item.createdAt),
-                    status: item.status.statusName,
+                    status: item.status ? item.status.statusName : "", // Kiểm tra status trước khi truy cập statusName
                     createdBy: item.createdBy,
                     note: item.note
                 }
-            )))
-
+            )));
         }).catch((error) => {
             console.error('Lỗi:', error);
-        })
-
+        });
     };
+
 
     // Logic chuyển đổi màu sắc tùy thuộc vào status
     const getStatusColor = (status) => {

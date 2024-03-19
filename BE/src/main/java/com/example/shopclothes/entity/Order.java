@@ -6,7 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Setter
 @Getter
@@ -62,6 +67,22 @@ public class Order {
 
     @Column(name = "transport_fee")
     private Integer transportFee; //Phí giao hàng
+
+    @CreatedDate
+    @Column(name = "create_date", updatable = false)
+    private LocalDateTime createdAt;
+
+    @CreatedBy
+    @Column(name = "created_by",updatable = false)
+    private String  createdBy;
+
+    @LastModifiedDate
+    @Column(name = "update_date")
+    private LocalDateTime updatedAt;
+
+    @LastModifiedBy
+    @Column(name = "updated_by")
+    private String updatedBy;
 
     @JsonIgnore
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
