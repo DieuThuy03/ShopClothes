@@ -1,21 +1,26 @@
 package com.example.shopclothes.entity;
 
 import com.example.shopclothes.entity.propertis.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+
+import java.util.Date;
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "ProductDetail")
 
+@JsonIgnoreProperties({"idProduct", "idCategory", "idColor", "idMaterial", "idProducer", "idCartDetail", "billDetails","idSize"})
+@Table(name = "ProductDetail")
 public class ProductDetail {
 
     @Id
@@ -30,7 +35,8 @@ public class ProductDetail {
     private int quantity;
 
     @Column(name = "price")
-    private BigDecimal price;
+    private Double price;
+
 
     @Column(name = "dateCreate")
     private Date dateCreate;
@@ -39,46 +45,60 @@ public class ProductDetail {
     private Date dateUpdate;
 
     @Column(name = "status")
+    @Enumerated(value = EnumType.STRING)
+    @JsonIgnore
     private Status status;
 
     @Column(name = "peopleUpdate")
     private String peopleUpdate;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "idCtsp")
-    List<Imege> imeges;
+    @Column(name = "people_create")
+    private String people_create;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "idCtsp")
+//    private List<Imege> imeges;
+
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "idProduct")
+    @JsonProperty("idProduct")
     private Product idProduct;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "idCategory")
-    @JoinColumn(name = "id_cate")
-    private Category idCategory;
+//    @ManyToOne(fetch = FetchType.LAZY)
+////    @JoinColumn(name = "idCategory")
+//    @JoinColumn(name = "id_cate")
+//    @JsonProperty("idCategory")
+//    private Category idCategory;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
 //    @JoinColumn(name = "idColor")
     @JoinColumn(name = "id_col")
+    @JsonProperty("idColor")
     private Color idColor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
 //    @JoinColumn(name = "idMaterial")
     @JoinColumn(name = "id_mate")
+    @JsonProperty("idMaterial")
     private Material idMaterial;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProducer")
-    private Producer idProducer;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "idProducer")
+//    @JsonProperty("idProducer")
+//    private Producer idProducer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
 //    @JoinColumn(name = "idSize")
     @JoinColumn(name = "id_size")
+    @JsonProperty("idSize")
     private Size idSize;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "idcartDetail")
-    @JoinColumn(name = "idcart_detail")
-    private CartDetail idCartDetail;
+//    @ManyToOne(fetch = FetchType.LAZY)
+////    @JoinColumn(name = "idcartDetail")
+//    @JoinColumn(name = "idcart_detail")
+//    private CartDetail idCartDetail;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idCtsp")
     List<BillDetail> billDetails;

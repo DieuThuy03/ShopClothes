@@ -24,6 +24,7 @@ const { TextArea } = Input;
 function Product() {
     const navigate = useNavigate();
     //---------------------------Danh mục-----------------------------------------
+
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
@@ -31,31 +32,22 @@ function Product() {
     }, []);
 
     const fetchCategory = async () => {
+        try {
+            const response = await CategoryService.getAll();
+            console.log('Response from API:', response);
 
-        await CategoryService.findAllByDeletedTrue()
-            .then(response => {
-
-                setCategories(response.data)
-            }).catch(error => {
-                console.error(error);
-            })
-    }
-    //-----------------------Thương hiệu-------------------------------
-    const [brands, setBrands] = useState([]);
-
-    useEffect(() => {
-        fetchBrand()
-    }, []);
-    const fetchBrand = async () => {
-
-        await BrandService.findAllByDeletedTrue()
-            .then(response => {
-
-                setBrands(response.data)
-
-            }).catch(error => {
-                console.error(error);
-            })
+            if (response && response.data) {
+                const categoryOptions = response.data.map(cate => ({
+                    value: cate.id,
+                    label: cate.categoryName,
+                }));
+                setCategories(categoryOptions);
+            } else {
+                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về danh mục.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API: ', error);
+        }
     }
 
     //---------------------------Kích thước-------------------------------------
@@ -65,14 +57,24 @@ function Product() {
         fetchSize()
     }, []);
 
-    const fetchSize = async () => {
 
-        await SizeService.findAllByDeletedTrue()
-            .then(response => {
-                setSizes(response.data)
-            }).catch(error => {
-                console.error(error);
-            })
+    const fetchSize = async () => {
+        try {
+            const response = await SizeService.getAll();
+            console.log('Response from API:', response);
+
+            if (response && response.data) {
+                const sizeOptions = response.data.map(size => ({
+                    value: size.id,
+                    label: size.sizeName,
+                }));
+                setSizes(sizeOptions);
+            } else {
+                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về danh mục.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API: ', error);
+        }
     }
     //--------------------------------Màu sắc--------------------------------
     const [colors, setColors] = useState([]);
@@ -82,13 +84,22 @@ function Product() {
     }, []);
     const fetchColor = async () => {
 
-        await ColorService.findAllByDeletedTrue()
-            .then(response => {
+        try {
+            const response = await ColorService.getAll();
+            console.log('Response from API:', response);
 
-                setColors(response.data)
-            }).catch(error => {
-                console.error(error);
-            })
+            if (response && response.data) {
+                const colorOptions = response.data.map(color => ({
+                    value: color.id,
+                    label: color.colorName,
+                }));
+                setColors(colorOptions);
+            } else {
+                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về màu sắc.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API: ', error);
+        }
     }
     //-------------------------Chất liệu----------------------------------
     const [materials, setMaterials] = useState([]);
@@ -96,20 +107,29 @@ function Product() {
     useEffect(() => {
         fetchMaterial()
     }, []);
+
     const fetchMaterial = async () => {
 
-        await MaterialService.findAllByDeletedTrue()
-            .then(response => {
+        try {
+            const response = await MaterialService.getAll();
+            console.log('Response from API:', response);
 
-                setMaterials(response.data)
-
-            }).catch(error => {
-                console.error(error);
-            })
+            if (response && response.data) {
+                const mateOptions = response.data.map(mate => ({
+                    value: mate.id,
+                    label: mate.materialName,
+                }));
+                setMaterials(mateOptions);
+            } else {
+                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về màu sắc.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API: ', error);
+        }
     }
 
 
-    // const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [productDetalModal, setProductDetalModal] = useState({ isModal: false, reacord: null });
 
@@ -147,7 +167,6 @@ function Product() {
         colorId: null,
         sizeId: null,
         materialId: null,
-        brandId: null,
         priceMin: null,
         priceMax: null,
         categoryId: null,
@@ -156,27 +175,58 @@ function Product() {
         pageSize: 5
     });
 
-    const fetchProducts = async () => {
-        // setLoading(true)
-        await ProductService.getAllProducts(filters)
-            .then(response => {
+    // const fetchProducts = async () => {
+    //     console.log('Filters:', filters);
+    //     setLoading(true)
+    //     await ProductService.getAll(filters)
+    //         .then(response => {
 
+    //             setProduct(response.data);
+    //             setPagination({
+    //                 ...pagination,
+    //                 total: response.totalCount,
+    //             });
+    //             setLoading(false)
+    //         }).catch(error => {
+    //             console.error(error);
+    //         })
+    // }
+    const fetchProducts = async () => {
+        console.log('Filters:', filters);
+        setLoading(true);
+        await ProductService.getAll(filters)
+            .then(response => {
+                console.log('API Response:', response.data);
                 setProduct(response.data);
                 setPagination({
                     ...pagination,
                     total: response.totalCount,
                 });
-                // setLoading(false)
-            }).catch(error => {
-                console.error(error);
+                setLoading(false);
             })
-    }
+            .catch(error => {
+                console.error(error);
+            });
+    };
+
 
     useEffect(() => {
         fetchProducts();
     }, [filters]);
 
+    // const handleTableChange = (pagination) => {
+    //     setPagination({
+    //         ...pagination,
+    //     });
+    //     setFilters({
+    //         ...filters,
+    //         pageNo: pagination.current - 1,
+    //         pageSize: pagination.pageSize,
+    //     });
+    // };
+
     const handleTableChange = (pagination) => {
+        console.log('Pagination Change:', pagination); // In giá trị ra console để kiểm tra
         setPagination({
             ...pagination,
         });
@@ -186,6 +236,7 @@ function Product() {
             pageSize: pagination.pageSize,
         });
     };
+
 
     const handleDelete = async (id) => {
 
@@ -203,13 +254,15 @@ function Product() {
     console.log("products", products);
 
     const handleFilterChange = (property, value) => {
+        console.log(property, value);
+
         if (property === 'priceRange') {
             setPriceRange(value);
             setFilters({
                 ...filters,
                 priceMin: calculateMinPrice(value),
                 priceMax: calculateMaxPrice(value),
-                pageNo: 0
+                pageNo: 0,
             });
         } else {
             setFilters({
@@ -220,11 +273,28 @@ function Product() {
         }
     };
 
+
     const [searchKeyword, setSearchKeyword] = useState(null);
 
-    const validateInput = (value) => {
-        const trimmedValue = value.trim();
+    // const validateInput = (value) => {
+    //     const trimmedValue = value.trim();
 
+    //     if (value !== trimmedValue) {
+    //         notification.error({
+    //             message: 'Lỗi',
+    //             description: 'Giá trị không được có dấu cách ở đầu hoặc cuối',
+    //             duration: 3,
+    //         });
+    //         return false;
+    //     }
+
+    //     // Thực hiện các xử lý cần thiết khi validate thành công
+    //     return true;
+    // };
+    const validateInput = (value) => {
+        const trimmedValue = value?.trim();
+
+        // Kiểm tra nếu giá trị không tồn tại sau khi trim
         if (value !== trimmedValue) {
             notification.error({
                 message: 'Lỗi',
@@ -233,24 +303,30 @@ function Product() {
             });
             return false;
         }
-
-        // Thực hiện các xử lý cần thiết khi validate thành công
         return true;
     };
 
     const handleSearch = () => {
         // Kiểm tra giá trị trước khi gọi hàm setSearchKeyword
-        if (validateInput(searchKeyword)) {
-            setFilters({
-                ...filters,
-                keyword: searchKeyword,
-                pageNo: 0,
-                pageSize: 5
-            });
-        } else {
-            // Nếu giá trị không hợp lệ, có thể thực hiện các xử lý cần thiết
-            console.error('Giá trị không hợp lệ');
-        }
+        // if (validateInput(searchKeyword)) {
+        //     setFilters({
+        //         ...filters,
+        //         keyword: searchKeyword,
+        //         pageNo: 0,
+        //         pageSize: 5
+        //     });
+        // } else {
+        //     // Nếu giá trị không hợp lệ, có thể thực hiện các xử lý cần thiết
+        //     console.error('Giá trị không hợp lệ');
+        // }
+        setFilters({
+            ...filters,
+
+            keyword: searchKeyword,
+            pageNo: 0,
+            pageSize: 5
+        });
+        console.log(filters);
     };
 
 
@@ -293,7 +369,6 @@ function Product() {
             colorId: null,
             sizeId: null,
             materialId: null,
-            brandId: null,
             priceMin: null,
             priceMax: null,
             categoryId: null,
@@ -310,8 +385,8 @@ function Product() {
     const columns = [
         {
             title: '#',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'id',
+            key: 'id',
             width: '5%',
             render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
         },
@@ -334,9 +409,10 @@ function Product() {
 
         {
             title: 'Giá',
-            dataIndex: 'categoryName',
-            key: 'categoryName',
+            dataIndex: 'price',
+            key: 'price',
             width: '10%',
+            sorter: (a, b) => a.price - b.price,
         },
 
         {
@@ -345,12 +421,7 @@ function Product() {
             key: 'categoryName',
             width: '10%',
         },
-        {
-            title: 'Thương hiệu',
-            dataIndex: 'brandName',
-            key: 'brandName',
-            width: '10%',
-        },
+
         {
             title: 'Số lượng',
             dataIndex: 'quantityTotal',
@@ -359,20 +430,28 @@ function Product() {
             sorter: (a, b) => a.quantityTotal - b.quantityTotal,
 
         },
-        {
-            title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            width: '10%',
-        },
+        // {
+        //     title: 'Ngày tạo',
+        //     dataIndex: 'createdAt',
+        //     key: 'createdAt',
+        //     width: '10%',
+        // },
         {
             title: 'Trạng thái',
-            key: 'deleted',
-            dataIndex: 'deleted',
+            key: 'status',
+            dataIndex: 'status',
             width: '10%',
             render: (text) => (
-                text ? <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#108ee9">Đang bán</Tag>
-                    : <Tag style={{ borderRadius: '4px', fontWeight: '450', padding: '0 4px ' }} color="#f50">Ngừng bán</Tag>
+                <Tag
+                    style={{
+                        borderRadius: '4px',
+                        fontWeight: '450',
+                        padding: '0 4px ',
+                        color: text === 'DANG_HOAT_DONG' ? '#108ee9' : '#f50',
+                    }}
+                >
+                    {text === 'DANG_HOAT_DONG' ? 'Đang hoạt động' : 'Ngừng hoạt động'}
+                </Tag>
             )
         },
         {
@@ -389,8 +468,10 @@ function Product() {
                     </Link>
                     <Switch
                         size="small"
-                        defaultChecked={record.deleted}
-                        onClick={() => handleDelete(record.id)}
+                        // defaultChecked={record.status}
+                        // onClick={() => handleDelete(record.id)}
+                        checked={record.status === 'DANG_HOAT_DONG'}
+                        onChange={() => handleDelete(record.id)}
                     />
 
                 </Space>
@@ -437,6 +518,7 @@ function Product() {
                         />
                     </Col>
                     <Col span={8} style={{ padding: '0 50px' }}>
+
                         <Select
                             style={{
                                 width: '100%',
@@ -451,33 +533,12 @@ function Product() {
                             }
                             value={filters.categoryId}
                             onChange={(value) => handleFilterChange('categoryId', value)}
-                            options={categories.map(item => ({
-                                value: item.id,
-                                label: item.categoryName,
-                            }))}
+                            options={categories}
                         />
+
+
                     </Col>
-                    <Col span={8} style={{ padding: '0 50px' }}>
-                        <Select
-                            style={{
-                                width: '100%',
-                                height: '35px',
-                            }}
-                            allowClear
-                            placeholder="Thương hiệu"
-                            showSearch
-                            filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                            filterSort={(optionA, optionB) =>
-                                (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-                            }
-                            value={filters.brandId}
-                            onChange={(value) => handleFilterChange('brandId', value)}
-                            options={brands.map(item => ({
-                                value: item.id,
-                                label: item.brandName,
-                            }))}
-                        />
-                    </Col>
+
                 </Row>
                 <Row style={{ marginTop: '20px' }}>
                     <Col span={8} style={{ padding: '0 50px' }}>
@@ -495,11 +556,9 @@ function Product() {
                             }
                             value={filters.materialId}
                             onChange={(value) => handleFilterChange('materialId', value)}
-                            options={materials.map(item => ({
-                                value: item.id,
-                                label: item.materialName,
-                            }))}
+                            options={materials}
                         />
+
                     </Col>
                     <Col span={8} style={{ padding: '0 50px' }}>
                         <Select
@@ -516,13 +575,12 @@ function Product() {
                             }
                             value={filters.colorId}
                             onChange={(value) => handleFilterChange('colorId', value)}
-                            options={colors.map(item => ({
-                                value: item.id,
-                                label: item.colorName,
-                            }))}
+                            options={colors}
                         />
+
                     </Col>
                     <Col span={8} style={{ padding: '0 50px' }}>
+
                         <Select
                             style={{
                                 width: '100%',
@@ -537,11 +595,9 @@ function Product() {
                             }
                             value={filters.sizeId}
                             onChange={(value) => handleFilterChange('sizeId', value)}
-                            options={sizes.map(item => ({
-                                value: item.id,
-                                label: item.sizeName,
-                            }))}
+                            options={sizes}
                         />
+
                     </Col>
 
                 </Row>
@@ -601,6 +657,7 @@ function Product() {
                 title={<span style={{ color: '#5a76f3' }}><FileDoneOutlined /> Danh sách sản phẩm</span>}
                 style={{ marginTop: '20px', borderRadius: '10px' }}
             >
+
                 <Table
                     dataSource={products?.map((product, index) => ({
                         ...product,
@@ -608,7 +665,7 @@ function Product() {
                         createdAt: FormatDate(product.createdAt)
                     }))}
 
-                    // loading={loading}
+                    loading={loading}
                     columns={columns}
                     onChange={handleTableChange}
                     pagination={{
@@ -620,6 +677,12 @@ function Product() {
                         showSizeChanger: true,
                     }}></Table >
             </Card>
+            {/* {open.isModal && <ProductModal
+                reacord={open.reacord}
+                hideModal={hideProductModal}
+                isModal={open.isModal}
+                fetchProducts={fetchProducts} />} */}
+
             {open.isModal && <ProductModal
                 reacord={open.reacord}
                 hideModal={hideProductModal}
@@ -634,7 +697,6 @@ export default Product;
 
 const ProductModal = ({ reacord, hideModal, isModal, fetchProducts }) => {
 
-    ////Loại sp
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
@@ -642,35 +704,23 @@ const ProductModal = ({ reacord, hideModal, isModal, fetchProducts }) => {
     }, []);
 
     const fetchCategory = async () => {
+        try {
+            const response = await CategoryService.getAll();
+            console.log('Response from API:', response);
 
-        await CategoryService.findAllByDeletedTrue()
-            .then(response => {
-
-                setCategories(response.data)
-            }).catch(error => {
-                console.error(error);
-            })
+            if (response && response.data) {
+                const categoryOptions = response.data.map(cate => ({
+                    value: cate.id,
+                    label: cate.name,
+                }));
+                setCategories(categoryOptions);
+            } else {
+                console.error('Không có dữ liệu hoặc response.data không chứa thông tin về danh mục.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API: ', error);
+        }
     }
-
-
-    // /thương hiệu
-    const [brands, setBrands] = useState([]);
-
-    useEffect(() => {
-        fetchBrand()
-    }, []);
-    const fetchBrand = async () => {
-
-        await BrandService.findAllByDeletedTrue()
-            .then(response => {
-
-                setBrands(response.data)
-
-            }).catch(error => {
-                console.error(error);
-            })
-    }
-
 
     // /nhà phẩn phối
     const [suppliers, setSuppliers] = useState([]);
@@ -737,21 +787,24 @@ const ProductModal = ({ reacord, hideModal, isModal, fetchProducts }) => {
                     ...reacord,
                 }}
             >
-                <Form.Item label="Tên sản phẩm:" name="productName" rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm!' }]}>
+                <Form.Item label="Tên sản phẩm:" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm!' }]}>
                     <Input placeholder="Nhập tên sản phẩm..." />
                 </Form.Item>
                 <Row>
                     <Col span={11}>
-                        <Form.Item label="Danh mục:" name="categoryName" rules={[{ required: true, message: 'Vui lòng chọn danh mục !' }]}>
+                        <Form.Item
+                            label="Danh mục:"
+                            name="categoryName"
+                            rules={[{ required: true, message: 'Vui lòng chọn danh mục !' }]}
+                        >
                             <Select
                                 showSearch
                                 style={{
                                     width: '100%',
                                 }}
-                                placeholder="Chọn loại sản phẩm"
+                                placeholder="Chọn loại sản phẩm "
                                 filterOption={(input, option) => (option?.label ?? '').includes(input)}
-
-                                options={categories.map(option => ({ value: option.categoryName, label: option.categoryName }))}
+                                options={categories.map(option => ({ value: option.name, label: option.name }))}
                             />
                         </Form.Item>
                     </Col>
@@ -772,26 +825,13 @@ const ProductModal = ({ reacord, hideModal, isModal, fetchProducts }) => {
                     </Col>
                 </Row>
                 <Row>
-                    <Col span={11}>
-                        <Form.Item label="Thương hiệu:" name="brandName" rules={[{ required: true, message: 'Vui lòng chọn thương hiệu !' }]}>
-                            <Select
-                                showSearch
-                                style={{
-                                    width: '100%',
-                                }}
-                                placeholder="Chọn thương hiệu"
-                                filterOption={(input, option) => (option?.label ?? '').includes(input)}
 
-                                options={brands.map(option => ({ value: option.brandName, label: option.brandName }))}
-                            />
-                        </Form.Item>
-                    </Col>
                     <Col span={2}></Col>
                     <Col span={11}>
-                        <Form.Item label="Trạng thái:" name="deleted" initialValue={true}>
+                        <Form.Item label="Trạng thái:" name="status" initialValue="DANG_HOAT_DONG">
                             <Radio.Group name="radiogroup" style={{ float: 'left' }}>
-                                <Radio value={true}>Đang bán</Radio>
-                                <Radio value={false}>Ngừng bán</Radio>
+                                <Radio value="DANG_HOAT_DONG">Đang hoạt động</Radio>
+                                <Radio value="NGUNG_HOAT_DONG">Ngừng hoạt động</Radio>
                             </Radio.Group>
                         </Form.Item>
                     </Col>

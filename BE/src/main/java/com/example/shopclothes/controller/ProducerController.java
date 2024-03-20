@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
+import java.util.List;
 import java.util.Random;
 
 
@@ -149,9 +150,12 @@ public ResponseEntity<?> hienThiPage(@RequestParam(defaultValue = "0") Integer p
     }
 
 
-//    @PutMapping("/delete/{id}")
-//    public ResponseEntity<?> delete(@PathVariable Long id, @RequestBody Producer nhaSanXuat){
-//        nhaSanXuat.setId(id);
-//        return ResponseEntity.ok(producerService.xoa(id));
-//    }
+    @GetMapping("findAllByDeletedTrue")
+    public ResponseEntity<List<Producer>> findByDeletedTrue() {
+
+        List<Producer> supplierList = producerService.findByDeletedTrue();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(supplierList);
+    }
 }

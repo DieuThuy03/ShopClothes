@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const host = "https://provinces.open-api.vn/api/";
+// const host = "https://provinces.open-api.vn/api/";
+const host = "https://vietnam-administrative-division-json-server-swart.vercel.app/province";
+
+// const getProvinces = (depth) => {
+//     return axios.get(`${host}?depth=${depth}`)
+//         .then(response => response.data)
+//         .catch(error => {
+//             console.error('Lỗi khi lấy dữ liệu địa chỉ:', error);
+//             throw error;
+//         });
+// };
 
 const getProvinces = (depth) => {
     return axios.get(`${host}?depth=${depth}`)

@@ -45,57 +45,6 @@ function Supplier() {
         total: 0,
     });
 
-    // const [currentRecordId, setCurrentRecordId] = useState(null);
-
-
-
-    // const fetchSuppliers = async () => {
-    //     try {
-    // setLoading(true);
-
-    //         const response = await SupplierService.getAll(
-    //             pagination.current - 1,
-    //             pagination.pageSize,
-    //             searchName,
-    //             searchPhone,
-    //             searchEmail,
-
-    //             deleted
-    //         );
-    //         console.log(response);
-    //         setSuppliers(response.data);
-    //         setPagination({
-    //             ...pagination,
-    //             total: response.totalCount,
-    //         });
-    //     } catch (error) {
-    //         console.error(error);
-    //     } finally {
-    //         // setLoading(false);
-    //     }
-    // };
-
-    // const fetchSuppliers = async () => {
-    //     try {
-    //         const response = await SupplierService.getAll(
-    //             pagination.current - 1,
-    //             pagination.pageSize,
-    //             searchName
-    //         );
-    //         console.log(response); // Kiểm tra response trong console
-    //         setSuppliers(response.data);
-    //         setPagination({
-    //             ...pagination,
-    //             total: response.totalCount,
-    //         });
-    //     } catch (error) {
-    //         console.error(error);
-    //     } finally {
-    //         // ...
-    //     }
-    // };
-
-
 
     const fetchProducers = async () => {
         try {
@@ -123,7 +72,7 @@ function Supplier() {
                             key: producer.id,
                             id: producer.id,
                             code: producer.code,
-                            name: producer.name,
+                            producerName: producer.producerName,
                             email: producer.email,
                             sdt: producer.sdt,
                             dia_chi: producer.dia_chi,
@@ -154,12 +103,6 @@ function Supplier() {
     };
 
 
-
-
-    // useEffect(() => {
-    //     console.log("Fetching producers...");
-    //     fetchProducers();
-    // }, []);
 
     useEffect(() => {
         console.log("Fetching producers...");
@@ -284,8 +227,8 @@ function Supplier() {
         },
         {
             title: 'Tên nhà sản xuất',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'producerName',
+            key: 'producerName',
             width: '15%',
         },
 
@@ -631,7 +574,7 @@ const ProducerModal = ({ isMode, reacord, hideModal, isModal, fetchProducers, pr
             >
 
 
-                <Form.Item
+                {/* <Form.Item
                     label="Tên:"
                     name="name"
                     rules={[
@@ -668,8 +611,36 @@ const ProducerModal = ({ isMode, reacord, hideModal, isModal, fetchProducers, pr
                     ]}
                 >
                     <Input placeholder="Nhập tên..." />
-                </Form.Item>
+                </Form.Item> */}
 
+                <Form.Item label="Tên:" name="producerName" rules={[{ required: true, message: 'Vui lòng nhập tên kích thước!' }
+                    ,
+                {
+                    validator: (_, value) => {
+                        if (!value) {
+                            return Promise.resolve(); // Không thực hiện validate khi giá trị rỗng
+                        }
+                        const trimmedValue = value.trim();
+                        const lowercaseValue = trimmedValue.toLowerCase();
+                        const isDuplicate = producers.some(
+                            (producers) => producers.producerName.trim().toLowerCase() === lowercaseValue && producers.id !== reacord.id
+                        );
+
+                        if (isDuplicate) {
+                            return Promise.reject('Tên nhà sản xuất đã tồn tại!');
+                        }
+
+                        if (/^\s|\s$/.test(value)) {
+                            return Promise.reject('Tên nhà sản xuất không được chứa dấu cách ở đầu và cuối!');
+                        }
+
+                        return Promise.resolve();
+                    },
+                }
+                    ,
+                ]}>
+                    <Input placeholder="Nhập tên nhà sản xuất..." />
+                </Form.Item>
 
                 <Form.Item
                     label="Email:"

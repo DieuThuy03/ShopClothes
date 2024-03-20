@@ -14,7 +14,7 @@ public interface ProducerServices {
 
     public Page<Producer> pageNSX(Pageable pageable);
 
-    public Page<Producer> pageSearchNSX(String key, Integer status, Pageable pageable);
+    public Page<Producer> pageSearchNSX(String key,Integer status, Pageable pageable);
 
     public Producer add(Producer nhaSanXuat);
 
@@ -22,6 +22,8 @@ public interface ProducerServices {
 
     public Producer xoa( Long id);
 
+
+    public List<Producer> findByDeletedTrue();
 //    List<Producer> findByNhaSanXuatString (List<String> nsxString) ;
 
 //    Page<Producer> getSuppliers(String name, String status, Date dateCreate, Date dateUpdate, Pageable pageable);

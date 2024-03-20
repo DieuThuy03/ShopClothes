@@ -15,7 +15,7 @@ const { TextArea } = Input;
 
 function Material() {
 
-    // const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [open, setOpen] = useState({ isModal: false, isMode: '', reacord: null });
 
@@ -24,6 +24,7 @@ function Material() {
         setOpen({
             isModal: true,
             isMode: mode,
+            record: record,
             reacord: record,
         });
     };
@@ -40,24 +41,76 @@ function Material() {
 
     const [searchText, setSearchText] = useState(null);
 
+
     const fetchMaterials = async () => {
-        // setLoading(true);
+        try {
+            const response = await MaterialService.getAll(
+                pagination.current - 1,
+                pagination.pageSize,
+                // searchName
+            );
+            setLoading(true);
+            console.log('Response:', response);
+            console.log('Status:', response.status);
+            console.log('Data:', response.data);
 
-        await MaterialService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
-            .then(response => {
+            if (response && response.data) {
+                const status = response.status || (response.data && response.data.status);
 
-                setMaterials(response.data);
+                if (status === 200) {
+                    const responseData = response.data;
 
-                setPagination({
-                    ...pagination,
-                    total: response.totalCount,
-                });
-                // setLoading(false);
+                    if (Array.isArray(responseData)) {
+                        console.log('Response Data:', responseData);
+                        const formattedProducers = responseData.map(mate => ({
+                            key: mate.id,
+                            id: mate.id,
+                            code: mate.code,
+                            materialName: mate.materialName,
+                            ghi_chu: mate.ghi_chu,
+                            dateCreate: new Date(mate.dateCreate).toLocaleString(),
+                            dateUpdate: mate.dateUpdate ? new Date(mate.dateUpdate).toLocaleString() : 'N/A',
+                            status: String(mate.status),  // Chuyển đổi thành chuỗi 
+                        }));
+                        setMaterials(formattedProducers);
+                        setPagination({
+                            ...pagination,
+                            total: response.totalCount,
+                        });
+                    } else {
+                        console.error('Dữ liệu không phải là một mảng.');
+                    }
+                } else {
+                    console.error('Trạng thái không thành công: ', status);
+                }
+            } else {
+                console.error('Không có response hoặc response.data.');
+            }
+        } catch ({ response, message }) {
+            console.error('Lỗi khi gọi API: ', response || message);
+        } finally {
+            // ...
+        }
+    };
 
-            }).catch(error => {
-                console.error(error);
-            })
-    }
+    // const fetchMaterials = async () => {
+    //     // setLoading(true);
+
+    //     await MaterialService.getAll(pagination.current - 1, pagination.pageSize, searchText, deleted)
+    //         .then(response => {
+
+    //             setMaterials(response.data);
+
+    //             setPagination({
+    //                 ...pagination,
+    //                 total: response.totalCount,
+    //             });
+    //             // setLoading(false);
+
+    //         }).catch(error => {
+    //             console.error(error);
+    //         })
+    // }
 
     useEffect(() => {
         fetchMaterials();
@@ -135,16 +188,16 @@ function Material() {
     const columns = [
         {
             title: '#',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'id',
+            key: 'id',
             width: '5%',
             render: (value, item, index) => (pagination.current - 1) * pagination.pageSize + index + 1
         },
 
         {
             title: 'Mã',
-            dataIndex: 'materialDescribe',
-            key: 'materialDescribe',
+            dataIndex: 'code',
+            key: 'code',
             width: '19%',
         },
 
@@ -158,9 +211,23 @@ function Material() {
         },
 
         {
+            title: 'Ghi Chú',
+            dataIndex: 'ghi_chu',
+            key: 'ghi_chu',
+            width: '15%',
+        },
+
+        {
             title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
+            dataIndex: 'dateCreate',
+            key: 'dateCreate',
+            width: '15%',
+        },
+
+        {
+            title: 'Ngày sửa',
+            dataIndex: 'dateUpdate',
+            key: 'dateUpdate',
             width: '15%',
         },
         // {
@@ -171,8 +238,8 @@ function Material() {
         // },
         {
             title: 'Trạng thái',
-            key: 'deleted',
-            dataIndex: 'deleted',
+            key: 'status',
+            dataIndex: 'status',
             width: '16%',
             filters: [
                 {
@@ -369,14 +436,14 @@ const MaterialModal = ({ isMode, reacord, hideModal, isModal, fetchMaterials, ma
                     <Input placeholder="Nhập tên chất liệu..." />
                 </Form.Item>
 
-                <Form.Item label="Ghi chú" name="materialDescribe">
+                <Form.Item label="Ghi chú:" name="ghi_chu">
                     <TextArea rows={4} placeholder="Nhập ghi chú..." />
                 </Form.Item>
 
-                <Form.Item label="Trạng thái:" name="deleted" initialValue={true}>
+                <Form.Item label="Trạng thái:" name="status" initialValue="DANG_HOAT_DONG">
                     <Radio.Group name="radiogroup" style={{ float: 'left' }}>
-                        <Radio value={true}>Đang hoạt động</Radio>
-                        <Radio value={false}>Ngừng hoạt động</Radio>
+                        <Radio value="DANG_HOAT_DONG">Đang hoạt động</Radio>
+                        <Radio value="NGUNG_HOAT_DONG">Ngừng hoạt động</Radio>
                     </Radio.Group>
                 </Form.Item>
 
